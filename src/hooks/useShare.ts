@@ -188,26 +188,10 @@ export function useShare(options: UseShareOptions = {}): UseShareReturn {
    * Open share URL in new window/tab
    */
   const openShareUrl = useCallback((url: string): void => {
-    // Check if running in browser
     if (typeof window === 'undefined') return;
 
-    // Check if on mobile for native share sheet
-    if ('share' in navigator && typeof navigator.share === 'function' && /mobile/i.test(navigator.userAgent)) {
-      // Use native share if available on mobile
-      return;
-    }
-
-    // Open in new window with specific dimensions
-    const width = 600;
-    const height = 400;
-    const left = (window.innerWidth - width) / 2;
-    const top = (window.innerHeight - height) / 2;
-
-    window.open(
-      url,
-      'share-window',
-      `width=${width},height=${height},left=${left},top=${top},toolbar=0,status=0`
-    );
+    // Open URL — use window.open which works on both mobile and desktop
+    window.open(url, '_blank');
   }, []);
 
   /**
@@ -223,8 +207,8 @@ export function useShare(options: UseShareOptions = {}): UseShareReturn {
       
       openShareUrl(shareUrl);
       
-      // Track the share
-      await sharePost(postId, 'external', 'whatsapp');
+      // Track the share in background — don't let tracking failure break the share
+      sharePost(postId, 'external', 'whatsapp').catch(() => {});
       
       return true;
     } catch {
@@ -242,8 +226,8 @@ export function useShare(options: UseShareOptions = {}): UseShareReturn {
       
       openShareUrl(shareUrl);
       
-      // Track the share
-      await sharePost(postId, 'external', 'facebook');
+      // Track in background
+      sharePost(postId, 'external', 'facebook').catch(() => {});
       
       return true;
     } catch {
@@ -260,7 +244,6 @@ export function useShare(options: UseShareOptions = {}): UseShareReturn {
   ): Promise<boolean> => {
     try {
       const shareLink = generateShareLink(postId);
-      // Truncate content for Twitter
       const truncatedContent = postContent 
         ? postContent.slice(0, 200) + (postContent.length > 200 ? '...' : '')
         : undefined;
@@ -268,8 +251,8 @@ export function useShare(options: UseShareOptions = {}): UseShareReturn {
       
       openShareUrl(shareUrl);
       
-      // Track the share
-      await sharePost(postId, 'external', 'twitter');
+      // Track in background
+      sharePost(postId, 'external', 'twitter').catch(() => {});
       
       return true;
     } catch {
@@ -284,7 +267,7 @@ export function useShare(options: UseShareOptions = {}): UseShareReturn {
     try {
       const shareLink = generateShareLink(postId);
       
-      // Check if Clipboard API is available
+      // Step 1: Copy to clipboard
       if (navigator.clipboard && navigator.clipboard.writeText) {
         await navigator.clipboard.writeText(shareLink);
       } else {
@@ -299,10 +282,12 @@ export function useShare(options: UseShareOptions = {}): UseShareReturn {
         document.body.removeChild(textArea);
       }
       
-      // Track the share
-      await sharePost(postId, 'external', 'link');
-      
+      // Step 2: Notify success BEFORE tracking (clipboard worked)
       onLinkCopied?.();
+
+      // Step 3: Track the share in background — don't let tracking failure affect the copy
+      sharePost(postId, 'external', 'link').catch(() => {});
+      
       return true;
     } catch {
       setState(prev => ({
@@ -383,8 +368,8 @@ export function useShare(options: UseShareOptions = {}): UseShareReturn {
         url: shareLink,
       });
 
-      // Track as external share
-      await sharePost(postId, 'external', 'other');
+      // Track in background
+      sharePost(postId, 'external', 'other').catch(() => {});
       
       return true;
     } catch (err) {

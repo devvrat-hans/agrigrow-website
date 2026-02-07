@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import dbConnect from '@/lib/mongodb';
 import User from '@/models/User';
 import mongoose from 'mongoose';
+import { calculateUserTrustScore } from '@/lib/trust-score';
 import {
   validateBase64Image,
   isBase64DataUrl,
@@ -50,9 +51,9 @@ export async function GET(
       );
     }
 
-    // Find user by ID - only return public fields
+    // Find user by ID - return public fields + role-specific fields + trust score fields
     const user = await User.findById(id)
-      .select('fullName profileImage role bio state district experienceLevel createdAt')
+      .select('phone fullName profileImage role bio state district experienceLevel language crops interests studentDegree collegeName yearOfStudy studentBackground studentInterests studentPurposes organizationType businessFocusAreas followersCount followingCount createdAt')
       .lean();
 
     if (!user) {
@@ -62,10 +63,26 @@ export async function GET(
       );
     }
 
+    // Compute dynamic trust score
+    const trustScore = await calculateUserTrustScore({
+      userId: user._id.toString(),
+      followersCount: (user as unknown as Record<string, unknown>).followersCount as number || 0,
+      followingCount: (user as unknown as Record<string, unknown>).followingCount as number || 0,
+      createdAt: user.createdAt as Date,
+      experienceLevel: user.experienceLevel as 'beginner' | 'intermediate' | 'experienced' | 'expert',
+      hasBio: !!user.bio,
+      hasProfileImage: !!user.profileImage,
+      cropsCount: ((user as unknown as Record<string, unknown>).crops as string[] || []).length,
+      interestsCount: ((user as unknown as Record<string, unknown>).interests as string[] || []).length,
+    });
+
+    const typedUser = user as unknown as Record<string, unknown>;
+
     return NextResponse.json({
       success: true,
       user: {
         _id: user._id.toString(),
+        phone: typedUser.phone,
         fullName: user.fullName,
         profileImage: user.profileImage,
         role: user.role,
@@ -73,6 +90,24 @@ export async function GET(
         state: user.state,
         district: user.district,
         experienceLevel: user.experienceLevel,
+        language: typedUser.language || 'en',
+        // Farmer-specific fields
+        crops: typedUser.crops || [],
+        interests: typedUser.interests || [],
+        // Student-specific fields
+        studentDegree: typedUser.studentDegree,
+        collegeName: typedUser.collegeName,
+        yearOfStudy: typedUser.yearOfStudy,
+        studentBackground: typedUser.studentBackground,
+        studentInterests: typedUser.studentInterests || [],
+        studentPurposes: typedUser.studentPurposes || [],
+        // Business-specific fields
+        organizationType: typedUser.organizationType,
+        businessFocusAreas: typedUser.businessFocusAreas || [],
+        // Counts & meta
+        followersCount: typedUser.followersCount || 0,
+        followingCount: typedUser.followingCount || 0,
+        trustScore,
         createdAt: user.createdAt,
       },
     });

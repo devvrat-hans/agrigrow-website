@@ -8,7 +8,6 @@ import {
   IconMessageCheck,
   IconActivityHeartbeat,
   IconUserCheck,
-  IconX,
   IconStar,
 } from '@tabler/icons-react';
 import {
@@ -123,48 +122,43 @@ export function TrustScoreSection({
       {/* Trust Score Modal */}
       <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>
         <DialogContent
+          variant="mobile-sheet"
+          hideCloseButton={true}
           className={cn(
             'w-[calc(100vw-2rem)] max-w-sm',
             'p-0 overflow-hidden',
             'bg-white dark:bg-gray-900',
-            'border border-gray-200 dark:border-gray-800'
+            'border border-gray-200 dark:border-gray-800',
+            // Mobile: full width bottom sheet
+            'sm:w-[calc(100vw-2rem)]'
           )}
         >
           {/* Header */}
           <DialogHeader className="px-5 pt-5 pb-4">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-3">
-                <div className={cn(
-                  'w-12 h-12 rounded-full flex items-center justify-center',
-                  trustLevel.bgColor
-                )}>
-                  <IconShieldCheck className={cn('w-6 h-6', trustLevel.color)} />
-                </div>
-                <div>
-                  <DialogTitle className="text-lg font-semibold text-gray-900 dark:text-white">
-                    Your Trust Score
-                  </DialogTitle>
-                  <div className="flex items-center gap-2 mt-0.5">
-                    <span className={cn('text-2xl font-bold', trustLevel.color)}>
-                      {score}
-                    </span>
-                    <span className={cn(
-                      'px-2 py-0.5 rounded-full text-xs font-medium',
-                      trustLevel.bgColor,
-                      trustLevel.color
-                    )}>
-                      {trustLevel.label}
-                    </span>
-                  </div>
+            <div className="flex items-center gap-3">
+              <div className={cn(
+                'w-12 h-12 rounded-full flex items-center justify-center',
+                trustLevel.bgColor
+              )}>
+                <IconShieldCheck className={cn('w-6 h-6', trustLevel.color)} />
+              </div>
+              <div>
+                <DialogTitle className="text-lg font-semibold text-gray-900 dark:text-white">
+                  Your Trust Score
+                </DialogTitle>
+                <div className="flex items-center gap-2 mt-0.5">
+                  <span className={cn('text-2xl font-bold', trustLevel.color)}>
+                    {score}
+                  </span>
+                  <span className={cn(
+                    'px-2 py-0.5 rounded-full text-xs font-medium',
+                    trustLevel.bgColor,
+                    trustLevel.color
+                  )}>
+                    {trustLevel.label}
+                  </span>
                 </div>
               </div>
-              <button
-                onClick={() => setIsModalOpen(false)}
-                className="p-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
-                aria-label="Close"
-              >
-                <IconX className="w-5 h-5 text-gray-500" />
-              </button>
             </div>
           </DialogHeader>
 

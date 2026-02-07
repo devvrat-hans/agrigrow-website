@@ -1,9 +1,52 @@
 'use client';
 
 import { useState, useCallback, useRef, useEffect, KeyboardEvent } from 'react';
-import { IconSend, IconLoader2 } from '@tabler/icons-react';
+import { IconSend, IconLoader2, IconMicrophone, IconMicrophoneOff } from '@tabler/icons-react';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
+
+// Web Speech API type declarations
+interface SpeechRecognitionEvent extends Event {
+  readonly results: SpeechRecognitionResultList;
+  readonly resultIndex: number;
+}
+
+interface SpeechRecognitionResultList {
+  readonly length: number;
+  item(index: number): SpeechRecognitionResult;
+  [index: number]: SpeechRecognitionResult;
+}
+
+interface SpeechRecognitionResult {
+  readonly length: number;
+  readonly isFinal: boolean;
+  item(index: number): SpeechRecognitionAlternative;
+  [index: number]: SpeechRecognitionAlternative;
+}
+
+interface SpeechRecognitionAlternative {
+  readonly transcript: string;
+  readonly confidence: number;
+}
+
+interface SpeechRecognition extends EventTarget {
+  continuous: boolean;
+  interimResults: boolean;
+  lang: string;
+  start(): void;
+  stop(): void;
+  abort(): void;
+  onresult: ((event: SpeechRecognitionEvent) => void) | null;
+  onerror: ((event: Event) => void) | null;
+  onend: (() => void) | null;
+}
+
+declare global {
+  interface Window {
+    SpeechRecognition?: new () => SpeechRecognition;
+    webkitSpeechRecognition?: new () => SpeechRecognition;
+  }
+}
 
 // TYPES
 
@@ -47,6 +90,72 @@ export function ChatInput({
   const [message, setMessage] = useState('');
   const textareaRef = useRef<HTMLTextAreaElement>(null);
 
+  // Voice-to-text state
+  const [isListening, setIsListening] = useState(false);
+  const [voiceSupported, setVoiceSupported] = useState(false);
+  const recognitionRef = useRef<SpeechRecognition | null>(null);
+
+  // Check if voice recognition is supported
+  useEffect(() => {
+    const SpeechRecognitionAPI = window.SpeechRecognition || window.webkitSpeechRecognition;
+    setVoiceSupported(!!SpeechRecognitionAPI);
+  }, []);
+
+  // Toggle voice-to-text
+  const toggleVoiceToText = useCallback(() => {
+    if (isListening) {
+      if (recognitionRef.current) {
+        recognitionRef.current.stop();
+      }
+      setIsListening(false);
+      return;
+    }
+
+    const SpeechRecognitionAPI = window.SpeechRecognition || window.webkitSpeechRecognition;
+    if (!SpeechRecognitionAPI) return;
+
+    const recognition = new SpeechRecognitionAPI();
+    recognition.continuous = true;
+    recognition.interimResults = true;
+    recognition.lang = 'en-IN';
+
+    recognition.onresult = (event: SpeechRecognitionEvent) => {
+      let finalTranscript = '';
+
+      for (let i = event.resultIndex; i < event.results.length; i++) {
+        const transcript = event.results[i][0].transcript;
+        if (event.results[i].isFinal) {
+          finalTranscript += transcript + ' ';
+        }
+      }
+
+      if (finalTranscript) {
+        setMessage(prev => prev + finalTranscript);
+      }
+    };
+
+    recognition.onerror = () => {
+      setIsListening(false);
+    };
+
+    recognition.onend = () => {
+      setIsListening(false);
+    };
+
+    recognitionRef.current = recognition;
+    recognition.start();
+    setIsListening(true);
+  }, [isListening]);
+
+  // Cleanup recognition on unmount
+  useEffect(() => {
+    return () => {
+      if (recognitionRef.current) {
+        recognitionRef.current.abort();
+      }
+    };
+  }, []);
+
   // Auto-resize textarea based on content
   const adjustHeight = useCallback(() => {
     const textarea = textareaRef.current;
@@ -84,8 +193,8 @@ export function ChatInput({
   // Handle keyboard events
   const handleKeyDown = useCallback(
     (e: KeyboardEvent<HTMLTextAreaElement>) => {
-      // Cmd/Ctrl + Enter to send
-      if ((e.metaKey || e.ctrlKey) && e.key === 'Enter') {
+      // Enter to send (without Shift for newline)
+      if (e.key === 'Enter' && !e.shiftKey) {
         e.preventDefault();
         handleSend();
       }
@@ -151,9 +260,37 @@ export function ChatInput({
           )}
         />
 
+        {/* Voice Input Button */}
+        {voiceSupported && (
+          <Button
+            type="button"
+            variant="ghost"
+            size="sm"
+            onClick={toggleVoiceToText}
+            className={cn(
+              'flex-shrink-0',
+              'min-w-[44px] min-h-[44px] p-0',
+              'rounded-full',
+              'active:scale-[0.95] transition-transform',
+              isListening
+                ? 'bg-red-500 hover:bg-red-600 text-white animate-pulse'
+                : 'bg-gray-200 dark:bg-gray-700 text-gray-500 hover:bg-gray-300 dark:hover:bg-gray-600',
+              'focus:ring-0 focus:outline-none focus-visible:ring-0'
+            )}
+            aria-label={isListening ? 'Stop voice input' : 'Start voice input'}
+          >
+            {isListening ? (
+              <IconMicrophoneOff className="w-5 h-5" />
+            ) : (
+              <IconMicrophone className="w-5 h-5" />
+            )}
+          </Button>
+        )}
+
         {/* Send Button - Touch friendly with feedback */}
         <Button
           type="button"
+          variant="ghost"
           size="sm"
           onClick={handleSend}
           disabled={!canSend}
@@ -163,9 +300,10 @@ export function ChatInput({
             'rounded-full',
             'active:scale-[0.95] transition-transform',
             canSend
-              ? 'bg-primary-600 hover:bg-primary-700 text-white'
-              : 'bg-gray-200 dark:bg-gray-700 text-gray-400',
-            'focus:ring-0 focus:outline-none focus-visible:ring-0'
+              ? 'bg-green-600 hover:bg-green-700 text-white'
+              : 'bg-gray-200 dark:bg-gray-700 text-gray-400 hover:bg-gray-200 dark:hover:bg-gray-700',
+            'focus:ring-0 focus:outline-none focus-visible:ring-0',
+            'disabled:opacity-100'
           )}
         >
           {loading ? (
@@ -180,7 +318,7 @@ export function ChatInput({
       <div className="flex items-center justify-between mt-1.5 px-1">
         {/* Keyboard Hint - Hide on mobile */}
         <span className="hidden sm:inline text-xs text-gray-400 dark:text-gray-500">
-          Press <kbd className="px-1 py-0.5 rounded bg-gray-100 dark:bg-gray-800 text-xs">⌘</kbd> + <kbd className="px-1 py-0.5 rounded bg-gray-100 dark:bg-gray-800 text-xs">↵</kbd> to send
+          Press <kbd className="px-1 py-0.5 rounded bg-gray-100 dark:bg-gray-800 text-xs">↵</kbd> to send, <kbd className="px-1 py-0.5 rounded bg-gray-100 dark:bg-gray-800 text-xs">Shift</kbd> + <kbd className="px-1 py-0.5 rounded bg-gray-100 dark:bg-gray-800 text-xs">↵</kbd> for new line
         </span>
 
         {/* Character Count */}

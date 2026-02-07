@@ -244,16 +244,14 @@ export async function GET(request: NextRequest) {
       success: true,
       data: postsWithAuthors,
       hasMore,
+      // Always include nextCursor for infinite scroll support
+      nextCursor: hasMore && postsToReturn.length > 0
+        ? postsToReturn[postsToReturn.length - 1]._id?.toString()
+        : null,
     };
 
-    // Include pagination info
-    if (cursor) {
-      // Cursor-based pagination response
-      response.nextCursor = hasMore && postsToReturn.length > 0 
-        ? postsToReturn[postsToReturn.length - 1]._id?.toString()
-        : null;
-    } else {
-      // Offset-based pagination response
+    // Include offset pagination info when not using cursor
+    if (!cursor) {
       response.pagination = {
         page,
         limit,

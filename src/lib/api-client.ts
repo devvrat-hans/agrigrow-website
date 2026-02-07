@@ -653,9 +653,9 @@ export async function sharePost(
  */
 export function generateShareLink(postId: string): string {
   if (typeof window === 'undefined') {
-    return `/posts/${postId}`;
+    return `/post/${postId}`;
   }
-  return `${window.location.origin}/posts/${postId}`;
+  return `${window.location.origin}/post/${postId}`;
 }
 
 /**

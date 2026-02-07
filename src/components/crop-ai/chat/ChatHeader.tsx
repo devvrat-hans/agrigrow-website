@@ -12,6 +12,8 @@ export interface ChatHeaderProps {
   onClose?: () => void;
   /** Left action element (e.g., back button) */
   leftAction?: React.ReactNode;
+  /** Right action element (e.g., history button) — rendered before close button */
+  rightAction?: React.ReactNode;
   /** Additional CSS classes */
   className?: string;
 }
@@ -26,6 +28,7 @@ export function ChatHeader({
   title = 'Ask AI',
   onClose,
   leftAction,
+  rightAction,
   className,
 }: ChatHeaderProps) {
   return (
@@ -56,26 +59,29 @@ export function ChatHeader({
         </h2>
       </div>
 
-      {/* Right Side - Close Button */}
-      {onClose && (
-        <button
-          type="button"
-          onClick={onClose}
-          className={cn(
-            'flex items-center justify-center',
-            'min-w-[44px] min-h-[44px]',
-            'rounded-full',
-            'text-gray-500 dark:text-gray-400',
-            'hover:bg-gray-100 dark:hover:bg-gray-800',
-            'active:bg-gray-200 dark:active:bg-gray-700',
-            'transition-colors duration-150',
-            'focus:outline-none focus:ring-2 focus:ring-primary-500/20'
-          )}
-          aria-label="Close chat"
-        >
-          <IconX className="w-5 h-5" />
-        </button>
-      )}
+      {/* Right Side - Actions & Close Button */}
+      <div className="flex items-center gap-1">
+        {rightAction}
+        {onClose && (
+          <button
+            type="button"
+            onClick={onClose}
+            className={cn(
+              'flex items-center justify-center',
+              'min-w-[44px] min-h-[44px]',
+              'rounded-full',
+              'text-gray-500 dark:text-gray-400',
+              'hover:bg-gray-100 dark:hover:bg-gray-800',
+              'active:bg-gray-200 dark:active:bg-gray-700',
+              'transition-colors duration-150',
+              'focus:outline-none focus:ring-2 focus:ring-primary-500/20'
+            )}
+            aria-label="Close chat"
+          >
+            <IconX className="w-5 h-5" />
+          </button>
+        )}
+      </div>
     </div>
   );
 }

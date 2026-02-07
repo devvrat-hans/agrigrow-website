@@ -23,6 +23,8 @@ import {
   IconBookmarkFilled,
   IconChartBar,
   IconTrash,
+  IconVolume3,
+  IconVolume,
 } from '@tabler/icons-react';
 import { cn } from '@/lib/utils';
 import { trackRender } from '@/lib/performance';
@@ -51,6 +53,7 @@ import { ReportModal } from './ReportModal';
 import { PostInsights } from './PostInsights';
 import { useLike } from '@/hooks/useLike';
 import { useShare } from '@/hooks/useShare';
+import { useMuteUser } from '@/hooks/useMuteUser';
 import { generateShareLink } from '@/lib/api-client';
 import { ResponsiveImage, isBase64Image } from '@/components/common';
 
@@ -122,6 +125,8 @@ interface FeedItemCardProps {
   onDelete?: (postId: string) => Promise<boolean>;
   onSave?: (postId: string) => Promise<{ isSaved: boolean; message: string } | null>;
   isPostSaved?: (postId: string) => boolean;
+  /** Callback when a user is muted (to hide their posts from feed) */
+  onMuteUser?: (authorId: string) => void;
   className?: string;
 }
 
@@ -370,6 +375,7 @@ function FeedItemCardComponent({
   onDelete,
   onSave,
   isPostSaved,
+  onMuteUser,
   className,
 }: FeedItemCardProps) {
   // Track renders in development
@@ -391,9 +397,12 @@ function FeedItemCardComponent({
   const [localIsSaved, setLocalIsSaved] = useState(item.isSaved ?? false);
   const [portalContainer, setPortalContainer] = useState<HTMLElement | null>(null);
 
-  // Setup portal container on mount
+  // Setup portal container on mount & cleanup timers on unmount
   useEffect(() => {
     setPortalContainer(document.body);
+    return () => {
+      if (muteToastTimerRef.current) clearTimeout(muteToastTimerRef.current);
+    };
   }, []);
 
   // Comment section ref for scrolling
@@ -415,6 +424,15 @@ function FeedItemCardComponent({
 
   // Check if current user is the post author
   const isOwnPost = currentUserId && authorId && currentUserId === authorId;
+
+  // Mute user hook — no auto-check on mount to avoid N API calls per feed load
+  // Mute status is checked lazily when the dropdown menu is opened
+  const { muteUser, unmuteUser, isMuted: isAuthorMuted, isLoading: isMuteLoading, checkMuteStatus } = useMuteUser();
+
+  // Toast state for mute confirmation
+  const [muteToastMessage, setMuteToastMessage] = useState<string | null>(null);
+  const muteToastTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const hasCheckedMuteRef = useRef(false);
 
   // Get like state from hook or item
   const likeState = getLikeState(postId);
@@ -647,7 +665,13 @@ function FeedItemCardComponent({
           {/* Post Type Icon and More Options */}
           <div className="flex items-center gap-1">
             {/* More Options Dropdown */}
-            <DropdownMenu>
+            <DropdownMenu onOpenChange={(open) => {
+              // Lazy-check mute status when dropdown is opened for the first time
+              if (open && !isOwnPost && authorId && !hasCheckedMuteRef.current) {
+                hasCheckedMuteRef.current = true;
+                checkMuteStatus(authorId);
+              }
+            }}>
             <DropdownMenuTrigger asChild>
               <button 
                 className="p-2.5 min-w-[44px] min-h-[44px] rounded-full hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors active:scale-95 flex items-center justify-center"
@@ -675,6 +699,43 @@ function FeedItemCardComponent({
                 <DropdownMenuItem onClick={() => onHide(postId)}>
                   <IconEyeOff size={16} className="mr-2" />
                   Hide this post
+                </DropdownMenuItem>
+              )}
+              {!isOwnPost && (
+                <DropdownMenuItem
+                  disabled={isMuteLoading}
+                  onClick={async () => {
+                    if (isAuthorMuted) {
+                      const success = await unmuteUser(authorId);
+                      if (success) {
+                        // Clear any existing timer
+                        if (muteToastTimerRef.current) clearTimeout(muteToastTimerRef.current);
+                        setMuteToastMessage(`${authorName} has been unmuted`);
+                        muteToastTimerRef.current = setTimeout(() => setMuteToastMessage(null), 3000);
+                      }
+                    } else {
+                      const success = await muteUser(authorId);
+                      if (success) {
+                        // Clear any existing timer
+                        if (muteToastTimerRef.current) clearTimeout(muteToastTimerRef.current);
+                        setMuteToastMessage(`${authorName} has been muted`);
+                        muteToastTimerRef.current = setTimeout(() => setMuteToastMessage(null), 3000);
+                        onMuteUser?.(authorId);
+                      }
+                    }
+                  }}
+                >
+                  {isAuthorMuted ? (
+                    <>
+                      <IconVolume size={16} className="mr-2" />
+                      Unmute this user
+                    </>
+                  ) : (
+                    <>
+                      <IconVolume3 size={16} className="mr-2" />
+                      Mute this user
+                    </>
+                  )}
                 </DropdownMenuItem>
               )}
               {isOwnPost && onDelete && (
@@ -978,6 +1039,17 @@ function FeedItemCardComponent({
               ))}
             </div>
           )}
+        </div>,
+        portalContainer
+      )}
+
+      {/* Mute toast notification */}
+      {muteToastMessage && portalContainer && createPortal(
+        <div className="fixed bottom-20 left-1/2 -translate-x-1/2 z-[110] animate-in fade-in slide-in-from-bottom-4 duration-300">
+          <div className="bg-gray-900 dark:bg-gray-100 text-white dark:text-gray-900 text-sm font-medium px-4 py-2.5 rounded-lg shadow-lg flex items-center gap-2">
+            <IconVolume3 size={16} />
+            {muteToastMessage}
+          </div>
         </div>,
         portalContainer
       )}

@@ -195,19 +195,17 @@ export function ShareModal({
                   text: truncateText(post.content, 200),
                   url: generateShareLink(post._id),
                 });
-                // Track the share
-                await sharePost(post._id, 'external', 'other');
+                // Track the share in background
+                sharePost(post._id, 'external', 'other').catch(() => {});
               } catch (err) {
-                // User cancelled or error
+                // User cancelled — not an error
                 if ((err as Error).name !== 'AbortError') {
                   console.error('Native share failed:', err);
                 }
               }
             } else {
-              // Fallback: open in new window
-              const shareUrl = generateShareLink(post._id);
-              window.open(shareUrl, '_blank');
-              await sharePost(post._id, 'external', 'other');
+              // Fallback: copy the link to clipboard
+              await copyShareLink(post._id);
             }
             break;
         }

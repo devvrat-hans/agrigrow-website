@@ -1,6 +1,5 @@
 'use client';
 
-import { Button } from '@/components/ui/button';
 import { SectionHeader, InfoCard } from '@/components/common';
 import { spacing, containerMaxWidth } from '@/lib/design-tokens';
 

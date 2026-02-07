@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect, useCallback } from 'react';
+import { useRouter } from 'next/navigation';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -48,6 +49,7 @@ interface MyPostsCardProps {
  * Profile card showing user's posts with delete functionality
  */
 export function MyPostsCard({ userPhone, className }: MyPostsCardProps) {
+  const router = useRouter();
   const [posts, setPosts] = useState<PostData[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -59,11 +61,30 @@ export function MyPostsCard({ userPhone, className }: MyPostsCardProps) {
     try {
       setIsLoading(true);
       setError(null);
-      const response = await fetch(`/api/posts?phone=${encodeURIComponent(userPhone)}&limit=50`);
+      const response = await fetch(
+        `/api/posts?phone=${encodeURIComponent(userPhone)}&limit=50&sortBy=newest`,
+        {
+          headers: {
+            'x-user-phone': userPhone,
+          },
+        }
+      );
       const data = await response.json();
 
       if (data.success) {
-        setPosts(data.posts || []);
+        // API returns posts in `data` field with `_id` as the identifier
+        const rawPosts = data.data || [];
+        setPosts(
+          rawPosts.map((p: Record<string, unknown>) => ({
+            id: (p._id as string) || (p.id as string),
+            content: p.content as string,
+            postType: p.postType as string,
+            createdAt: p.createdAt as string,
+            likesCount: (p.likesCount as number) || 0,
+            commentsCount: (p.commentsCount as number) || 0,
+            images: (p.images as string[]) || [],
+          }))
+        );
       } else {
         setError(data.error || 'Failed to fetch posts');
       }
@@ -168,7 +189,11 @@ export function MyPostsCard({ userPhone, className }: MyPostsCardProps) {
             {displayedPosts.map((post) => (
               <div
                 key={post.id}
-                className="flex items-start gap-3 p-3 rounded-lg bg-gray-50 dark:bg-gray-800/50 border border-gray-100 dark:border-gray-700"
+                className="flex items-start gap-3 p-3 rounded-lg bg-gray-50 dark:bg-gray-800/50 border border-gray-100 dark:border-gray-700 cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
+                onClick={() => router.push(`/post/${post.id}`)}
+                role="button"
+                tabIndex={0}
+                onKeyDown={(e) => { if (e.key === 'Enter') router.push(`/post/${post.id}`); }}
               >
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-2 mb-1 flex-wrap">
@@ -200,7 +225,7 @@ export function MyPostsCard({ userPhone, className }: MyPostsCardProps) {
                   variant="ghost"
                   size="sm"
                   className="text-red-500 hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20 p-2 h-auto"
-                  onClick={() => setDeletePostId(post.id)}
+                  onClick={(e) => { e.stopPropagation(); setDeletePostId(post.id); }}
                 >
                   <IconTrash className="w-4 h-4" />
                 </Button>

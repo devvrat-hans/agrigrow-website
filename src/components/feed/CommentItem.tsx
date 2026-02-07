@@ -63,7 +63,7 @@ interface CommentItemProps {
   currentUserId?: string;
   isReply?: boolean;
   onLike?: (commentId: string, isLiked: boolean, count: number) => Promise<boolean>;
-  onReply?: (commentId: string, content: string) => Promise<unknown>;
+  onReply?: (commentId: string) => void;
   onMarkHelpful?: (commentId: string) => Promise<unknown>;
   onEdit?: (commentId: string, content: string) => Promise<unknown>;
   onDelete?: (commentId: string) => Promise<boolean>;
@@ -113,7 +113,7 @@ function CommentItemComponent({
   currentUserId,
   isReply = false,
   onLike,
-  onReply: _onReply,  // Preserved for nested reply functionality
+  onReply,
   onMarkHelpful,
   onEdit,
   onDelete,
@@ -161,7 +161,12 @@ function CommentItemComponent({
    * Handle reply button click
    */
   const handleReplyClick = () => {
-    setShowReplyInput(!showReplyInput);
+    const newShowReply = !showReplyInput;
+    setShowReplyInput(newShowReply);
+    // Notify parent to set replyingTo state — this makes replyInputComponent render
+    if (newShowReply && onReply) {
+      onReply(comment._id);
+    }
   };
 
   /**
@@ -524,6 +529,12 @@ function commentItemPropsAreEqual(
     prevProps.isReply !== nextProps.isReply ||
     prevProps.className !== nextProps.className
   ) {
+    return false;
+  }
+
+  // Compare replyInputComponent presence — when the user clicks Reply,
+  // the parent passes a non-null component; we must re-render to show it.
+  if (!!prevProps.replyInputComponent !== !!nextProps.replyInputComponent) {
     return false;
   }
   

@@ -83,9 +83,59 @@ function Avatar({ role }: AvatarProps) {
 
 // MARKDOWN RENDERER (Simple)
 
+/**
+ * Parse inline markdown (bold, italic, inline code) into React nodes.
+ * Handles **bold**, *italic*, and `code` patterns.
+ */
+function parseInline(text: string, keyPrefix: string = ''): React.ReactNode[] {
+  const result: React.ReactNode[] = [];
+  // Match bold (**text**), italic (*text*), or inline code (`text`)
+  const pattern = /(\*\*(.+?)\*\*)|(\*([^*]+?)\*)|(`([^`]+?)`)/g;
+  let lastIndex = 0;
+  let match: RegExpExecArray | null;
+
+  while ((match = pattern.exec(text)) !== null) {
+    // Add plain text before this match
+    if (match.index > lastIndex) {
+      result.push(text.slice(lastIndex, match.index));
+    }
+
+    if (match[1]) {
+      // Bold **text**
+      result.push(<strong key={`${keyPrefix}b${match.index}`}>{match[2]}</strong>);
+    } else if (match[3]) {
+      // Italic *text* (single asterisk, but NOT bullet markers)
+      result.push(<em key={`${keyPrefix}i${match.index}`}>{match[4]}</em>);
+    } else if (match[5]) {
+      // Inline code `text`
+      result.push(
+        <code
+          key={`${keyPrefix}c${match.index}`}
+          className="px-1 py-0.5 rounded bg-gray-100 dark:bg-gray-800 text-sm font-mono"
+        >
+          {match[6]}
+        </code>
+      );
+    }
+
+    lastIndex = match.index + match[0].length;
+  }
+
+  // Add remaining text after last match
+  if (lastIndex < text.length) {
+    result.push(text.slice(lastIndex));
+  }
+
+  return result.length > 0 ? result : [text];
+}
+
+/**
+ * Render markdown content into React nodes.
+ * Supports code blocks, headings, bullets, numbered lists,
+ * bold, italic, and inline code.
+ */
 function renderMarkdown(content: string): React.ReactNode {
-  // Simple markdown rendering
-  // Handle code blocks
+  // Handle code blocks first
   const parts = content.split(/```(\w+)?\n?([\s\S]*?)```/g);
   const elements: React.ReactNode[] = [];
 
@@ -107,74 +157,59 @@ function renderMarkdown(content: string): React.ReactNode {
       continue;
     }
 
-    // Language identifier
+    // Language identifier — skip
     if (i % 3 === 1) continue;
 
-    // Regular text
+    // Regular text sections
     if (part) {
-      // Handle inline formatting
       const lines = part.split('\n');
       lines.forEach((line, lineIndex) => {
-        // Bold text
-        let processedLine: React.ReactNode = line;
-        const boldPattern = /\*\*(.+?)\*\*/g;
-        if (boldPattern.test(line)) {
-          const lineParts = line.split(boldPattern);
-          processedLine = lineParts.map((p, pi) =>
-            pi % 2 === 1 ? (
-              <strong key={pi}>{p}</strong>
-            ) : (
-              p
-            )
+        const key = `${i}-${lineIndex}`;
+        const trimmed = line.trim();
+
+        // Headings (process before inline to avoid false matches)
+        if (trimmed.startsWith('### ')) {
+          elements.push(
+            <h4 key={key} className="font-semibold text-gray-900 dark:text-white mt-2 mb-1">
+              {parseInline(trimmed.slice(4), key)}
+            </h4>
+          );
+        } else if (trimmed.startsWith('## ')) {
+          elements.push(
+            <h3 key={key} className="font-bold text-gray-900 dark:text-white mt-2 mb-1">
+              {parseInline(trimmed.slice(3), key)}
+            </h3>
           );
         }
-
-        // Bullet points
-        if (line.trim().startsWith('- ') || line.trim().startsWith('* ')) {
+        // Bullet points (- or *)
+        else if (trimmed.startsWith('- ') || trimmed.startsWith('* ')) {
+          const bulletContent = trimmed.slice(2);
           elements.push(
-            <li key={`${i}-${lineIndex}`} className="ml-4 list-disc">
-              {typeof processedLine === 'string'
-                ? processedLine.slice(2)
-                : processedLine}
+            <li key={key} className="ml-4 list-disc">
+              {parseInline(bulletContent, key)}
             </li>
           );
         }
         // Numbered lists
-        else if (/^\d+\.\s/.test(line.trim())) {
+        else if (/^\d+\.\s/.test(trimmed)) {
+          const listContent = trimmed.replace(/^\d+\.\s/, '');
           elements.push(
-            <li key={`${i}-${lineIndex}`} className="ml-4 list-decimal">
-              {typeof processedLine === 'string'
-                ? processedLine.replace(/^\d+\.\s/, '')
-                : processedLine}
+            <li key={key} className="ml-4 list-decimal">
+              {parseInline(listContent, key)}
             </li>
           );
         }
-        // Headings
-        else if (line.startsWith('### ')) {
-          elements.push(
-            <h4 key={`${i}-${lineIndex}`} className="font-semibold text-gray-900 dark:text-white mt-2 mb-1">
-              {line.slice(4)}
-            </h4>
-          );
-        }
-        else if (line.startsWith('## ')) {
-          elements.push(
-            <h3 key={`${i}-${lineIndex}`} className="font-bold text-gray-900 dark:text-white mt-2 mb-1">
-              {line.slice(3)}
-            </h3>
-          );
-        }
         // Regular paragraph
-        else if (line.trim()) {
+        else if (trimmed) {
           elements.push(
-            <p key={`${i}-${lineIndex}`} className="mb-1">
-              {processedLine}
+            <p key={key} className="mb-1">
+              {parseInline(line, key)}
             </p>
           );
         }
         // Empty line
         else {
-          elements.push(<br key={`${i}-${lineIndex}`} />);
+          elements.push(<br key={key} />);
         }
       });
     }
@@ -240,7 +275,7 @@ export function ChatMessage({
           'max-w-[85%] sm:max-w-[75%]',
           'px-3 py-2 sm:px-4 sm:py-3',
           isUser
-            ? 'bg-primary-600 text-white rounded-2xl rounded-br-sm'
+            ? 'bg-green-600 text-white rounded-2xl rounded-br-sm'
             : 'bg-gray-100 dark:bg-gray-800 text-gray-900 dark:text-white rounded-2xl rounded-bl-sm'
         )}
       >

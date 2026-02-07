@@ -1229,7 +1229,7 @@ export function CreateGroupForm({ className }: CreateGroupFormProps) {
       const response = await apiClient.post<{
         success: boolean;
         data: { _id: string; slug: string };
-      }>('/api/groups', {
+      }>('/groups', {
         name: formData.name,
         groupType: formData.groupType,
         description: formData.description || undefined,

@@ -128,6 +128,9 @@ export default function HomePage() {
   const [userRole, setUserRole] = useState<string>('farmer');
   const [userLocation, setUserLocation] = useState<{ state?: string; district?: string } | undefined>();
   
+  // Track muted users for optimistic feed filtering
+  const [mutedUserIds, setMutedUserIds] = useState<Set<string>>(new Set());
+
   // Ref for scrolling to top
   const feedContainerRef = useRef<HTMLDivElement>(null);
 
@@ -318,8 +321,21 @@ export default function HomePage() {
     refresh();
   }, [refresh]);
 
-  // Convert posts to FeedItemData format
-  const feedItems: FeedItemData[] = posts.map(post => ({
+  /**
+   * Handle muting a user — optimistically hide their posts from the feed
+   */
+  const handleMuteUser = useCallback((authorId: string) => {
+    setMutedUserIds(prev => {
+      const next = new Set(prev);
+      next.add(authorId);
+      return next;
+    });
+  }, []);
+
+  // Convert posts to FeedItemData format, filtering out muted users' posts
+  const feedItems: FeedItemData[] = posts
+    .filter(post => !mutedUserIds.has(post.author._id))
+    .map(post => ({
     id: post._id,
     _id: post._id,
     type: post.postType,
@@ -542,17 +558,8 @@ export default function HomePage() {
               onRefresh={refresh}
               onLike={handleLike}
               onDelete={handleDeletePost}
+              onMuteUser={handleMuteUser}
             />
-          )}
-
-          {/* Load More Loading Indicator at bottom */}
-          {loading && posts.length > 0 && (
-            <div className="flex justify-center py-6">
-              <div className="flex items-center gap-2 text-muted-foreground">
-                <LoadingSpinner size="sm" />
-                <span className="text-sm">Loading more posts...</span>
-              </div>
-            </div>
           )}
         </FeedErrorBoundary>
       </main>

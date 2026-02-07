@@ -5,7 +5,7 @@
  * automatic rollback on error, and loading/error state management.
  */
 
-import { useState, useCallback, useRef } from 'react';
+import { useState, useCallback, useRef, useEffect } from 'react';
 import axios from 'axios';
 import type { FollowActionResponse } from '@/types/follow';
 
@@ -91,6 +91,14 @@ export function useFollow(options: UseFollowOptions = {}): UseFollowReturn {
   // Ref for mounted state
   const mountedRef = useRef(true);
 
+  // Cleanup on unmount
+  useEffect(() => {
+    mountedRef.current = true;
+    return () => {
+      mountedRef.current = false;
+    };
+  }, []);
+
   /**
    * Update action state for a specific user
    */
@@ -146,22 +154,24 @@ export function useFollow(options: UseFollowOptions = {}): UseFollowReturn {
 
       if (mountedRef.current) {
         updateActionState(userPhone, { isLoading: false, error: null });
-        const isPending = response.data.follow?.status === 'pending';
-        onFollowSuccess?.(userPhone, isPending);
       }
+
+      const isPending = response.data.follow?.status === 'pending';
+      onFollowSuccess?.(userPhone, isPending);
 
       return response.data;
     } catch (error) {
-      if (mountedRef.current) {
-        let errorMessage = 'Failed to follow user';
-        
-        if (axios.isAxiosError(error) && error.response?.data?.error) {
-          errorMessage = error.response.data.error;
-        }
-        
-        updateActionState(userPhone, { isLoading: false, error: errorMessage });
-        onFollowError?.(userPhone, errorMessage);
+      let errorMessage = 'Failed to follow user';
+      
+      if (axios.isAxiosError(error) && error.response?.data?.error) {
+        errorMessage = error.response.data.error;
       }
+
+      if (mountedRef.current) {
+        updateActionState(userPhone, { isLoading: false, error: errorMessage });
+      }
+
+      onFollowError?.(userPhone, errorMessage);
       return null;
     } finally {
       pendingRequests.current.delete(`follow-${userPhone}`);
@@ -205,21 +215,23 @@ export function useFollow(options: UseFollowOptions = {}): UseFollowReturn {
 
       if (mountedRef.current) {
         updateActionState(userPhone, { isLoading: false, error: null });
-        onUnfollowSuccess?.(userPhone);
       }
+
+      onUnfollowSuccess?.(userPhone);
 
       return response.data;
     } catch (error) {
-      if (mountedRef.current) {
-        let errorMessage = 'Failed to unfollow user';
-        
-        if (axios.isAxiosError(error) && error.response?.data?.error) {
-          errorMessage = error.response.data.error;
-        }
-        
-        updateActionState(userPhone, { isLoading: false, error: errorMessage });
-        onUnfollowError?.(userPhone, errorMessage);
+      let errorMessage = 'Failed to unfollow user';
+      
+      if (axios.isAxiosError(error) && error.response?.data?.error) {
+        errorMessage = error.response.data.error;
       }
+
+      if (mountedRef.current) {
+        updateActionState(userPhone, { isLoading: false, error: errorMessage });
+      }
+
+      onUnfollowError?.(userPhone, errorMessage);
       return null;
     } finally {
       pendingRequests.current.delete(`unfollow-${userPhone}`);

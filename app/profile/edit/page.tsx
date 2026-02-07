@@ -49,15 +49,6 @@ interface FormErrors {
 }
 
 /**
- * Language options
- */
-const LANGUAGE_OPTIONS = [
-  { value: 'en', label: 'English' },
-  { value: 'hi', label: 'हिंदी (Hindi)' },
-  { value: 'mr', label: 'मराठी (Marathi)' },
-];
-
-/**
  * Experience level options for farmers
  */
 const EXPERIENCE_OPTIONS = [
@@ -519,18 +510,6 @@ export default function EditProfilePage() {
             </div>
           </div>
 
-          {/* Language */}
-          <div className="space-y-2">
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
-              Preferred Language
-            </label>
-            <SingleSelectGroup
-              options={LANGUAGE_OPTIONS}
-              value={formData.language}
-              onChange={(value) => handleChange('language', value)}
-              columns={3}
-            />
-          </div>
         </section>
 
         {/* Location Section */}

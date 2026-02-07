@@ -57,6 +57,8 @@ interface FeedListProps {
   onSave?: (postId: string) => Promise<{ isSaved: boolean; message: string } | null>;
   /** Check if post is saved */
   isPostSaved?: (postId: string) => boolean;
+  /** Callback when a user is muted from the post menu */
+  onMuteUser?: (authorId: string) => void;
   /** Enable swipe gestures on mobile */
   enableSwipeGestures?: boolean;
   /** Enable virtualization for performance (recommended for large lists) */
@@ -230,6 +232,7 @@ export function FeedList({
   onDelete,
   onSave,
   isPostSaved,
+  onMuteUser,
   enableSwipeGestures = true,
   enableVirtualization = false,
   estimatedItemHeight = 400,
@@ -523,6 +526,7 @@ export function FeedList({
                 onDelete={onDelete}
                 onSave={onSave}
                 isPostSaved={isPostSaved}
+                onMuteUser={onMuteUser}
               />
             );
             
@@ -560,23 +564,6 @@ export function FeedList({
         {isLoading && posts.length > 0 && (
           <div className="flex justify-center py-6 sm:py-8">
             <IconLoader2 size={28} className="animate-spin text-primary-500" />
-          </div>
-        )}
-
-        {/* Load More button - 44px height, full width on mobile */}
-        {hasMore && onLoadMore && !isLoading && (
-          <div className="py-4 sm:py-6 px-3 sm:px-0">
-            <Button
-              onClick={onLoadMore}
-              variant="outline"
-              className={cn(
-                'min-h-[44px] w-full sm:w-auto sm:mx-auto sm:flex',
-                'font-medium text-sm sm:text-sm',
-                'active:scale-[0.98] transition-transform'
-              )}
-            >
-              Load More
-            </Button>
           </div>
         )}
 

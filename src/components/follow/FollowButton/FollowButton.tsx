@@ -119,9 +119,16 @@ export function FollowButton({
 
     try {
       if (isFollowing || isPending) {
-        // Optimistic update
+        // Optimistic update — save previous state for rollback
+        const prevFollowing = isFollowing;
+        const prevPending = isPending;
         setFollowStatus({ isFollowing: false, isPending: false });
-        await unfollowUser(userPhone);
+        try {
+          await unfollowUser(userPhone);
+        } catch {
+          // Rollback on failure
+          setFollowStatus({ isFollowing: prevFollowing, isPending: prevPending });
+        }
       } else {
         // Optimistic update - we don't know yet if it will be pending or active
         const result = await followUser(userPhone);

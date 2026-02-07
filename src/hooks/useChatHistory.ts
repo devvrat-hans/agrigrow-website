@@ -193,7 +193,7 @@ export function useChatHistory(options: UseChatHistoryOptions = {}): UseChatHist
 
     try {
       const response = await apiClient.get<ConversationListResponse>(
-        `/api/crop-ai/chat/history?page=${page}&limit=${limit}`
+        `/crop-ai/chat/history?page=${page}&limit=${limit}`
       );
 
       if (!isMounted.current) return;
@@ -247,7 +247,7 @@ export function useChatHistory(options: UseChatHistoryOptions = {}): UseChatHist
 
     try {
       const response = await apiClient.get<ConversationListResponse>(
-        `/api/crop-ai/chat/history?search=${encodeURIComponent(query)}&limit=${limit}`
+        `/crop-ai/chat/history?search=${encodeURIComponent(query)}&limit=${limit}`
       );
 
       if (!isMounted.current) return;
@@ -287,7 +287,7 @@ export function useChatHistory(options: UseChatHistoryOptions = {}): UseChatHist
 
     try {
       const response = await apiClient.get<ConversationDetailResponse>(
-        `/api/crop-ai/chat/history?id=${conversationId}`
+        `/crop-ai/chat/history?id=${conversationId}`
       );
 
       if (!isMounted.current) return null;
@@ -340,7 +340,7 @@ export function useChatHistory(options: UseChatHistoryOptions = {}): UseChatHist
 
     try {
       const response = await apiClient.post<SaveConversationResponse>(
-        '/api/crop-ai/chat/history',
+        '/crop-ai/chat/history',
         data
       );
 
@@ -376,7 +376,7 @@ export function useChatHistory(options: UseChatHistoryOptions = {}): UseChatHist
 
     try {
       const response = await apiClient.delete<DeleteConversationResponse>(
-        `/api/crop-ai/chat/history?id=${conversationId}${permanent ? '&permanent=true' : ''}`
+        `/crop-ai/chat/history?id=${conversationId}${permanent ? '&permanent=true' : ''}`
       );
 
       if (!isMounted.current) return false;

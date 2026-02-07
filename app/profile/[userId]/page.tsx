@@ -11,6 +11,10 @@ import {
 import {
   ProfileHeader,
   ProfileDetailsCard,
+  FarmerProfileCards,
+  StudentProfileCards,
+  BusinessProfileCards,
+  MyPostsCard,
 } from '@/components/profile';
 
 interface UserProfile {
@@ -23,6 +27,21 @@ interface UserProfile {
   state?: string;
   district?: string;
   experienceLevel?: string;
+  language?: string;
+  // Farmer-specific
+  crops?: string[];
+  interests?: string[];
+  // Student-specific
+  studentDegree?: string;
+  collegeName?: string;
+  yearOfStudy?: string;
+  studentBackground?: string;
+  studentInterests?: string[];
+  studentPurposes?: string[];
+  // Business-specific
+  organizationType?: string;
+  businessFocusAreas?: string[];
+  // Meta
   createdAt?: string;
   followersCount?: number;
   followingCount?: number;
@@ -120,6 +139,7 @@ export default function UserProfilePage({ params }: PageProps) {
       <main className="max-w-2xl mx-auto px-3 sm:px-4 space-y-3 sm:space-y-4">
         {/* Profile Header with Follow Integration */}
         <ProfileHeader
+          userId={user._id || userId}
           userPhone={user.phone || userId}
           fullName={user.fullName}
           bio={user.bio}
@@ -128,7 +148,7 @@ export default function UserProfilePage({ params }: PageProps) {
           isOwnProfile={false}
           followersCount={user.followersCount || 0}
           followingCount={user.followingCount || 0}
-          trustScore={user.trustScore || 425}
+          trustScore={user.trustScore || 0}
           onFollowChange={() => {
             // Optionally refetch user data to update counts
             fetchUserProfile();
@@ -139,7 +159,7 @@ export default function UserProfilePage({ params }: PageProps) {
         <ProfileDetailsCard
           state={user.state}
           district={user.district}
-          language=""
+          language={user.language || ''}
         />
 
         {/* Experience Level */}
@@ -152,6 +172,37 @@ export default function UserProfilePage({ params }: PageProps) {
               {user.experienceLevel}
             </p>
           </div>
+        )}
+
+        {/* Role-specific Cards */}
+        {user.role === 'farmer' && (
+          <FarmerProfileCards
+            crops={user.crops}
+            interests={user.interests}
+          />
+        )}
+
+        {user.role === 'student' && (
+          <StudentProfileCards
+            degree={user.studentDegree}
+            collegeName={user.collegeName}
+            yearOfStudy={user.yearOfStudy}
+            background={user.studentBackground}
+            interests={user.studentInterests}
+            purposes={user.studentPurposes}
+          />
+        )}
+
+        {user.role === 'business' && (
+          <BusinessProfileCards
+            organizationType={user.organizationType}
+            focusAreas={user.businessFocusAreas}
+          />
+        )}
+
+        {/* User's Posts */}
+        {user.phone && (
+          <MyPostsCard userPhone={user.phone} />
         )}
       </main>
 

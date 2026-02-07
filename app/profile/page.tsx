@@ -150,7 +150,7 @@ export default function ProfilePage() {
           isOwnProfile={true}
           followersCount={user.followersCount || 0}
           followingCount={user.followingCount || 0}
-          trustScore={user.trustScore || 425}
+          trustScore={user.trustScore || 0}
         />
 
         {/* Details Card */}

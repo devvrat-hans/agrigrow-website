@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import dbConnect from '@/lib/mongodb';
 import User from '@/models/User';
+import { calculateUserTrustScore } from '@/lib/trust-score';
 
 /**
  * GET /api/user/me
@@ -34,6 +35,19 @@ export async function GET(request: NextRequest) {
       );
     }
 
+    // Compute dynamic trust score
+    const trustScore = await calculateUserTrustScore({
+      userId: user._id.toString(),
+      followersCount: user.followersCount || 0,
+      followingCount: user.followingCount || 0,
+      createdAt: user.createdAt,
+      experienceLevel: user.experienceLevel,
+      hasBio: !!user.bio,
+      hasProfileImage: !!user.profileImage,
+      cropsCount: user.crops?.length || 0,
+      interestsCount: user.interests?.length || 0,
+    });
+
     return NextResponse.json({
       success: true,
       user: {
@@ -60,6 +74,9 @@ export async function GET(request: NextRequest) {
         businessFocusAreas: user.businessFocusAreas,
         profileImage: user.profileImage,
         isOnboarded: user.isOnboarded,
+        followersCount: user.followersCount || 0,
+        followingCount: user.followingCount || 0,
+        trustScore,
         createdAt: user.createdAt,
         updatedAt: user.updatedAt,
       },

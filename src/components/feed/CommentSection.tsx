@@ -339,7 +339,6 @@ function CommentSectionComponent({
                   onLike={handleLike}
                   onReply={(commentId) => {
                     setReplyingTo(commentId);
-                    return Promise.resolve(null);
                   }}
                   onMarkHelpful={handleMarkHelpful}
                   onEdit={handleEdit}
