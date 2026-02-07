@@ -4,6 +4,7 @@ import { ReactNode } from 'react';
 import { IconMapPin, IconLanguage } from '@tabler/icons-react';
 import { ProfileInfoCard } from './ProfileInfoCard';
 import { getLanguageDisplayName } from '@/constants/languages';
+import { useTranslation } from '@/hooks/useTranslation';
 
 // State code to name mapping
 const stateMap: Record<string, string> = {
@@ -95,20 +96,22 @@ export function ProfileDetailsCard({
   language,
   className,
 }: ProfileDetailsCardProps) {
+  const { t } = useTranslation();
+
   return (
-    <ProfileInfoCard title="Details" className={className}>
+    <ProfileInfoCard title={t('profile.details')} className={className}>
       <div className="space-y-2 sm:space-y-3">
         {(state || district) && (
           <ProfileDetailRow
             icon={<IconMapPin className="w-4 h-4 sm:w-5 sm:h-5" />}
             value={`${district ? `${district}, ` : ''}${getStateName(state || '')}`}
-            label="Location"
+            label={t('profile.location')}
           />
         )}
         <ProfileDetailRow
           icon={<IconLanguage className="w-4 h-4 sm:w-5 sm:h-5" />}
           value={getLanguageName(language)}
-          label="Preferred Language"
+          label={t('profile.preferredLanguage')}
         />
       </div>
     </ProfileInfoCard>

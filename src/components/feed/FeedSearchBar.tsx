@@ -11,6 +11,7 @@ import { useState, useRef, useCallback, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { IconSearch, IconLoader2, IconUser, IconNote, IconX } from '@tabler/icons-react';
 import { cn } from '@/lib/utils';
+import { useTranslation } from '@/hooks/useTranslation';
 
 /** Shape of a user search result */
 interface UserResult {
@@ -42,6 +43,7 @@ interface FeedSearchBarProps {
 
 export function FeedSearchBar({ className }: FeedSearchBarProps) {
   const router = useRouter();
+  const { t } = useTranslation();
   const [query, setQuery] = useState('');
   const [isOpen, setIsOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
@@ -179,7 +181,7 @@ export function FeedSearchBar({ className }: FeedSearchBarProps) {
           onFocus={() => {
             if (hasResults) setIsOpen(true);
           }}
-          placeholder="Search users, posts..."
+          placeholder={t('feed.search.searchUsersAndPosts')}
           className={cn(
             'w-full h-10 pl-9 pr-9 rounded-full text-sm',
             'bg-gray-100 dark:bg-gray-800',
@@ -220,7 +222,7 @@ export function FeedSearchBar({ className }: FeedSearchBarProps) {
           {users.length > 0 && (
             <div className="p-2">
               <p className="px-2 py-1 text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wide">
-                People
+                {t('feed.search.people')}
               </p>
               {users.map((user) => (
                 <button
@@ -265,7 +267,7 @@ export function FeedSearchBar({ className }: FeedSearchBarProps) {
           {posts.length > 0 && (
             <div className="p-2">
               <p className="px-2 py-1 text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wide">
-                Posts
+                {t('feed.search.posts')}
               </p>
               {posts.map((post) => (
                 <button
@@ -286,7 +288,7 @@ export function FeedSearchBar({ className }: FeedSearchBarProps) {
                     </p>
                     {post.author && (
                       <p className="text-xs text-gray-500 dark:text-gray-400 mt-0.5">
-                        by {post.author.fullName}
+                        {t('feed.search.by')} {post.author.fullName}
                       </p>
                     )}
                   </div>
@@ -300,7 +302,7 @@ export function FeedSearchBar({ className }: FeedSearchBarProps) {
             <div className="px-4 py-6 text-center">
               <IconSearch className="w-8 h-8 text-gray-300 dark:text-gray-600 mx-auto mb-2" />
               <p className="text-sm text-gray-500 dark:text-gray-400">
-                No results found for &ldquo;{query}&rdquo;
+                {t('feed.search.noResultsFor')} &ldquo;{query}&rdquo;
               </p>
             </div>
           )}

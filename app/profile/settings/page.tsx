@@ -15,6 +15,7 @@ import { Switch } from '@/components/ui/switch';
 import { PageHeader } from '@/components/common/PageHeader';
 import { MobileBottomNav } from '@/components/common/MobileBottomNav';
 import { LoadingSpinner } from '@/components/common/LoadingSpinner';
+import { useTranslation } from '@/hooks/useTranslation';
 
 /**
  * Settings section card component
@@ -127,6 +128,7 @@ const DEFAULT_SETTINGS: AppSettings = {
 
 export default function AppSettingsPage() {
   const _router = useRouter();
+  const { t } = useTranslation();
   const [settings, setSettings] = useState<AppSettings>(DEFAULT_SETTINGS);
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
@@ -193,11 +195,11 @@ export default function AppSettingsPage() {
   const getDarkModeInfo = () => {
     switch (settings.darkMode) {
       case 'light':
-        return { icon: IconSun, label: 'Light' };
+        return { icon: IconSun, label: t('profile.settings.light') };
       case 'dark':
-        return { icon: IconMoon, label: 'Dark' };
+        return { icon: IconMoon, label: t('profile.settings.dark') };
       default:
-        return { icon: IconDeviceMobile, label: 'System' };
+        return { icon: IconDeviceMobile, label: t('profile.settings.system') };
     }
   };
 
@@ -214,7 +216,7 @@ export default function AppSettingsPage() {
   return (
     <div className="min-h-screen bg-background flex flex-col">
       {/* Header */}
-      <PageHeader showBackButton title="App Settings" />
+      <PageHeader showBackButton title={t('profile.settings.title')} />
 
       {/* Main Content */}
       <main className="flex-1 max-w-2xl mx-auto w-full px-4 py-6 pb-24 md:pb-8">
@@ -225,11 +227,11 @@ export default function AppSettingsPage() {
               <IconSettings className="w-5 h-5 text-primary-600 dark:text-primary-400" />
             </div>
             <h1 className="text-lg font-semibold text-gray-900 dark:text-white">
-              App Settings
+              {t('profile.settings.title')}
             </h1>
           </div>
           <p className="text-sm text-gray-600 dark:text-gray-400">
-            Customize your Agrigrow experience with these settings.
+            {t('profile.settings.subtitle')}
           </p>
         </div>
 
@@ -242,25 +244,25 @@ export default function AppSettingsPage() {
         )}
 
         {/* Notifications Section */}
-        <SettingsSection title="Notifications">
+        <SettingsSection title={t('profile.settings.notifications')}>
           <SettingsToggleRow
             icon={IconBell}
-            label="Push Notifications"
-            description="Receive notifications on your device"
+            label={t('profile.settings.pushNotifications')}
+            description={t('profile.settings.pushNotificationsDesc')}
             checked={settings.pushNotifications}
             onCheckedChange={(checked) => handleToggle('pushNotifications', checked)}
           />
           <SettingsToggleRow
             icon={IconBell}
-            label="Email Notifications"
-            description="Receive updates via email"
+            label={t('profile.settings.emailNotifications')}
+            description={t('profile.settings.emailNotificationsDesc')}
             checked={settings.emailNotifications}
             onCheckedChange={(checked) => handleToggle('emailNotifications', checked)}
           />
         </SettingsSection>
 
         {/* Appearance Section */}
-        <SettingsSection title="Appearance">
+        <SettingsSection title={t('profile.settings.appearance')}>
           <button
             onClick={handleDarkModeToggle}
             className="w-full flex items-center justify-between p-4 border-b border-gray-100 dark:border-gray-700 last:border-b-0 hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors"
@@ -270,9 +272,9 @@ export default function AppSettingsPage() {
                 <darkModeInfo.icon className="w-5 h-5 text-gray-600 dark:text-gray-400" />
               </div>
               <div className="text-left">
-                <p className="font-medium text-gray-900 dark:text-white">Theme</p>
+                <p className="font-medium text-gray-900 dark:text-white">{t('profile.settings.theme')}</p>
                 <p className="text-sm text-gray-500 dark:text-gray-400">
-                  Tap to change: {darkModeInfo.label}
+                  {t('profile.settings.tapToChange')}: {darkModeInfo.label}
                 </p>
               </div>
             </div>
@@ -287,7 +289,7 @@ export default function AppSettingsPage() {
         </SettingsSection>
 
         {/* About Section */}
-        <SettingsSection title="About">
+        <SettingsSection title={t('profile.settings.about')}>
           <SettingsInfoRow
             icon={IconInfoCircle}
             label="Version"

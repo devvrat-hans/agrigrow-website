@@ -16,6 +16,7 @@ import {
   BusinessProfileCards,
   MyPostsCard,
 } from '@/components/profile';
+import { useTranslation } from '@/hooks/useTranslation';
 
 interface UserProfile {
   _id: string;
@@ -55,6 +56,7 @@ interface PageProps {
 export default function UserProfilePage({ params }: PageProps) {
   const { userId } = use(params);
   const router = useRouter();
+  const { t } = useTranslation();
   const [user, setUser] = useState<UserProfile | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState('');
@@ -90,11 +92,11 @@ export default function UserProfilePage({ params }: PageProps) {
           setIsOwnProfile(true);
         }
       } else {
-        setError(data.error || 'Failed to load profile');
+        setError(data.error || t('profile.failedToLoadProfile'));
       }
     } catch (err) {
       console.error('Error fetching user profile:', err);
-      setError('Failed to load profile');
+      setError(t('profile.failedToLoadProfile'));
     } finally {
       setIsLoading(false);
     }
@@ -117,7 +119,7 @@ export default function UserProfilePage({ params }: PageProps) {
     return (
       <ErrorState
         message={error}
-        actionLabel="Go Back"
+        actionLabel={t('profile.goBack')}
         onAction={() => router.back()}
         fullScreen
       />
@@ -167,7 +169,7 @@ export default function UserProfilePage({ params }: PageProps) {
         {user.experienceLevel && (
           <div className="bg-white dark:bg-gray-900 rounded-xl p-4 shadow-sm">
             <h3 className="text-sm font-medium text-gray-500 dark:text-gray-400 mb-2">
-              Experience Level
+              {t('profile.experienceLevel')}
             </h3>
             <p className="text-sm text-gray-900 dark:text-gray-100 capitalize">
               {user.experienceLevel}

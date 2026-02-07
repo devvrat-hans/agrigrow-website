@@ -152,3 +152,7 @@ export type { UseHomeWeatherState, UseHomeWeatherReturn } from './useHomeWeather
 // Mute User Hook
 export { useMuteUser } from './useMuteUser';
 export type { UseMuteUserReturn } from './useMuteUser';
+
+// Translation Hook
+export { useTranslation } from './useTranslation';
+export type { UseTranslationReturn } from './useTranslation';

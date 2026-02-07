@@ -14,6 +14,7 @@ import {
 import { cn } from '@/lib/utils';
 import { Badge } from '@/components/ui/badge';
 import { MobileScrollContainer } from '@/components/common';
+import { useTranslation } from '@/hooks/useTranslation';
 
 /**
  * Category item configuration
@@ -27,7 +28,7 @@ export interface CategoryItem {
 }
 
 /**
- * Default categories for the feed
+ * Default categories for the feed (untranslated fallback)
  */
 export const DEFAULT_CATEGORIES: CategoryItem[] = [
   { id: 'all', label: 'All', icon: IconList, postType: undefined },
@@ -39,6 +40,23 @@ export const DEFAULT_CATEGORIES: CategoryItem[] = [
   { id: 'following', label: 'Following', icon: IconUsers, postType: undefined },
   { id: 'trending', label: 'Trending', icon: IconFlame, postType: undefined },
 ];
+
+/**
+ * Hook to get translated default categories
+ */
+export function useTranslatedCategories(): CategoryItem[] {
+  const { t } = useTranslation();
+  return [
+    { id: 'all', label: t('feed.categories.all'), icon: IconList, postType: undefined },
+    { id: 'questions', label: t('feed.categories.questions'), icon: IconQuestionMark, postType: 'question' },
+    { id: 'tips', label: t('feed.categories.tips'), icon: IconBulb, postType: 'tip' },
+    { id: 'updates', label: t('feed.categories.updates'), icon: IconMessage, postType: 'update' },
+    { id: 'problems', label: t('feed.categories.problems'), icon: IconAlertTriangle, postType: 'problem' },
+    { id: 'success', label: t('feed.categories.successStories'), icon: IconTrophy, postType: 'success_story' },
+    { id: 'following', label: t('feed.categories.following'), icon: IconUsers, postType: undefined },
+    { id: 'trending', label: t('feed.categories.trending'), icon: IconFlame, postType: undefined },
+  ];
+}
 
 /**
  * Props for CategoryTabs component

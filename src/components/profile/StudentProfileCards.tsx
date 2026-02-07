@@ -2,6 +2,7 @@
 
 import { ProfileInfoCard } from './ProfileInfoCard';
 import { BadgeList, formatBadgeText } from './BadgeList';
+import { useTranslation } from '@/hooks/useTranslation';
 
 interface StudentProfileCardsProps {
   /** Student's degree program */
@@ -33,32 +34,33 @@ export function StudentProfileCards({
   className,
 }: StudentProfileCardsProps) {
   const hasAcademicDetails = degree || collegeName || yearOfStudy || background;
+  const { t } = useTranslation();
 
   return (
     <>
       {hasAcademicDetails && (
-        <ProfileInfoCard title="Academic Details" className={className}>
+        <ProfileInfoCard title={t('profile.academic.title')} className={className}>
           <div className="space-y-2">
             {degree && (
               <p className="text-sm text-foreground">
-                <span className="text-muted-foreground">Degree:</span>{' '}
+                <span className="text-muted-foreground">{t('profile.academic.degree')}</span>{' '}
                 {formatBadgeText(degree)}
               </p>
             )}
             {collegeName && (
               <p className="text-sm text-foreground">
-                <span className="text-muted-foreground">College:</span> {collegeName}
+                <span className="text-muted-foreground">{t('profile.academic.college')}</span> {collegeName}
               </p>
             )}
             {yearOfStudy && (
               <p className="text-sm text-foreground">
-                <span className="text-muted-foreground">Year:</span>{' '}
+                <span className="text-muted-foreground">{t('profile.academic.year')}</span>{' '}
                 {formatBadgeText(yearOfStudy)}
               </p>
             )}
             {background && (
               <p className="text-sm text-foreground">
-                <span className="text-muted-foreground">Background:</span>{' '}
+                <span className="text-muted-foreground">{t('profile.academic.background')}</span>{' '}
                 {formatBadgeText(background)}
               </p>
             )}
@@ -67,13 +69,13 @@ export function StudentProfileCards({
       )}
 
       {interests && interests.length > 0 && (
-        <ProfileInfoCard title="Areas of Interest" className={className}>
+        <ProfileInfoCard title={t('profile.academic.areasOfInterest')} className={className}>
           <BadgeList items={interests} variant="outline" />
         </ProfileInfoCard>
       )}
 
       {purposes && purposes.length > 0 && (
-        <ProfileInfoCard title="Platform Purposes" className={className}>
+        <ProfileInfoCard title={t('profile.academic.platformPurposes')} className={className}>
           <BadgeList items={purposes} variant="secondary" />
         </ProfileInfoCard>
       )}

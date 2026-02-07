@@ -3,6 +3,7 @@
 import { IconPlant } from '@tabler/icons-react';
 import { ProfileInfoCard } from './ProfileInfoCard';
 import { BadgeList } from './BadgeList';
+import { useTranslation } from '@/hooks/useTranslation';
 
 interface FarmerProfileCardsProps {
   /** List of crops */
@@ -21,11 +22,13 @@ export function FarmerProfileCards({
   interests,
   className,
 }: FarmerProfileCardsProps) {
+  const { t } = useTranslation();
+
   return (
     <>
       {crops && crops.length > 0 && (
         <ProfileInfoCard
-          title="My Crops"
+          title={t('profile.myCrops')}
           icon={<IconPlant className="w-5 h-5" />}
           className={className}
         >
@@ -34,7 +37,7 @@ export function FarmerProfileCards({
       )}
       
       {interests && interests.length > 0 && (
-        <ProfileInfoCard title="Interests" className={className}>
+        <ProfileInfoCard title={t('profile.interests')} className={className}>
           <BadgeList items={interests} variant="outline" />
         </ProfileInfoCard>
       )}

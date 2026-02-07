@@ -3,6 +3,7 @@
 import { Badge } from '@/components/ui/badge';
 import { ProfileInfoCard } from './ProfileInfoCard';
 import { BadgeList, formatBadgeText } from './BadgeList';
+import { useTranslation } from '@/hooks/useTranslation';
 
 interface BusinessProfileCardsProps {
   /** Type of organization */
@@ -21,16 +22,18 @@ export function BusinessProfileCards({
   focusAreas,
   className,
 }: BusinessProfileCardsProps) {
+  const { t } = useTranslation();
+
   return (
     <>
       {organizationType && (
-        <ProfileInfoCard title="Organization Type" className={className}>
+        <ProfileInfoCard title={t('profile.business.organizationType')} className={className}>
           <Badge variant="secondary">{formatBadgeText(organizationType)}</Badge>
         </ProfileInfoCard>
       )}
 
       {focusAreas && focusAreas.length > 0 && (
-        <ProfileInfoCard title="Focus Areas" className={className}>
+        <ProfileInfoCard title={t('profile.business.focusAreas')} className={className}>
           <BadgeList items={focusAreas} variant="outline" />
         </ProfileInfoCard>
       )}

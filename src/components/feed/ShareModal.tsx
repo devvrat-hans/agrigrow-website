@@ -19,6 +19,7 @@ import {
 } from '@/components/ui/dialog';
 import { useShare, type ShareType, type SharePlatform } from '@/hooks/useShare';
 import { generateShareLink } from '@/lib/api-client';
+import { useTranslation } from '@/hooks/useTranslation';
 
 /**
  * Post author interface for preview
@@ -134,6 +135,41 @@ export function ShareModal({
 }: ShareModalProps) {
   const [copiedFeedback, setCopiedFeedback] = useState(false);
   const [activeShareId, setActiveShareId] = useState<string | null>(null);
+  const { t } = useTranslation();
+
+  // Build translated share options
+  const translatedShareOptions: ShareOption[] = [
+    {
+      id: 'whatsapp',
+      type: 'external',
+      platform: 'whatsapp',
+      label: t('feed.share.whatsapp'),
+      description: t('feed.share.shareViaWhatsapp'),
+      icon: IconBrandWhatsapp,
+      color: 'text-green-600 dark:text-green-400',
+      bgColor: 'bg-green-50 dark:bg-green-950 hover:bg-green-100 dark:hover:bg-green-900',
+    },
+    {
+      id: 'copy',
+      type: 'external',
+      platform: 'link',
+      label: t('feed.share.copyLink'),
+      description: t('feed.share.copyToClipboard'),
+      icon: IconLink,
+      color: 'text-gray-600 dark:text-gray-400',
+      bgColor: 'bg-gray-50 dark:bg-gray-900 hover:bg-gray-100 dark:hover:bg-gray-800',
+    },
+    {
+      id: 'more',
+      type: 'external',
+      platform: 'other',
+      label: t('feed.share.moreOptions'),
+      description: t('feed.share.shareViaOtherApps'),
+      icon: IconShare3,
+      color: 'text-blue-600 dark:text-blue-400',
+      bgColor: 'bg-blue-50 dark:bg-blue-950 hover:bg-blue-100 dark:hover:bg-blue-900',
+    },
+  ];
 
   // Use share hook
   const {
@@ -237,7 +273,7 @@ export function ShareModal({
         <DialogHeader className="px-4 pt-4 pb-3 sm:py-3 border-b border-gray-200 dark:border-gray-800">
           <div className="flex items-center justify-between">
             <DialogTitle className="text-lg font-semibold">
-              Share Post
+              {t('feed.share.sharePost')}
             </DialogTitle>
             <button
               onClick={onClose}
@@ -272,7 +308,7 @@ export function ShareModal({
                   onClick={clearError}
                   className="text-xs text-red-600 dark:text-red-400 underline mt-1"
                 >
-                  Dismiss
+                  {t('feed.share.dismiss')}
                 </button>
               </div>
             </div>
@@ -305,7 +341,7 @@ export function ShareModal({
               <div className="flex-shrink-0">
                 <img
                   src={post.images[0]}
-                  alt="Post thumbnail"
+                  alt={t('feed.share.postThumbnail')}
                   className="w-12 h-12 rounded-lg object-cover bg-gray-200 dark:bg-gray-700"
                 />
               </div>
@@ -314,7 +350,7 @@ export function ShareModal({
 
           {/* Share Options */}
           <div className="grid grid-cols-3 gap-2 sm:gap-3">
-            {SHARE_OPTIONS.map((option) => {
+            {translatedShareOptions.map((option) => {
               const Icon = option.icon;
               const isActive = activeShareId === option.id;
               const isCopyOption = option.id === 'copy';
@@ -350,7 +386,7 @@ export function ShareModal({
                   </div>
                   <div className="text-center">
                     <p className="text-sm font-medium leading-tight">
-                      {isCopyOption && copiedFeedback ? 'Copied!' : option.label}
+                      {isCopyOption && copiedFeedback ? t('feed.share.copied') : option.label}
                     </p>
                     <p className="text-xs text-gray-500 dark:text-gray-400 line-clamp-2 leading-tight">
                       {option.description}

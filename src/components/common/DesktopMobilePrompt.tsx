@@ -19,6 +19,7 @@ import {
 import { QRCodeSVG } from 'qrcode.react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { useTranslation } from '@/hooks/useTranslation';
 
 interface DesktopMobilePromptProps {
   /** Minimum width considered as desktop (default: 768px) */
@@ -37,6 +38,7 @@ export function DesktopMobilePrompt({
   const [showPrompt, setShowPrompt] = useState(false);
   const [mounted, setMounted] = useState(false);
   const [currentUrl, setCurrentUrl] = useState<string>('');
+  const { t } = useTranslation();
 
   useEffect(() => {
     setMounted(true);
@@ -94,11 +96,10 @@ export function DesktopMobilePrompt({
             <IconDeviceMobile className="w-10 h-10 text-primary-600" />
           </div>
           <CardTitle className="text-2xl text-primary-900">
-            Best Experience on Mobile
+            {t('desktop.bestOnMobile')}
           </CardTitle>
           <CardDescription className="text-base mt-2">
-            Agrigrow is designed for farmers on the go. 
-            For the best experience, please access this platform on your mobile device.
+            {t('desktop.mobileDesc')}
           </CardDescription>
         </CardHeader>
 
@@ -106,7 +107,7 @@ export function DesktopMobilePrompt({
           {/* Mobile device recommendation */}
           <div className="bg-primary-50 border border-primary-200 rounded-lg p-4">
             <p className="text-sm text-primary-800 text-center mb-4">
-              Scan the QR code or visit this URL on your mobile:
+              {t('desktop.scanQR')}
             </p>
             <div className="flex flex-col items-center gap-4">
               {/* Actual QR Code */}
@@ -132,11 +133,11 @@ export function DesktopMobilePrompt({
           <div className="flex justify-center gap-4">
             <div className="flex items-center gap-2 bg-gray-100 px-3 py-2 rounded-lg text-gray-600 text-sm">
               <IconBrandAndroid className="w-5 h-5" />
-              <span>Play Store (Coming Soon)</span>
+              <span>{t('desktop.playStoreComingSoon')}</span>
             </div>
             <div className="flex items-center gap-2 bg-gray-100 px-3 py-2 rounded-lg text-gray-600 text-sm">
               <IconBrandApple className="w-5 h-5" />
-              <span>App Store (Coming Soon)</span>
+              <span>{t('desktop.appStoreComingSoon')}</span>
             </div>
           </div>
 
@@ -148,7 +149,7 @@ export function DesktopMobilePrompt({
               className="w-full"
               onClick={handleContinueOnDesktop}
             >
-              Continue on Desktop Anyway
+              {t('desktop.continueOnDesktop')}
               <IconArrowRight className="w-4 h-4 ml-2" />
             </Button>
             <Button
@@ -158,7 +159,7 @@ export function DesktopMobilePrompt({
               onClick={() => handleDismiss(true)}
             >
               <IconX className="w-4 h-4 mr-1" />
-              Don&apos;t show this again
+              {t('desktop.dontShowAgain')}
             </Button>
           </div>
         </CardContent>

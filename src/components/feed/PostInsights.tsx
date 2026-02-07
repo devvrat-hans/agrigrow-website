@@ -20,6 +20,7 @@ import { cn } from '@/lib/utils';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { trackRender } from '@/lib/performance';
+import { useTranslation } from '@/hooks/useTranslation';
 
 /**
  * Post insights data structure
@@ -141,6 +142,7 @@ function PostInsightsComponent({
   if (process.env.NODE_ENV === 'development') {
     trackRender('PostInsights');
   }
+  const { t } = useTranslation();
   const [insights, setInsights] = useState<PostInsightsData | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -157,7 +159,7 @@ function PostInsightsComponent({
     try {
       const userPhone = localStorage.getItem('userPhone');
       if (!userPhone) {
-        setError('Please sign in to view insights');
+        setError(t('feed.insights.signInToView'));
         return;
       }
 
@@ -204,7 +206,7 @@ function PostInsightsComponent({
       <Card className={cn('p-4', className)}>
         <div className="flex items-center justify-center py-8">
           <IconLoader2 size={24} className="animate-spin text-primary-500" />
-          <span className="ml-2 text-sm text-gray-500">Loading insights...</span>
+          <span className="ml-2 text-sm text-gray-500">{t('feed.insights.loadingInsights')}</span>
         </div>
       </Card>
     );
@@ -219,7 +221,7 @@ function PostInsightsComponent({
           <p className="text-sm text-gray-600 dark:text-gray-400 mb-3">{error}</p>
           <Button variant="outline" size="sm" onClick={fetchInsights}>
             <IconRefresh size={16} className="mr-1" />
-            Try again
+            {t('feed.insights.tryAgain')}
           </Button>
         </div>
       </Card>
@@ -238,16 +240,16 @@ function PostInsightsComponent({
         <div className="flex items-center gap-2">
           <IconChartBar size={20} className="text-primary-600" />
           <h3 className="font-semibold text-gray-900 dark:text-gray-100">
-            Post Insights
+            {t('feed.insights.postInsights')}
           </h3>
         </div>
         <div className="flex items-center gap-2">
           <span className="text-xs text-gray-500 dark:text-gray-400">
             {insights.daysSinceCreation === 0
-              ? 'Today'
+              ? t('feed.insights.today')
               : insights.daysSinceCreation === 1
-              ? '1 day ago'
-              : `${insights.daysSinceCreation} days ago`}
+              ? t('feed.insights.oneDayAgo')
+              : `${insights.daysSinceCreation} ${t('feed.insights.daysAgo')}`}
           </span>
           {onClose && (
             <button
@@ -274,7 +276,7 @@ function PostInsightsComponent({
           {formatEngagementRate(insights.engagementRate)}
         </p>
         <p className="text-sm text-primary-600 dark:text-primary-400 mt-1">
-          Engagement Rate
+          {t('feed.insights.engagementRate')}
         </p>
       </div>
 
@@ -282,38 +284,38 @@ function PostInsightsComponent({
       <div className="grid grid-cols-2 gap-3">
         <MetricCard
           icon={IconEye}
-          label="Total Views"
+          label={t('feed.insights.totalViews')}
           value={insights.viewsCount}
           color="text-blue-600"
         />
         <MetricCard
           icon={IconUsers}
-          label="Reach"
+          label={t('feed.insights.reach')}
           value={insights.reach}
-          subValue="unique"
+          subValue={t('feed.insights.unique')}
           color="text-green-600"
         />
         <MetricCard
           icon={IconHeart}
-          label="Likes"
+          label={t('feed.actions.like')}
           value={insights.likesCount}
           color="text-red-500"
         />
         <MetricCard
           icon={IconMessageCircle}
-          label="Comments"
+          label={t('feed.comments.commentsPlural')}
           value={insights.commentsCount}
           color="text-blue-500"
         />
         <MetricCard
           icon={IconShare}
-          label="Shares"
+          label={t('feed.actions.share')}
           value={insights.sharesCount}
           color="text-purple-600"
         />
         <MetricCard
           icon={IconBookmark}
-          label="Saves"
+          label={t('feed.insights.saves')}
           value={insights.savedCount}
           color="text-yellow-600"
         />
@@ -324,16 +326,16 @@ function PostInsightsComponent({
         <div className="grid grid-cols-2 gap-3">
           <MetricCard
             icon={IconUserPlus}
-            label="Profile Visits"
+            label={t('feed.insights.profileVisits')}
             value={insights.profileVisits}
-            subValue="from this post"
+            subValue={t('feed.insights.fromThisPost')}
             color="text-indigo-600"
           />
           <MetricCard
             icon={IconCheck}
-            label="Helpful Marks"
+            label={t('feed.insights.helpfulMarks')}
             value={insights.helpfulMarksCount}
-            subValue="on comments"
+            subValue={t('feed.insights.onComments')}
             color="text-emerald-600"
           />
         </div>
@@ -348,7 +350,7 @@ function PostInsightsComponent({
           className="text-xs text-gray-500 hover:text-gray-700"
         >
           <IconRefresh size={14} className="mr-1" />
-          Refresh insights
+          {t('feed.insights.refreshInsights')}
         </Button>
       </div>
     </Card>

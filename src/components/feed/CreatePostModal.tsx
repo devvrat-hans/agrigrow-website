@@ -30,6 +30,7 @@ import { PostTypeSelector, type PostType } from './PostTypeSelector';
 import { CategorySelector, type PostCategory } from './CategorySelector';
 import { useCreatePost } from '@/hooks/useCreatePost';
 import { useImageUpload } from '@/hooks/useImageUpload';
+import { useTranslation } from '@/hooks/useTranslation';
 
 /**
  * Visibility options for posts
@@ -66,7 +67,7 @@ const VISIBILITY_OPTIONS: VisibilityOption[] = [
 const MAX_CONTENT_LENGTH = 2000;
 
 /**
- * Placeholder texts based on user role
+ * Placeholder texts based on user role (untranslated fallback)
  */
 const PLACEHOLDER_BY_ROLE: Record<string, string> = {
   farmer: 'What challenge are you facing today?',
@@ -162,6 +163,38 @@ export function CreatePostModal({
   const [isListening, setIsListening] = useState(false);
   const [voiceSupported, setVoiceSupported] = useState(false);
   const recognitionRef = useRef<SpeechRecognition | null>(null);
+
+  // Translation hook
+  const { t } = useTranslation();
+
+  // Build translated visibility options
+  const translatedVisibilityOptions: VisibilityOption[] = [
+    {
+      value: 'public',
+      label: t('feed.visibility.public'),
+      description: t('feed.visibility.publicDesc'),
+    },
+    {
+      value: 'followers',
+      label: t('feed.visibility.followers'),
+      description: t('feed.visibility.followersDesc'),
+    },
+    {
+      value: 'group',
+      label: t('feed.visibility.group'),
+      description: t('feed.visibility.groupDesc'),
+    },
+  ];
+
+  // Get translated placeholder by role
+  const getTranslatedPlaceholder = (role: string): string => {
+    switch (role) {
+      case 'farmer': return t('feed.createPost.farmerPlaceholder');
+      case 'student': return t('feed.createPost.studentPlaceholder');
+      case 'business': return t('feed.createPost.businessPlaceholder');
+      default: return t('feed.createPost.defaultPlaceholder');
+    }
+  };
 
   // Use image upload hook for base64 conversion
   const {
@@ -296,7 +329,7 @@ export function CreatePostModal({
   const isOverLimit = charCount > MAX_CONTENT_LENGTH;
 
   // Get placeholder text based on role
-  const placeholderText = PLACEHOLDER_BY_ROLE[userRole] || PLACEHOLDER_BY_ROLE.default;
+  const placeholderText = getTranslatedPlaceholder(userRole);
 
   /**
    * Handle content change
@@ -397,7 +430,7 @@ export function CreatePostModal({
           {/* Mobile layout: Title left, Close button right */}
           <div className="flex sm:hidden items-center justify-between">
             <DialogTitle className="text-lg font-semibold text-gray-900 dark:text-gray-100">
-              Create Post
+              {t('feed.createPost.createPost')}
             </DialogTitle>
             <button
               onClick={handleClose}
@@ -433,7 +466,7 @@ export function CreatePostModal({
                 <IconX size={24} />
               </button>
               <DialogTitle className="text-lg font-semibold">
-                Create Post
+                {t('feed.createPost.createPost')}
               </DialogTitle>
             </div>
             <Button
@@ -449,10 +482,10 @@ export function CreatePostModal({
               {isSubmitting ? (
                 <>
                   <IconLoader2 size={16} className="mr-1.5 animate-spin" />
-                  {progress > 0 ? `${progress}%` : 'Posting...'}
+                  {progress > 0 ? `${progress}%` : t('feed.createPost.posting')}
                 </>
               ) : (
-                'Post'
+                t('feed.createPost.post')
               )}
             </Button>
           </div>
@@ -475,7 +508,7 @@ export function CreatePostModal({
                   onClick={clearError}
                   className="text-xs text-red-600 dark:text-red-400 underline mt-1"
                 >
-                  Dismiss
+                  {t('feed.createPost.dismiss')}
                 </button>
               </div>
             </div>
@@ -520,8 +553,8 @@ export function CreatePostModal({
                       : 'bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-gray-700',
                     isSubmitting && 'opacity-50 cursor-not-allowed'
                   )}
-                  aria-label={isListening ? 'Stop voice input' : 'Start voice input'}
-                  title={isListening ? 'Tap to stop' : 'Tap to speak'}
+                  aria-label={isListening ? t('feed.createPost.stopRecording') : t('feed.createPost.voiceInput')}
+                  title={isListening ? t('feed.createPost.stopRecording') : t('feed.createPost.voiceInput')}
                 >
                   {isListening ? (
                     <IconMicrophoneOff size={18} />
@@ -534,7 +567,7 @@ export function CreatePostModal({
             {isListening && (
               <p className="text-xs text-primary-600 dark:text-primary-400 flex items-center gap-1.5">
                 <span className="w-2 h-2 bg-red-500 rounded-full" />
-                Listening... Speak now
+                {t('feed.createPost.listeningSpeak')}
               </p>
             )}
             <div
@@ -557,7 +590,7 @@ export function CreatePostModal({
           {/* Post Type Selector */}
           <div className="space-y-3">
             <label className="text-sm font-medium text-gray-700 mb-2 dark:text-gray-300 block">
-              Post Type
+              {t('feed.createPost.postType')}
             </label>
             <div className="mt-2">
               <PostTypeSelector
@@ -577,7 +610,7 @@ export function CreatePostModal({
           <div className="space-y-3">
             <label className="text-sm font-medium text-gray-700 mb-2 dark:text-gray-300 flex items-center gap-1">
               <IconPhoto size={16} />
-              Images
+              {t('feed.createPost.images')}
               {selectedImages.length > 0 && (
                 <span className="text-xs text-gray-500 ml-1">
                   ({selectedImages.length}/5)
@@ -644,7 +677,7 @@ export function CreatePostModal({
                     )}
                   >
                     <IconPhoto size={20} />
-                    <span className="text-xs">Add</span>
+                    <span className="text-xs">{t('feed.createPost.add')}</span>
                   </button>
                 )}
               </div>
@@ -660,7 +693,7 @@ export function CreatePostModal({
                   />
                 </div>
                 <p className="text-xs text-gray-500 dark:text-gray-400">
-                  Processing images... {uploadProgress}%
+                  {t('feed.createPost.processingImages')} {uploadProgress}%
                 </p>
               </div>
             )}
@@ -682,9 +715,9 @@ export function CreatePostModal({
                 )}
               >
                 <IconPhoto size={32} />
-                <span className="text-sm font-medium">Add images</span>
+                <span className="text-sm font-medium">{t('feed.createPost.addImages')}</span>
                 <span className="text-xs text-gray-400">
-                  Up to 5 images, max 5MB each
+                  {t('feed.createPost.upTo5Images')}
                 </span>
               </button>
             )}
@@ -709,7 +742,7 @@ export function CreatePostModal({
           {/* Post Category */}
           <div className="space-y-3">
             <label className="text-sm font-medium text-gray-700 mb-2 dark:text-gray-300 block">
-              Post Category
+              {t('feed.createPost.postCategory')}
             </label>
             <div className="mt-2">
               <CategorySelector
@@ -723,7 +756,7 @@ export function CreatePostModal({
           {/* Visibility Selector */}
           <div className="space-y-3">
             <label className="text-sm font-medium text-gray-700 mb-2 dark:text-gray-300 block">
-              Who can see this?
+              {t('feed.createPost.whoCanSee')}
             </label>
             <div className="mt-2">
               <Select
@@ -732,8 +765,8 @@ export function CreatePostModal({
                 disabled={isSubmitting}
               >
                 <SelectTrigger className="w-full min-h-[44px]">
-                  <SelectValue placeholder="Select visibility">
-                    {VISIBILITY_OPTIONS.find(opt => opt.value === visibility)?.label || 'Select visibility'}
+                  <SelectValue placeholder={t('feed.createPost.selectVisibility')}>
+                    {translatedVisibilityOptions.find(opt => opt.value === visibility)?.label || t('feed.createPost.selectVisibility')}
                   </SelectValue>
                 </SelectTrigger>
                 <SelectContent 
@@ -742,7 +775,7 @@ export function CreatePostModal({
                   align="start"
                   className="z-[100] min-w-[200px]"
                 >
-                  {VISIBILITY_OPTIONS.map((option) => (
+                  {translatedVisibilityOptions.map((option) => (
                     <SelectItem 
                       key={option.value} 
                       value={option.value} 
@@ -768,12 +801,12 @@ export function CreatePostModal({
           <div className="space-y-3">
             <label className="text-sm font-medium text-gray-700 mb-2 dark:text-gray-300 flex items-center gap-1">
               <IconMapPin size={16} />
-              Location
+              {t('feed.createPost.location')}
             </label>
             {!showLocationInput ? (
               <div className="flex items-center justify-between p-3 rounded-lg bg-gray-50 dark:bg-gray-900">
                 <span className="text-sm text-gray-600 dark:text-gray-400">
-                  {locationString || 'No location set'}
+                  {locationString || t('feed.createPost.noLocationSet')}
                 </span>
                 <button
                   onClick={() => setShowLocationInput(true)}
@@ -783,7 +816,7 @@ export function CreatePostModal({
                     isSubmitting && 'opacity-50 cursor-not-allowed'
                   )}
                 >
-                  Change
+                  {t('feed.createPost.change')}
                 </button>
               </div>
             ) : (
@@ -798,7 +831,7 @@ export function CreatePostModal({
                         district: e.target.value,
                       }))
                     }
-                    placeholder="District"
+                    placeholder={t('feed.createPost.district')}
                     disabled={isSubmitting}
                     className={cn(
                       'px-3 py-2 text-sm rounded-lg border',
@@ -816,7 +849,7 @@ export function CreatePostModal({
                         state: e.target.value,
                       }))
                     }
-                    placeholder="State"
+                    placeholder={t('feed.createPost.state')}
                     disabled={isSubmitting}
                     className={cn(
                       'px-3 py-2 text-sm rounded-lg border',
@@ -830,7 +863,7 @@ export function CreatePostModal({
                   onClick={() => setShowLocationInput(false)}
                   className="text-xs text-gray-500 hover:underline"
                 >
-                  Done
+                  {t('feed.createPost.done')}
                 </button>
               </div>
             )}
@@ -860,10 +893,10 @@ export function CreatePostModal({
             {isSubmitting ? (
               <>
                 <IconLoader2 size={20} className="mr-2 animate-spin" />
-                {progress > 0 ? `Posting ${progress}%...` : 'Posting...'}
+                {progress > 0 ? `${t('feed.createPost.posting')} ${progress}%...` : t('feed.createPost.posting')}
               </>
             ) : (
-              'Post'
+              t('feed.createPost.post')
             )}
           </Button>
         </div>

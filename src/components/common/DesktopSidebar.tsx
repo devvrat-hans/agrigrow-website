@@ -12,20 +12,21 @@ import {
 } from '@tabler/icons-react';
 import { cn } from '@/lib/utils';
 import { Logo } from './Logo';
+import { useTranslation } from '@/hooks/useTranslation';
 
 interface NavItem {
   href: string;
-  label: string;
+  labelKey: string;
   icon: React.ComponentType<{ size?: number; className?: string }>;
 }
 
 const navItems: NavItem[] = [
-  { href: '/home', label: 'Feed', icon: IconHome },
-  { href: '/crop-ai', label: 'Crop AI', icon: IconPlant2 },
-  { href: '/knowledge', label: 'Learn', icon: IconBook },
-  { href: '/communities', label: 'Communities', icon: IconUsersGroup },
-  { href: '/saved-posts', label: 'Saved', icon: IconBookmark },
-  { href: '/profile', label: 'Profile', icon: IconUser },
+  { href: '/home', labelKey: 'nav.feed', icon: IconHome },
+  { href: '/crop-ai', labelKey: 'nav.cropAi', icon: IconPlant2 },
+  { href: '/knowledge', labelKey: 'nav.learn', icon: IconBook },
+  { href: '/communities', labelKey: 'nav.communities', icon: IconUsersGroup },
+  { href: '/saved-posts', labelKey: 'nav.saved', icon: IconBookmark },
+  { href: '/profile', labelKey: 'nav.profile', icon: IconUser },
 ];
 
 /**
@@ -34,6 +35,7 @@ const navItems: NavItem[] = [
  */
 export function DesktopSidebar() {
   const pathname = usePathname();
+  const { t } = useTranslation();
 
   /**
    * Check if a route is active
@@ -91,7 +93,7 @@ export function DesktopSidebar() {
                         : 'text-gray-500 dark:text-gray-400'
                     )}
                   />
-                  <span>{item.label}</span>
+                  <span>{t(item.labelKey)}</span>
                 </Link>
               </li>
             );
@@ -102,7 +104,7 @@ export function DesktopSidebar() {
       {/* Footer/Version */}
       <div className="p-4 border-t border-border">
         <p className="text-xs text-muted-foreground text-center">
-          AgriGrow v1.0
+          {t('desktop.agrigrowVersion')}
         </p>
       </div>
     </aside>

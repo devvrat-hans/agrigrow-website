@@ -1,11 +1,16 @@
 'use client';
 
+import { useTranslation } from '@/hooks/useTranslation';
+
 interface BackButtonProps {
   onClick: () => void;
   label?: string;
 }
 
-export function BackButton({ onClick, label = 'Change number' }: BackButtonProps) {
+export function BackButton({ onClick, label }: BackButtonProps) {
+  const { t } = useTranslation();
+  const displayLabel = label || t('auth.changeNumber');
+
   return (
     <button
       onClick={onClick}
@@ -14,7 +19,7 @@ export function BackButton({ onClick, label = 'Change number' }: BackButtonProps
       <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
       </svg>
-      {label}
+      {displayLabel}
     </button>
   );
 }

@@ -2,21 +2,24 @@
 
 import { Logo, FooterLinkGroup } from '@/components/common';
 import { containerMaxWidth } from '@/lib/design-tokens';
-
-const companyLinks = [
-  { label: 'About', href: '#' },
-  { label: 'Blog', href: '#' },
-  { label: 'Careers', href: '#' },
-  { label: 'Contact', href: '#' },
-];
-
-const legalLinks = [
-  { label: 'Privacy', href: '#' },
-  { label: 'Terms', href: '#' },
-  { label: 'Cookies', href: '#' },
-];
+import { useTranslation } from '@/hooks/useTranslation';
 
 export function Footer() {
+  const { t } = useTranslation();
+
+  const companyLinks = [
+    { label: t('landing.footer.about'), href: '#' },
+    { label: t('landing.footer.blog'), href: '#' },
+    { label: t('landing.footer.careers'), href: '#' },
+    { label: t('landing.footer.contact'), href: '#' },
+  ];
+
+  const legalLinks = [
+    { label: t('landing.footer.privacy'), href: '#' },
+    { label: t('landing.footer.terms'), href: '#' },
+    { label: t('landing.footer.cookies'), href: '#' },
+  ];
+
   return (
     <footer className="bg-muted border-t border-border py-12 px-6">
       <div className={`${containerMaxWidth['7xl']} mx-auto`}>
@@ -27,18 +30,18 @@ export function Footer() {
               <Logo size="md" href="/" />
             </div>
             <p className="text-sm text-muted-foreground leading-relaxed">
-              Helping farmers make better decisions with <br />AI and community knowledge.
+              {t('landing.footer.tagline')}
             </p>
           </div>
 
-          <FooterLinkGroup title="Company" links={companyLinks} />
-          <FooterLinkGroup title="Legal" links={legalLinks} />
+          <FooterLinkGroup title={t('landing.footer.company')} links={companyLinks} />
+          <FooterLinkGroup title={t('landing.footer.legal')} links={legalLinks} />
         </div>
 
         {/* Bottom */}
         <div className="pt-8 border-t border-border flex flex-col md:flex-row justify-between items-center gap-4">
           <p className="text-sm text-muted-foreground">
-            © 2024 AgriGrow. All rights reserved.
+            {t('landing.footer.copyright')}
           </p>
         </div>
       </div>

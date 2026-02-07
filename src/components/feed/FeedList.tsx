@@ -22,6 +22,7 @@ import { EmptyState } from '@/components/common/EmptyState';
 import { Button } from '@/components/ui/button';
 import { calculateVisibleRange, getSpacerHeights, trackRender } from '@/lib/performance';
 import { useViewTracking } from '@/hooks/useViewTracking';
+import { useTranslation } from '@/hooks/useTranslation';
 
 /**
  * Props for FeedList component
@@ -81,6 +82,7 @@ interface ErrorBoundaryProps {
   children: ReactNode;
   fallback?: ReactNode;
   postId: string;
+  errorMessage?: string;
 }
 
 class FeedItemErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundaryState> {
@@ -104,7 +106,7 @@ class FeedItemErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundaryS
           <div className="p-4 bg-red-50 dark:bg-red-950/30 rounded-lg border border-red-200 dark:border-red-800">
             <div className="flex items-center gap-2 text-red-600 dark:text-red-400">
               <IconAlertTriangle size={18} />
-              <span className="text-sm">Failed to load this post</span>
+              <span className="text-sm">{this.props.errorMessage || 'Failed to load this post'}</span>
             </div>
           </div>
         )
@@ -245,6 +247,7 @@ export function FeedList({
 
   // View tracking hook for capturing post views
   const { trackView } = useViewTracking();
+  const { t } = useTranslation();
 
   // Refs
   const sentinelRef = useRef<HTMLDivElement>(null);
@@ -430,8 +433,8 @@ export function FeedList({
               className="text-gray-300 dark:text-gray-600 sm:w-12 sm:h-12" 
             />
           }
-          message="No posts to show"
-          description="Try following more users or adjusting your feed preferences to see more content."
+          message={t('feed.empty.noPosts')}
+          description={t('feed.empty.adjustPreferences')}
           action={
             onRefresh && (
               <Button 
@@ -443,7 +446,7 @@ export function FeedList({
                 )}
               >
                 <IconRefresh size={18} className="mr-2" />
-                Refresh Feed
+                {t('feed.empty.refreshFeed')}
               </Button>
             )
           }
@@ -546,7 +549,7 @@ export function FeedList({
             );
             
             return (
-              <FeedItemErrorBoundary key={postId} postId={postId}>
+              <FeedItemErrorBoundary key={postId} postId={postId} errorMessage={t('feed.empty.failedToLoad')}>
                 <ViewTrackingWrapper postId={postId} onVisible={trackView}>
                   {postContent}
                 </ViewTrackingWrapper>
@@ -572,10 +575,10 @@ export function FeedList({
           <div className="flex flex-col items-center py-6 sm:py-8 text-center px-4">
             <div className="w-16 h-0.5 bg-gray-200 dark:bg-gray-700 rounded-full mb-4" />
             <p className="text-sm text-gray-500 dark:text-gray-400">
-              You&apos;ve reached the end
+              {t('feed.empty.reachedEnd')}
             </p>
             <p className="text-xs text-gray-400 dark:text-gray-500 mt-1">
-              Follow more farmers to see more posts
+              {t('feed.empty.followMore')}
             </p>
           </div>
         )}

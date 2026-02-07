@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import { IconArrowLeft } from '@tabler/icons-react';
 import { Logo } from './Logo';
 import { cn } from '@/lib/utils';
+import { useTranslation } from '@/hooks/useTranslation';
 
 interface PageHeaderProps {
   /** Optional right side action element */
@@ -43,6 +44,7 @@ export function PageHeader({
   className,
 }: PageHeaderProps) {
   const router = useRouter();
+  const { t } = useTranslation();
 
   const handleBack = () => {
     if (onBack) {
@@ -80,7 +82,7 @@ export function PageHeader({
                 // Focus styles for accessibility
                 "focus:outline-none focus-visible:ring-2 focus-visible:ring-primary-500 focus-visible:ring-offset-2"
               )}
-              aria-label="Go back"
+              aria-label={t('common.goBack')}
             >
               {/* Use fixed size of 20 to prevent hydration mismatch */}
               <IconArrowLeft 

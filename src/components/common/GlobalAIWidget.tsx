@@ -3,6 +3,7 @@
 import { usePathname, useRouter } from 'next/navigation';
 import { IconMessageCircle } from '@tabler/icons-react';
 import { cn } from '@/lib/utils';
+import { useTranslation } from '@/hooks/useTranslation';
 
 /**
  * GlobalAIWidget Component
@@ -13,6 +14,7 @@ import { cn } from '@/lib/utils';
 export function GlobalAIWidget() {
   const pathname = usePathname();
   const router = useRouter();
+  const { t } = useTranslation();
 
   // Hide on crop-ai page since it has its own AI widget
   if (pathname?.startsWith('/crop-ai')) {
@@ -40,10 +42,10 @@ export function GlobalAIWidget() {
         'bottom-24 right-4 md:bottom-6 md:right-6',
         'min-w-[56px] min-h-[56px] md:min-w-[auto] md:min-h-[auto] md:px-4 md:py-3 md:gap-2'
       )}
-      aria-label="Ask AI"
+      aria-label={t('common.askAi')}
     >
       <IconMessageCircle className="w-6 h-6 md:w-5 md:h-5" />
-      <span className="hidden md:inline font-medium">Ask AI</span>
+      <span className="hidden md:inline font-medium">{t('common.askAi')}</span>
     </button>
   );
 }

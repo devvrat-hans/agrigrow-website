@@ -1,17 +1,20 @@
 'use client';
 
 import Link from 'next/link';
+import { useTranslation } from '@/hooks/useTranslation';
 
 export function AuthTermsText() {
+  const { t } = useTranslation();
+
   return (
     <p className="text-xs text-muted-foreground text-center">
-      By continuing, you agree to our{' '}
+      {t('auth.termsPrefix')}{' '}
       <Link href="/terms" className="text-primary hover:underline">
-        Terms of Service
+        {t('auth.termsOfService')}
       </Link>{' '}
-      and{' '}
+      {t('common.and')}{' '}
       <Link href="/privacy" className="text-primary hover:underline">
-        Privacy Policy
+        {t('auth.privacyPolicy')}
       </Link>
     </p>
   );

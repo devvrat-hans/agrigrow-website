@@ -2,6 +2,7 @@
 
 import React from 'react';
 import { cn } from '@/lib/utils';
+import { useTranslation } from '@/hooks/useTranslation';
 import {
   IconLeaf,
   IconTractor,
@@ -41,6 +42,7 @@ export type PostCategory =
 interface CategoryConfig {
   id: PostCategory;
   name: string;
+  nameKey: string;
   icon: React.ComponentType<{ size?: number; className?: string }>;
   iconColor: string;
 }
@@ -52,54 +54,63 @@ export const POST_CATEGORIES: CategoryConfig[] = [
   {
     id: 'general',
     name: 'General',
+    nameKey: 'feed.postCategories.general',
     icon: IconCategory,
     iconColor: 'text-gray-500',
   },
   {
     id: 'organic_farming',
     name: 'Organic Farming',
+    nameKey: 'feed.postCategories.organicFarming',
     icon: IconLeaf,
     iconColor: 'text-green-600',
   },
   {
     id: 'equipment_machinery',
     name: 'Equipment & Machinery',
+    nameKey: 'feed.postCategories.equipmentMachinery',
     icon: IconTractor,
     iconColor: 'text-orange-600',
   },
   {
     id: 'fertilizer_pesticides',
     name: 'Fertilizer & Pesticides',
+    nameKey: 'feed.postCategories.fertilizerPesticides',
     icon: IconFlask,
     iconColor: 'text-purple-600',
   },
   {
     id: 'animal_husbandry',
     name: 'Animal Husbandry',
+    nameKey: 'feed.postCategories.animalHusbandry',
     icon: IconPig,
     iconColor: 'text-amber-600',
   },
   {
     id: 'agri_business_news',
     name: 'Agri Business News',
+    nameKey: 'feed.postCategories.agriBusinessNews',
     icon: IconNews,
     iconColor: 'text-blue-600',
   },
   {
     id: 'agriculture_practices',
     name: 'Agriculture Practices',
+    nameKey: 'feed.postCategories.agriculturePractices',
     icon: IconClipboardCheck,
     iconColor: 'text-teal-600',
   },
   {
     id: 'market_prices',
     name: 'Market Prices',
+    nameKey: 'feed.postCategories.marketPrices',
     icon: IconCash,
     iconColor: 'text-yellow-600',
   },
   {
     id: 'food_processing',
     name: 'Food Processing',
+    nameKey: 'feed.postCategories.foodProcessing',
     icon: IconBuildingFactory,
     iconColor: 'text-rose-600',
   },
@@ -125,6 +136,7 @@ export function CategorySelector({
   disabled = false,
   className,
 }: CategorySelectorProps) {
+  const { t } = useTranslation();
   const selectedCategory = POST_CATEGORIES.find((cat) => cat.id === value);
   const SelectedIcon = selectedCategory?.icon || IconCategory;
 
@@ -136,13 +148,13 @@ export function CategorySelector({
         disabled={disabled}
       >
         <SelectTrigger className="w-full min-h-[44px]">
-          <SelectValue placeholder="Select category">
+          <SelectValue placeholder={t('feed.postCategories.selectCategory')}>
             <div className="flex items-center gap-2">
               <SelectedIcon 
                 size={16} 
                 className={cn('flex-shrink-0', selectedCategory?.iconColor)} 
               />
-              <span>{selectedCategory?.name || 'Select category'}</span>
+              <span>{selectedCategory ? t(selectedCategory.nameKey) : t('feed.postCategories.selectCategory')}</span>
             </div>
           </SelectValue>
         </SelectTrigger>
@@ -166,7 +178,7 @@ export function CategorySelector({
                     size={16} 
                     className={cn('flex-shrink-0', category.iconColor)} 
                   />
-                  <span>{category.name}</span>
+                  <span>{t(category.nameKey)}</span>
                 </div>
               </SelectItem>
             );

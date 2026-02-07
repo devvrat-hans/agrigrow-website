@@ -32,6 +32,7 @@ import {
 } from '@/components/ui/alert-dialog';
 import { IconDotsVertical, IconVolume, IconVolume3 } from '@tabler/icons-react';
 import { useMuteUser } from '@/hooks';
+import { useTranslation } from '@/hooks/useTranslation';
 
 interface ProfileHeaderProps {
   /** User's MongoDB _id for mute API calls */
@@ -85,6 +86,7 @@ export function ProfileHeader({
   const [isFollowersModalOpen, setIsFollowersModalOpen] = useState(false);
   const [isFollowingModalOpen, setIsFollowingModalOpen] = useState(false);
   const [showMuteConfirm, setShowMuteConfirm] = useState(false);
+  const { t } = useTranslation();
   
   // Track local counts that can update after follow actions
   const [localFollowersCount, setLocalFollowersCount] = useState(followersCount);
@@ -185,12 +187,12 @@ export function ProfileHeader({
                           {isMuted ? (
                             <>
                               <IconVolume size={16} />
-                              <span>Unmute this user</span>
+                              <span>{t('profile.unmuteUser')}</span>
                             </>
                           ) : (
                             <>
                               <IconVolume3 size={16} />
-                              <span>Mute this user</span>
+                              <span>{t('profile.muteUser')}</span>
                             </>
                           )}
                         </DropdownMenuItem>
@@ -250,19 +252,18 @@ export function ProfileHeader({
       <AlertDialog open={showMuteConfirm} onOpenChange={setShowMuteConfirm}>
         <AlertDialogContent className="max-w-[90vw] sm:max-w-md rounded-xl">
           <AlertDialogHeader>
-            <AlertDialogTitle>Mute this user?</AlertDialogTitle>
+            <AlertDialogTitle>{t('profile.muteConfirmTitle')}</AlertDialogTitle>
             <AlertDialogDescription>
-              You won&apos;t see their posts in your feed. You can unmute them
-              anytime from their profile or your settings.
+              {t('profile.muteConfirmDesc')}
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogCancel>{t('profile.cancel')}</AlertDialogCancel>
             <AlertDialogAction
               onClick={handleConfirmMute}
               className="bg-red-600 hover:bg-red-700 text-white"
             >
-              Mute
+              {t('profile.mute')}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>

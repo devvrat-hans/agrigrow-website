@@ -1,0 +1,1322 @@
+/**
+ * Internationalization type definitions for Agrigrow
+ * Defines the structure of all translation keys used across the application
+ */
+
+export interface CommonTranslations {
+  save: string;
+  cancel: string;
+  back: string;
+  continue: string;
+  next: string;
+  loading: string;
+  search: string;
+  submit: string;
+  delete: string;
+  edit: string;
+  share: string;
+  follow: string;
+  following: string;
+  unfollow: string;
+  tryAgain: string;
+  goBack: string;
+  signIn: string;
+  signUp: string;
+  logout: string;
+  askAi: string;
+  close: string;
+  confirm: string;
+  done: string;
+  yes: string;
+  no: string;
+  ok: string;
+  or: string;
+  and: string;
+  of: string;
+  all: string;
+  none: string;
+  more: string;
+  less: string;
+  show: string;
+  hide: string;
+  view: string;
+  viewAll: string;
+  seeMore: string;
+  seeLess: string;
+  refresh: string;
+  retry: string;
+  reset: string;
+  apply: string;
+  filter: string;
+  filters: string;
+  sort: string;
+  sortBy: string;
+  create: string;
+  update: string;
+  remove: string;
+  add: string;
+  send: string;
+  sending: string;
+  sent: string;
+  post: string;
+  posting: string;
+  posted: string;
+  reply: string;
+  replies: string;
+  like: string;
+  liked: string;
+  likes: string;
+  comment: string;
+  comments: string;
+  noResults: string;
+  somethingWentWrong: string;
+  unexpectedError: string;
+  networkError: string;
+  pleaseLogin: string;
+  comingSoon: string;
+  optional: string;
+  required: string;
+  characters: string;
+  selected: string;
+  select: string;
+  selectedCount: string;
+  copied: string;
+  linkCopied: string;
+  joinNow: string;
+  learnMore: string;
+  getStarted: string;
+  explore: string;
+  discover: string;
+  recommended: string;
+  popular: string;
+  trending: string;
+  recent: string;
+  new: string;
+  verified: string;
+  settings: string;
+  preferences: string;
+  help: string;
+  about: string;
+  contact: string;
+  report: string;
+  blocked: string;
+  muted: string;
+  members: string;
+  member: string;
+  posts: string;
+  followers: string;
+  follower: string;
+  crop: string;
+  crops: string;
+  region: string;
+  regions: string;
+  type: string;
+  category: string;
+  categories: string;
+  tags: string;
+  description: string;
+  title: string;
+  name: string;
+  email: string;
+  phone: string;
+  location: string;
+  date: string;
+  time: string;
+  today: string;
+  yesterday: string;
+  thisWeek: string;
+  older: string;
+  justNow: string;
+  minutesAgo: string;
+  hoursAgo: string;
+  daysAgo: string;
+  weeksAgo: string;
+  unread: string;
+  markAsRead: string;
+  notifications: string;
+  noNotifications: string;
+  uploadImage: string;
+  uploadPhoto: string;
+  takePhoto: string;
+  chooseFromGallery: string;
+  removeImage: string;
+  errorOccurred: string;
+  failedToLoad: string;
+  pullToRefresh: string;
+  loadMore: string;
+  endOfList: string;
+  empty: string;
+  welcome: string;
+  congratulations: string;
+  success: string;
+  error: string;
+  warning: string;
+  info: string;
+  tip: string;
+}
+
+export interface NavTranslations {
+  feed: string;
+  home: string;
+  groups: string;
+  communities: string;
+  learn: string;
+  knowledge: string;
+  cropAi: string;
+  profile: string;
+  features: string;
+  about: string;
+  community: string;
+  resources: string;
+  signin: string;
+  signup: string;
+  askAi: string;
+  notifications: string;
+  saved: string;
+  savedPosts: string;
+  settings: string;
+}
+
+export interface LandingHeroTranslations {
+  tagline: string;
+  titlePart1: string;
+  titleHighlight: string;
+  description: string;
+  learnMore: string;
+  getStarted: string;
+  highlights: {
+    aiPowered: string;
+    aiPoweredDesc: string;
+    communityDriven: string;
+    communityDrivenDesc: string;
+    expertVerified: string;
+    expertVerifiedDesc: string;
+  };
+}
+
+export interface LandingFeaturesTranslations {
+  label: string;
+  title: string;
+  description: string;
+  aiCropDiagnosis: string;
+  aiCropDiagnosisDesc: string;
+  communityAnswers: string;
+  communityAnswersDesc: string;
+  cropPlanning: string;
+  cropPlanningDesc: string;
+  expertKnowledge: string;
+  expertKnowledgeDesc: string;
+  localLanguages: string;
+  localLanguagesDesc: string;
+  worksOffline: string;
+  worksOfflineDesc: string;
+}
+
+export interface LandingAboutTranslations {
+  label: string;
+  title: string;
+  paragraph1: string;
+  paragraph2: string;
+  trustedInfo: string;
+  trustedInfoDesc: string;
+  farmerCommunity: string;
+  farmerCommunityDesc: string;
+  multipleLanguages: string;
+  multipleLanguagesDesc: string;
+  mobileFirst: string;
+  mobileFirstDesc: string;
+}
+
+export interface LandingTestimonialsTranslations {
+  badge: string;
+  title: string;
+  titleHighlight: string;
+  description: string;
+  averageRating: string;
+  happyFarmers: string;
+  recommendAgrigrow: string;
+  testimonialsList: {
+    name: string;
+    role: string;
+    location: string;
+    text: string;
+  }[];
+}
+
+export interface LandingFooterTranslations {
+  tagline: string;
+  company: string;
+  legal: string;
+  about: string;
+  blog: string;
+  careers: string;
+  contact: string;
+  privacy: string;
+  terms: string;
+  cookies: string;
+  copyright: string;
+}
+
+export interface LandingTranslations {
+  hero: LandingHeroTranslations;
+  features: LandingFeaturesTranslations;
+  about: LandingAboutTranslations;
+  testimonials: LandingTestimonialsTranslations;
+  footer: LandingFooterTranslations;
+}
+
+export interface AuthTranslations {
+  signin: {
+    title: string;
+    description: string;
+    welcomeBack: string;
+    welcomeDesc: string;
+  };
+  signup: {
+    title: string;
+    description: string;
+    joinTitle: string;
+    joinDesc: string;
+  };
+  mobileNumber: string;
+  enterMobileNumber: string;
+  sendOtp: string;
+  sendingOtp: string;
+  verifyOtp: string;
+  verifyingOtp: string;
+  verifyOtpTitle: string;
+  verifyOtpDesc: string;
+  resendOtp: string;
+  resendOtpIn: string;
+  dontHaveAccount: string;
+  alreadyHaveAccount: string;
+  invalidPhone: string;
+  invalidOtp: string;
+  otpFailed: string;
+  demoMode: string;
+  demoModeDesc: string;
+  termsText: string;
+  termsPrefix: string;
+  termsOfService: string;
+  privacyPolicy: string;
+  trustedByFarmers: string;
+  changeNumber: string;
+}
+
+export interface OnboardingTranslations {
+  chooseLanguage: string;
+  chooseLanguageDesc: string;
+  available: string;
+  comingSoon: string;
+  tellAboutYourself: string;
+  tellAboutYourselfDesc: string;
+  fullName: string;
+  fullNamePlaceholder: string;
+  shortBio: string;
+  shortBioPlaceholder: string;
+  iAmA: string;
+  iAmADesc: string;
+  farmer: string;
+  farmerDesc: string;
+  student: string;
+  studentDesc: string;
+  business: string;
+  businessDesc: string;
+  whereLocated: string;
+  whereLocatedDesc: string;
+  state: string;
+  selectState: string;
+  district: string;
+  enterDistrict: string;
+  whatCrops: string;
+  whatCropsDesc: string;
+  searchCrops: string;
+  experienceLevel: string;
+  experienceLevelDesc: string;
+  beginner: string;
+  beginnerDesc: string;
+  intermediate: string;
+  intermediateDesc: string;
+  experienced: string;
+  experiencedDesc: string;
+  expert: string;
+  expertDesc: string;
+  whatInterests: string;
+  whatInterestsDesc: string;
+  academicDetails: string;
+  academicDetailsDesc: string;
+  degree: string;
+  selectDegree: string;
+  collegeName: string;
+  yearOfStudy: string;
+  selectYear: string;
+  background: string;
+  areaOfInterest: string;
+  areaOfInterestDesc: string;
+  purposeOnPlatform: string;
+  purposeDesc: string;
+  organizationType: string;
+  organizationTypeDesc: string;
+  focusAreas: string;
+  focusAreasDesc: string;
+  completeSetup: string;
+  settingUp: string;
+  step: string;
+  stepOf: string;
+  skipForNow: string;
+  letsGo: string;
+  welcomeToAgrigrow: string;
+  profileSetupComplete: string;
+  characters: string;
+  collegeNamePlaceholder: string;
+  selectMultiple: string;
+  optional: string;
+  required: string;
+  interests: {
+    organicFarming: string;
+    organicFarmingDesc: string;
+    equipmentMachinery: string;
+    equipmentMachineryDesc: string;
+    fertilizerPesticides: string;
+    fertilizerPesticidesDesc: string;
+    animalHusbandry: string;
+    animalHusbandryDesc: string;
+    agriBusinessNews: string;
+    agriBusinessNewsDesc: string;
+    agriculturePractices: string;
+    agriculturePracticesDesc: string;
+    marketPrices: string;
+    marketPricesDesc: string;
+    foodProcessing: string;
+    foodProcessingDesc: string;
+  };
+  crops: {
+    rice: string;
+    wheat: string;
+    cotton: string;
+    sugarcane: string;
+    vegetables: string;
+    fruits: string;
+    pulses: string;
+    oilseeds: string;
+    spices: string;
+    millets: string;
+    maize: string;
+    other: string;
+  };
+  degreeOptions: {
+    bscAgriculture: string;
+    mscAgriculture: string;
+    phd: string;
+    mbaAbm: string;
+    diplomaOther: string;
+  };
+  yearOptions: {
+    finalYear: string;
+    recentlyGraduated: string;
+    alumni: string;
+  };
+  backgroundOptions: {
+    farmingFamily: string;
+    nonFarming: string;
+  };
+  studentInterestOptions: {
+    cropProduction: string;
+    soilScience: string;
+    plantPathology: string;
+    agribusinessMarketing: string;
+    agriculturalEconomics: string;
+    precisionAgriculture: string;
+    livestockDairy: string;
+    sustainabilityClimate: string;
+  };
+  studentPurposeOptions: {
+    learnFromFarmers: string;
+    shareResearch: string;
+    connectExperts: string;
+    internship: string;
+    startupInnovation: string;
+  };
+  orgTypes: {
+    agriInput: string;
+    agriTech: string;
+    fpo: string;
+    ngo: string;
+    government: string;
+    research: string;
+    kvk: string;
+    foodProcessor: string;
+  };
+  businessFocusOptions: {
+    cropAdvisory: string;
+    marketLinkages: string;
+    inputSupply: string;
+    financialServices: string;
+    training: string;
+    researchTrials: string;
+    policy: string;
+  };
+}
+
+export interface FeedTranslations {
+  categories: {
+    all: string;
+    news: string;
+    posts: string;
+    questions: string;
+    techniques: string;
+    tech: string;
+    tips: string;
+    successStories: string;
+    problems: string;
+    updates: string;
+    following: string;
+    trending: string;
+  };
+  createPost: {
+    whatsOnYourMind: string;
+    shareLearning: string;
+    shareAdvice: string;
+    shareUpdate: string;
+    shareWithCommunity: string;
+    askQuestions: string;
+    addPhoto: string;
+    createPost: string;
+    posting: string;
+    selectCategory: string;
+    selectVisibility: string;
+    addTags: string;
+    addCropTags: string;
+    writeHere: string;
+    shareYourExperience: string;
+    voiceInput: string;
+    stopRecording: string;
+    listening: string;
+    post: string;
+    photo: string;
+    type: string;
+    postType: string;
+    images: string;
+    addImages: string;
+    add: string;
+    upTo5Images: string;
+    processingImages: string;
+    postCategory: string;
+    whoCanSee: string;
+    location: string;
+    noLocationSet: string;
+    change: string;
+    district: string;
+    state: string;
+    done: string;
+    dismiss: string;
+    listeningSpeak: string;
+    farmerPlaceholder: string;
+    studentPlaceholder: string;
+    businessPlaceholder: string;
+    defaultPlaceholder: string;
+    removeImage: string;
+  };
+  postTypes: {
+    question: string;
+    update: string;
+    tip: string;
+    problem: string;
+    successStory: string;
+    technique: string;
+    technology: string;
+    news: string;
+    post: string;
+    success: string;
+  };
+  postTypeDescriptions: {
+    question: string;
+    update: string;
+    tip: string;
+    problem: string;
+    successStory: string;
+  };
+  postCategories: {
+    general: string;
+    organicFarming: string;
+    equipmentMachinery: string;
+    fertilizerPesticides: string;
+    animalHusbandry: string;
+    agriBusinessNews: string;
+    agriculturePractices: string;
+    marketPrices: string;
+    foodProcessing: string;
+    selectCategory: string;
+  };
+  visibility: {
+    public: string;
+    publicDesc: string;
+    followers: string;
+    followersDesc: string;
+    group: string;
+    groupDesc: string;
+  };
+  comments: {
+    writeComment: string;
+    writeReply: string;
+    newestFirst: string;
+    oldestFirst: string;
+    mostHelpful: string;
+    noComments: string;
+    beFirstToComment: string;
+    viewReplies: string;
+    hideReplies: string;
+    deleteComment: string;
+    deleteCommentConfirm: string;
+    helpful: string;
+    comment: string;
+    commentsPlural: string;
+    loading: string;
+    loadMore: string;
+    dismiss: string;
+    post: string;
+    reply: string;
+    cancel: string;
+    pressCtrlEnter: string;
+    showMoreReplies: string;
+    edited: string;
+    justNow: string;
+    edit: string;
+    delete: string;
+    report: string;
+    save: string;
+  };
+  share: {
+    sharePost: string;
+    whatsapp: string;
+    copyLink: string;
+    moreOptions: string;
+    shareViaWhatsapp: string;
+    copyToClipboard: string;
+    shareViaOtherApps: string;
+    shareCommunity: string;
+    copied: string;
+    dismiss: string;
+    postThumbnail: string;
+  };
+  report: {
+    title: string;
+    reportPost: string;
+    reportComment: string;
+    submitted: string;
+    submittedDesc: string;
+    selectReason: string;
+    mustBeLoggedIn: string;
+    reasons: {
+      spam: string;
+      harassment: string;
+      misinformation: string;
+      inappropriate: string;
+      violence: string;
+      other: string;
+    };
+    submitReport: string;
+    submitting: string;
+    additionalDetails: string;
+    helpUsUnderstand: string;
+    whyReporting: string;
+    cancel: string;
+  };
+  weather: {
+    today: string;
+    tomorrow: string;
+    feelsLike: string;
+    humidity: string;
+    wind: string;
+    rainChance: string;
+    forecast: string;
+    weatherFor: string;
+    loading: string;
+    locationRequired: string;
+    high: string;
+    low: string;
+    uvIndex: string;
+    sunrise: string;
+    sunset: string;
+    refreshWeather: string;
+    hideForecast: string;
+    showForecast: string;
+  };
+  empty: {
+    noPosts: string;
+    noPostsDesc: string;
+    beFirstToPost: string;
+    refreshFeed: string;
+    reachedEnd: string;
+    followMore: string;
+    adjustPreferences: string;
+    failedToLoad: string;
+    errorOccurred: string;
+  };
+  newPosts: {
+    newPostsAvailable: string;
+    tapToRefresh: string;
+    oneNewPost: string;
+    manyNewPosts: string;
+    tooManyNewPosts: string;
+  };
+  search: {
+    searchPosts: string;
+    searchPlaceholder: string;
+    recentSearches: string;
+    noResults: string;
+    searchUsers: string;
+    searchCommunities: string;
+    people: string;
+    posts: string;
+    by: string;
+    noResultsFor: string;
+    searchUsersAndPosts: string;
+  };
+  insights: {
+    views: string;
+    likes: string;
+    comments: string;
+    shares: string;
+    engagement: string;
+    postInsights: string;
+    totalViews: string;
+    reach: string;
+    unique: string;
+    saves: string;
+    profileVisits: string;
+    fromThisPost: string;
+    helpfulMarks: string;
+    onComments: string;
+    engagementRate: string;
+    refreshInsights: string;
+    loadingInsights: string;
+    tryAgain: string;
+    today: string;
+    oneDayAgo: string;
+    daysAgo: string;
+    signInToView: string;
+  };
+  actions: {
+    like: string;
+    unlike: string;
+    comment: string;
+    share: string;
+    save: string;
+    unsave: string;
+    copyLink: string;
+    copied: string;
+    hidePost: string;
+    muteUser: string;
+    unmuteUser: string;
+    deletePost: string;
+    reportPost: string;
+    showLess: string;
+    readMore: string;
+    deletePostTitle: string;
+    deletePostConfirm: string;
+    cancel: string;
+    delete: string;
+    deleting: string;
+    repostedFrom: string;
+    moreOptions: string;
+    repost: string;
+    muted: string;
+    unmuted: string;
+  };
+  errorBoundary: {
+    title: string;
+    description: string;
+    tryAgain: string;
+    failedToLoad: string;
+  };
+  filter: {
+    title: string;
+    preferences: string;
+  };
+}
+
+export interface ProfileTranslations {
+  title: string;
+  myProfile: string;
+  editProfile: string;
+  feedPreferences: string;
+  languageSettings: string;
+  appSettings: string;
+  logout: string;
+  logoutConfirm: string;
+  signInAgain: string;
+  details: string;
+  location: string;
+  preferredLanguage: string;
+  myCrops: string;
+  interests: string;
+  myPosts: string;
+  posts: string;
+  post: string;
+  noPosts: string;
+  noPostsDesc: string;
+  noPostsOther: string;
+  showMore: string;
+  showLess: string;
+  failedToLoadProfile: string;
+  failedToLoadPosts: string;
+  failedToDeletePost: string;
+  goBack: string;
+  experienceLevel: string;
+  muteUser: string;
+  unmuteUser: string;
+  muteConfirmTitle: string;
+  muteConfirmDesc: string;
+  cancel: string;
+  mute: string;
+  blockUser: string;
+  unblockUser: string;
+  reportUser: string;
+  farmerProfile: string;
+  studentProfile: string;
+  businessProfile: string;
+  farmerRole: string;
+  studentRole: string;
+  businessRole: string;
+  userRole: string;
+  trustScore: string;
+  badges: string;
+  noBadges: string;
+  joinedOn: string;
+  bio: string;
+  noBio: string;
+  editBio: string;
+  deletePost: string;
+  deletePostConfirm: string;
+  deleting: string;
+  delete: string;
+  stats: {
+    posts: string;
+    followers: string;
+    following: string;
+    communities: string;
+  };
+  trustScoreModal: {
+    title: string;
+    description: string;
+    howItIncreases: string;
+    gotIt: string;
+    expert: string;
+    trusted: string;
+    active: string;
+    new: string;
+    usefulPosts: string;
+    usefulPostsDesc: string;
+    helpfulAdvice: string;
+    helpfulAdviceDesc: string;
+    regularActivity: string;
+    regularActivityDesc: string;
+    verifiedIdentity: string;
+    verifiedIdentityDesc: string;
+  };
+  edit: {
+    title: string;
+    name: string;
+    fullName: string;
+    enterFullName: string;
+    fullNameRequired: string;
+    fullNameMinLength: string;
+    bio: string;
+    bioOptional: string;
+    bioPlaceholder: string;
+    bioMaxLength: string;
+    location: string;
+    stateLabel: string;
+    selectState: string;
+    districtLabel: string;
+    selectDistrict: string;
+    selectStateFirst: string;
+    crops: string;
+    experience: string;
+    saveChanges: string;
+    save: string;
+    saving: string;
+    profileUpdated: string;
+    failedToUpdate: string;
+    failedToUpdateRetry: string;
+    waitForImage: string;
+    changePhoto: string;
+    addPhoto: string;
+    removePhoto: string;
+    profilePhoto: string;
+    imageFormatNote: string;
+    processingImage: string;
+    basicInformation: string;
+    farmingDetails: string;
+    educationDetails: string;
+    businessDetails: string;
+    collegeLabel: string;
+    enterCollege: string;
+    degreeLabel: string;
+    degreePlaceholder: string;
+    yearLabel: string;
+    yearPlaceholder: string;
+    orgTypeLabel: string;
+    orgTypePlaceholder: string;
+    beginner: string;
+    beginnerDesc: string;
+    intermediate: string;
+    intermediateDesc: string;
+    experienced: string;
+    experiencedDesc: string;
+    expert: string;
+    expertDesc: string;
+  };
+  settings: {
+    title: string;
+    subtitle: string;
+    darkMode: string;
+    pushNotifications: string;
+    pushNotificationsDesc: string;
+    emailNotifications: string;
+    emailNotificationsDesc: string;
+    privateProfile: string;
+    showLocation: string;
+    showCrops: string;
+    dataUsage: string;
+    clearCache: string;
+    deleteAccount: string;
+    deleteAccountConfirm: string;
+    version: string;
+    notifications: string;
+    appearance: string;
+    theme: string;
+    tapToChange: string;
+    about: string;
+    light: string;
+    dark: string;
+    system: string;
+    mutedUsers: string;
+    mutedUsersDesc: string;
+    noMutedUsers: string;
+    noMutedUsersDesc: string;
+    unmute: string;
+    failedToLoadMuted: string;
+    tryAgain: string;
+  };
+  language: {
+    title: string;
+    description: string;
+    chooseYourLanguage: string;
+    fullDescription: string;
+    currentLanguage: string;
+    changeLanguage: string;
+    selectLanguage: string;
+    languageChanged: string;
+    languageSaved: string;
+    languageUpdated: string;
+    failedToLoad: string;
+    failedToSave: string;
+    available: string;
+    comingSoon: string;
+    saveChanges: string;
+    save: string;
+    saving: string;
+    languageNote: string;
+  };
+  feedPrefs: {
+    title: string;
+    description: string;
+    contentPreferences: string;
+    categories: string;
+    crops: string;
+    regions: string;
+    resetToDefault: string;
+  };
+  savedPosts: {
+    title: string;
+    noSavedPosts: string;
+    noSavedPostsDesc: string;
+  };
+  academic: {
+    title: string;
+    degree: string;
+    college: string;
+    year: string;
+    background: string;
+    areasOfInterest: string;
+    platformPurposes: string;
+  };
+  business: {
+    organizationType: string;
+    focusAreas: string;
+  };
+}
+
+export interface CropAiTranslations {
+  title: string;
+  assistant: string;
+  assistantDesc: string;
+  selectFeature: string;
+  diagnosis: {
+    title: string;
+    pageTitle: string;
+    description: string;
+    uploadImage: string;
+    uploadImageDesc: string;
+    selectCrop: string;
+    cropType: string;
+    cropGrowthStage: string;
+    affectedArea: string;
+    symptoms: string;
+    additionalInfo: string;
+    analyze: string;
+    analyzing: string;
+    resultsTitle: string;
+    overallHealth: string;
+    diseases: string;
+    pests: string;
+    deficiencies: string;
+    recommendations: string;
+    preventiveMeasures: string;
+    confidence: string;
+    severity: string;
+    treatment: string;
+    newDiagnosis: string;
+    shareResults: string;
+    noDiseases: string;
+    noPests: string;
+    noDeficiencies: string;
+    healthy: string;
+    healthyDesc: string;
+    moderate: string;
+    critical: string;
+    yieldImpact: string;
+    weatherAlerts: string;
+    step: string;
+  };
+  planning: {
+    title: string;
+    description: string;
+    location: string;
+    landSize: string;
+    landSizeUnit: string;
+    soilType: string;
+    selectSoilType: string;
+    season: string;
+    selectSeason: string;
+    waterSource: string;
+    selectWaterSource: string;
+    waterAvailability: string;
+    previousCrop: string;
+    budget: string;
+    getPlan: string;
+    generating: string;
+    resultsTitle: string;
+    recommendedCrops: string;
+    suitability: string;
+    expectedYield: string;
+    estimatedRevenue: string;
+    growingPeriod: string;
+    waterRequirement: string;
+    soilPreparation: string;
+    bestPractices: string;
+    newPlan: string;
+    step: string;
+  };
+  chat: {
+    title: string;
+    askAnything: string;
+    placeholder: string;
+    welcomeMessage: string;
+    suggestedQuestions: string;
+    clearChat: string;
+    newChat: string;
+    chatHistory: string;
+    noHistory: string;
+    noHistoryDesc: string;
+    typingIndicator: string;
+    errorMessage: string;
+    retryMessage: string;
+    voiceInput: string;
+    sendMessage: string;
+    deleteChat: string;
+    deleteChatConfirm: string;
+  };
+  history: {
+    title: string;
+    noHistory: string;
+    noHistoryDesc: string;
+    viewDetails: string;
+    deleteHistory: string;
+    deleteAll: string;
+    deleteAllConfirm: string;
+    filterByType: string;
+    filterByDate: string;
+    diagnosis: string;
+    planning: string;
+    allTypes: string;
+    lastWeek: string;
+    lastMonth: string;
+    allTime: string;
+  };
+  common: {
+    uploadPhoto: string;
+    retakePhoto: string;
+    changeImage: string;
+    processing: string;
+    error: string;
+    noResults: string;
+    shareWithCommunity: string;
+  };
+}
+
+export interface CommunitiesTranslations {
+  title: string;
+  myCommunities: string;
+  discover: string;
+  joinPromptTitle: string;
+  joinPromptDesc: string;
+  createCommunity: string;
+  searchPlaceholder: string;
+  noCommunities: string;
+  noCommunitiesDesc: string;
+  joinedCommunities: string;
+  exploreCommunities: string;
+  privacy: {
+    public: string;
+    publicDesc: string;
+    private: string;
+    privateDesc: string;
+    inviteOnly: string;
+    inviteOnlyDesc: string;
+  };
+  groupType: {
+    all: string;
+    cropBased: string;
+    cropBasedDesc: string;
+    regionBased: string;
+    regionBasedDesc: string;
+    topicBased: string;
+    topicBasedDesc: string;
+  };
+  create: {
+    title: string;
+    groupType: string;
+    groupTypeDesc: string;
+    basicInfo: string;
+    details: string;
+    selectCrop: string;
+    selectRegion: string;
+    privacy: string;
+    privacySettings: string;
+    rules: string;
+    review: string;
+    groupName: string;
+    groupNamePlaceholder: string;
+    groupDescription: string;
+    groupDescPlaceholder: string;
+    maxMembers: string;
+    addRule: string;
+    ruleTitle: string;
+    ruleDescription: string;
+    creating: string;
+    createGroup: string;
+    createSuccess: string;
+    createFailed: string;
+    permissions: string;
+    allowMemberPosts: string;
+    allowMemberComments: string;
+    requirePostApproval: string;
+    allowInvites: string;
+    step: string;
+  };
+  detail: {
+    about: string;
+    discussions: string;
+    members: string;
+    settings: string;
+    joinGroup: string;
+    joining: string;
+    leaveGroup: string;
+    leaving: string;
+    requestToJoin: string;
+    requestPending: string;
+    inviteMembers: string;
+    shareGroup: string;
+    groupNotFound: string;
+    groupNotFoundDesc: string;
+    createdBy: string;
+    createdOn: string;
+    memberSince: string;
+    admin: string;
+    moderator: string;
+    member: string;
+    banned: string;
+    removeMember: string;
+    banMember: string;
+    unbanMember: string;
+    makeAdmin: string;
+    makeModerator: string;
+    removeRole: string;
+    editGroup: string;
+    deleteGroup: string;
+    deleteGroupConfirm: string;
+    groupRules: string;
+    noRules: string;
+    noPosts: string;
+    noPostsDesc: string;
+    writePost: string;
+    postPlaceholder: string;
+  };
+  moderation: {
+    pendingPosts: string;
+    approve: string;
+    reject: string;
+    bannedMembers: string;
+  };
+}
+
+export interface NotificationsTranslations {
+  title: string;
+  markAllRead: string;
+  noNotificationsTitle: string;
+  noNotificationsDesc: string;
+  failedToLoad: string;
+  allCaughtUp: string;
+  types: {
+    like: string;
+    comment: string;
+    follow: string;
+    followRequest: string;
+    followAccepted: string;
+    mention: string;
+    groupInvite: string;
+    groupJoin: string;
+    postApproved: string;
+    postRejected: string;
+    newPost: string;
+    reply: string;
+    badge: string;
+  };
+}
+
+export interface KnowledgeTranslations {
+  title: string;
+  searchCrops: string;
+  featuredCrops: string;
+  videoTutorials: string;
+  allCrops: string;
+  noCropsFound: string;
+  tryDifferentSearch: string;
+  comingSoon: string;
+  comingSoonDesc: string;
+  gotIt: string;
+  workingHard: string;
+  watchVideo: string;
+  relatedCrops: string;
+  growingGuide: string;
+  commonProblems: string;
+  bestPractices: string;
+  seasonalTips: string;
+}
+
+export interface DesktopTranslations {
+  bestOnMobile: string;
+  mobileDesc: string;
+  scanQR: string;
+  playStoreComingSoon: string;
+  appStoreComingSoon: string;
+  continueOnDesktop: string;
+  dontShowAgain: string;
+  agrigrowVersion: string;
+}
+
+export interface FollowTranslations {
+  follow: string;
+  following: string;
+  unfollow: string;
+  followers: string;
+  followersCount: string;
+  followingCount: string;
+  followRequests: string;
+  noFollowers: string;
+  noFollowersDesc: string;
+  noFollowing: string;
+  noFollowingDesc: string;
+  accept: string;
+  decline: string;
+  requested: string;
+  followBack: string;
+  removeFollower: string;
+  mutualFollowers: string;
+  searchFollowers: string;
+  searchFollowing: string;
+}
+
+export interface NotFoundTranslations {
+  title: string;
+  description: string;
+  goHome: string;
+  goBack: string;
+}
+
+export interface SearchTranslations {
+  title: string;
+  placeholder: string;
+  recentSearches: string;
+  clearRecent: string;
+  noResults: string;
+  noResultsDesc: string;
+  users: string;
+  communities: string;
+  posts: string;
+  searchFor: string;
+}
+
+/**
+ * Root translations type containing all sections
+ */
+export interface Translations {
+  common: CommonTranslations;
+  nav: NavTranslations;
+  landing: LandingTranslations;
+  auth: AuthTranslations;
+  onboarding: OnboardingTranslations;
+  feed: FeedTranslations;
+  profile: ProfileTranslations;
+  cropAi: CropAiTranslations;
+  communities: CommunitiesTranslations;
+  notifications: NotificationsTranslations;
+  knowledge: KnowledgeTranslations;
+  desktop: DesktopTranslations;
+  follow: FollowTranslations;
+  notFound: NotFoundTranslations;
+  search: SearchTranslations;
+}
+
+/**
+ * Supported language codes
+ */
+export type LanguageCode = 'en' | 'hi';
+
+/**
+ * Utility type for dot-notation access to nested translation keys
+ * e.g., 'common.save' | 'feed.categories.all' | etc.
+ */
+export type TranslationKey = FlattenKeys<Translations>;
+
+/**
+ * Recursive type to flatten nested object keys into dot-notation strings
+ */
+type FlattenKeys<T, Prefix extends string = ''> = {
+  [K in keyof T & string]: T[K] extends string
+    ? Prefix extends ''
+      ? K
+      : `${Prefix}.${K}`
+    : T[K] extends Array<unknown>
+      ? Prefix extends ''
+        ? K
+        : `${Prefix}.${K}`
+      : T[K] extends object
+        ? FlattenKeys<T[K], Prefix extends '' ? K : `${Prefix}.${K}`>
+        : Prefix extends ''
+          ? K
+          : `${Prefix}.${K}`;
+}[keyof T & string];

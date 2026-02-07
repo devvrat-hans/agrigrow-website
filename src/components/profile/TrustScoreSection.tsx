@@ -17,6 +17,7 @@ import {
   DialogTitle,
 } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
+import { useTranslation } from '@/hooks/useTranslation';
 
 interface TrustScoreSectionProps {
   /** Trust score value */
@@ -28,30 +29,30 @@ interface TrustScoreSectionProps {
 /**
  * Get trust level based on score
  */
-function getTrustLevel(score: number): { label: string; color: string; bgColor: string } {
+function getTrustLevel(score: number): { labelKey: string; color: string; bgColor: string } {
   if (score >= 800) {
     return { 
-      label: 'Expert', 
+      labelKey: 'profile.trustScoreModal.expert', 
       color: 'text-amber-600 dark:text-amber-400',
       bgColor: 'bg-amber-50 dark:bg-amber-900/30'
     };
   }
   if (score >= 500) {
     return { 
-      label: 'Trusted', 
+      labelKey: 'profile.trustScoreModal.trusted', 
       color: 'text-green-600 dark:text-green-400',
       bgColor: 'bg-green-50 dark:bg-green-900/30'
     };
   }
   if (score >= 200) {
     return { 
-      label: 'Active', 
+      labelKey: 'profile.trustScoreModal.active', 
       color: 'text-blue-600 dark:text-blue-400',
       bgColor: 'bg-blue-50 dark:bg-blue-900/30'
     };
   }
   return { 
-    label: 'New', 
+    labelKey: 'profile.trustScoreModal.new', 
     color: 'text-gray-600 dark:text-gray-400',
     bgColor: 'bg-gray-50 dark:bg-gray-800/50'
   };
@@ -63,23 +64,23 @@ function getTrustLevel(score: number): { label: string; color: string; bgColor: 
 const TRUST_METHODS = [
   {
     icon: IconThumbUp,
-    label: 'Useful posts & videos',
-    description: 'Share helpful content that benefits the community',
+    labelKey: 'profile.trustScoreModal.usefulPosts',
+    descriptionKey: 'profile.trustScoreModal.usefulPostsDesc',
   },
   {
     icon: IconMessageCheck,
-    label: 'Farmers marking advice as helpful',
-    description: 'When others find your advice valuable',
+    labelKey: 'profile.trustScoreModal.helpfulAdvice',
+    descriptionKey: 'profile.trustScoreModal.helpfulAdviceDesc',
   },
   {
     icon: IconActivityHeartbeat,
-    label: 'Regular activity',
-    description: 'Stay active by posting and engaging regularly',
+    labelKey: 'profile.trustScoreModal.regularActivity',
+    descriptionKey: 'profile.trustScoreModal.regularActivityDesc',
   },
   {
     icon: IconUserCheck,
-    label: 'Verified identity',
-    description: 'Complete your profile verification',
+    labelKey: 'profile.trustScoreModal.verifiedIdentity',
+    descriptionKey: 'profile.trustScoreModal.verifiedIdentityDesc',
   },
 ];
 
@@ -94,6 +95,7 @@ export function TrustScoreSection({
   className,
 }: TrustScoreSectionProps) {
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const { t } = useTranslation();
   const trustLevel = getTrustLevel(score);
 
   return (
@@ -115,7 +117,7 @@ export function TrustScoreSection({
           {score}
         </span>
         <span className={cn('text-xs', trustLevel.color)}>
-          Trust Score
+          {t('profile.trustScore')}
         </span>
       </button>
 
@@ -142,7 +144,7 @@ export function TrustScoreSection({
               </div>
               <div>
                 <DialogTitle className="text-lg font-semibold text-gray-900 dark:text-white">
-                  Your Trust Score
+                  {t('profile.trustScoreModal.title')}
                 </DialogTitle>
                 <div className="flex items-center gap-2 mt-0.5">
                   <span className={cn('text-2xl font-bold', trustLevel.color)}>
@@ -153,7 +155,7 @@ export function TrustScoreSection({
                     trustLevel.bgColor,
                     trustLevel.color
                   )}>
-                    {trustLevel.label}
+                    {t(trustLevel.labelKey)}
                   </span>
                 </div>
               </div>
@@ -163,14 +165,14 @@ export function TrustScoreSection({
           {/* Content */}
           <div className="px-5 pb-5">
             <p className="text-sm text-gray-600 dark:text-gray-400 mb-4">
-              Your trust score reflects your reputation in the AgriGrow community.
+              {t('profile.trustScoreModal.description')}
             </p>
 
             {/* How it increases */}
             <div className="space-y-3">
               <h3 className="text-sm font-semibold text-gray-900 dark:text-white flex items-center gap-2">
                 <IconStar className="w-4 h-4 text-amber-500" />
-                How it increases:
+                {t('profile.trustScoreModal.howItIncreases')}
               </h3>
               <ul className="space-y-3">
                 {TRUST_METHODS.map((method, index) => {
@@ -182,10 +184,10 @@ export function TrustScoreSection({
                       </div>
                       <div className="flex-1 min-w-0">
                         <p className="text-sm font-medium text-gray-900 dark:text-white">
-                          {method.label}
+                          {t(method.labelKey)}
                         </p>
                         <p className="text-xs text-gray-500 dark:text-gray-400">
-                          {method.description}
+                          {t(method.descriptionKey)}
                         </p>
                       </div>
                     </li>
@@ -199,7 +201,7 @@ export function TrustScoreSection({
               onClick={() => setIsModalOpen(false)}
               className="w-full mt-5"
             >
-              Got it!
+              {t('profile.trustScoreModal.gotIt')}
             </Button>
           </div>
         </DialogContent>

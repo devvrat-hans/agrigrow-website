@@ -27,6 +27,7 @@ import {
 } from '@tabler/icons-react';
 import { cn } from '@/lib/utils';
 import { formatRelativeTime } from '@/components/feed/FeedItemCard';
+import { useTranslation } from '@/hooks/useTranslation';
 
 interface PostData {
   id: string;
@@ -52,6 +53,7 @@ interface MyPostsCardProps {
  */
 export function MyPostsCard({ userPhone, isOwnProfile = true, className }: MyPostsCardProps) {
   const router = useRouter();
+  const { t } = useTranslation();
   const [posts, setPosts] = useState<PostData[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -88,11 +90,11 @@ export function MyPostsCard({ userPhone, isOwnProfile = true, className }: MyPos
           }))
         );
       } else {
-        setError(data.error || 'Failed to fetch posts');
+        setError(data.error || t('profile.failedToLoadPosts'));
       }
     } catch (err) {
       console.error('Error fetching user posts:', err);
-      setError('Failed to load posts');
+      setError(t('profile.failedToLoadPosts'));
     } finally {
       setIsLoading(false);
     }
@@ -122,11 +124,11 @@ export function MyPostsCard({ userPhone, isOwnProfile = true, className }: MyPos
         setPosts(prev => prev.filter(post => post.id !== deletePostId));
         setDeletePostId(null);
       } else {
-        setError(data.error || 'Failed to delete post');
+        setError(data.error || t('profile.failedToDeletePost'));
       }
     } catch (err) {
       console.error('Error deleting post:', err);
-      setError('Failed to delete post');
+      setError(t('profile.failedToDeletePost'));
     } finally {
       setIsDeleting(false);
     }
@@ -156,9 +158,9 @@ export function MyPostsCard({ userPhone, isOwnProfile = true, className }: MyPos
           <div className="text-primary">
             <IconArticle className="w-5 h-5" />
           </div>
-          <h3 className="font-semibold text-foreground">{isOwnProfile ? 'My Posts' : 'Posts'}</h3>
+          <h3 className="font-semibold text-foreground">{isOwnProfile ? t('profile.myPosts') : t('profile.posts')}</h3>
           <span className="text-sm text-muted-foreground ml-auto">
-            {posts.length} {posts.length === 1 ? 'post' : 'posts'}
+            {posts.length} {posts.length === 1 ? t('profile.post') : t('profile.posts')}
           </span>
         </div>
 
@@ -181,7 +183,7 @@ export function MyPostsCard({ userPhone, isOwnProfile = true, className }: MyPos
         {!isLoading && !error && posts.length === 0 && (
           <div className="text-center py-6 text-muted-foreground">
             <IconArticle className="w-10 h-10 mx-auto mb-2 opacity-50" />
-            <p className="text-sm">{isOwnProfile ? "You haven't created any posts yet" : "No posts yet"}</p>
+            <p className="text-sm">{isOwnProfile ? t('profile.noPostsDesc') : t('profile.noPostsOther')}</p>
           </div>
         )}
 
@@ -247,12 +249,12 @@ export function MyPostsCard({ userPhone, isOwnProfile = true, className }: MyPos
                 {isExpanded ? (
                   <>
                     <IconChevronUp className="w-4 h-4 mr-1" />
-                    Show Less
+                    {t('profile.showLess')}
                   </>
                 ) : (
                   <>
                     <IconChevronDown className="w-4 h-4 mr-1" />
-                    Show {posts.length - 3} More
+                    {t('profile.showMore')} ({posts.length - 3})
                   </>
                 )}
               </Button>
@@ -265,13 +267,13 @@ export function MyPostsCard({ userPhone, isOwnProfile = true, className }: MyPos
       <AlertDialog open={!!deletePostId} onOpenChange={() => setDeletePostId(null)}>
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>Delete Post</AlertDialogTitle>
+            <AlertDialogTitle>{t('profile.deletePost')}</AlertDialogTitle>
             <AlertDialogDescription>
-              Are you sure you want to delete this post? This action cannot be undone.
+              {t('profile.deletePostConfirm')}
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel disabled={isDeleting}>Cancel</AlertDialogCancel>
+            <AlertDialogCancel disabled={isDeleting}>{t('profile.cancel')}</AlertDialogCancel>
             <AlertDialogAction
               onClick={handleDeletePost}
               disabled={isDeleting}
@@ -280,10 +282,10 @@ export function MyPostsCard({ userPhone, isOwnProfile = true, className }: MyPos
               {isDeleting ? (
                 <>
                   <IconLoader2 className="w-4 h-4 mr-2 animate-spin" />
-                  Deleting...
+                  {t('profile.deleting')}
                 </>
               ) : (
-                'Delete'
+                t('profile.delete')
               )}
             </AlertDialogAction>
           </AlertDialogFooter>

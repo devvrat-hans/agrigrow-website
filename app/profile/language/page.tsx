@@ -9,9 +9,11 @@ import { PageHeader } from '@/components/common/PageHeader';
 import { MobileBottomNav } from '@/components/common/MobileBottomNav';
 import { LoadingSpinner } from '@/components/common/LoadingSpinner';
 import { LANGUAGES, isLanguageAvailable } from '@/constants/languages';
+import { useTranslation } from '@/hooks/useTranslation';
 
 export default function LanguageSettingsPage() {
   const router = useRouter();
+  const { t } = useTranslation();
   const [selectedLanguage, setSelectedLanguage] = useState('en');
   const [originalLanguage, setOriginalLanguage] = useState('en');
   const [isLoading, setIsLoading] = useState(true);
@@ -41,7 +43,7 @@ export default function LanguageSettingsPage() {
         }
       } catch (err) {
         console.error('Error fetching user language:', err);
-        setError('Failed to load language settings');
+        setError(t('profile.language.failedToLoad'));
       } finally {
         setIsLoading(false);
       }
@@ -61,7 +63,7 @@ export default function LanguageSettingsPage() {
   // Handle save
   const handleSave = useCallback(async () => {
     if (selectedLanguage === originalLanguage) {
-      setSuccessMessage('Language settings saved');
+      setSuccessMessage(t('profile.language.languageSaved'));
       setTimeout(() => setSuccessMessage(null), 2000);
       return;
     }
@@ -92,14 +94,14 @@ export default function LanguageSettingsPage() {
         setOriginalLanguage(selectedLanguage);
         // Store language preference for voice recognition
         localStorage.setItem('userLanguage', selectedLanguage);
-        setSuccessMessage('Language updated successfully');
+        setSuccessMessage(t('profile.language.languageUpdated'));
         setTimeout(() => setSuccessMessage(null), 2000);
       } else {
         throw new Error(data.error || 'Failed to update language');
       }
     } catch (err) {
       console.error('Error saving language:', err);
-      setError(err instanceof Error ? err.message : 'Failed to save language settings');
+      setError(err instanceof Error ? err.message : t('profile.language.failedToSave'));
     } finally {
       setIsSaving(false);
     }
@@ -119,7 +121,7 @@ export default function LanguageSettingsPage() {
   return (
     <div className="min-h-screen bg-background flex flex-col">
       {/* Header */}
-      <PageHeader showBackButton title="Language Settings" />
+      <PageHeader showBackButton title={t('profile.language.title')} />
 
       {/* Main Content */}
       <main className="flex-1 max-w-2xl mx-auto w-full px-4 py-6 pb-24 md:pb-8">
@@ -130,11 +132,11 @@ export default function LanguageSettingsPage() {
               <IconLanguage className="w-5 h-5 text-primary-600 dark:text-primary-400" />
             </div>
             <h1 className="text-lg font-semibold text-gray-900 dark:text-white">
-              Choose Your Language
+              {t('profile.language.chooseYourLanguage')}
             </h1>
           </div>
           <p className="text-sm text-gray-600 dark:text-gray-400">
-            Select your preferred language. English and Hindi are fully available. Other regional languages will be available soon.
+            {t('profile.language.fullDescription')}
           </p>
         </div>
 
@@ -187,11 +189,11 @@ export default function LanguageSettingsPage() {
                     </span>
                     {isAvailable ? (
                       <span className="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-semibold bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400">
-                        Available
+                        {t('profile.language.available')}
                       </span>
                     ) : (
                       <span className="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-semibold bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400">
-                        Coming Soon
+                        {t('profile.language.comingSoon')}
                       </span>
                     )}
                   </div>
@@ -224,19 +226,19 @@ export default function LanguageSettingsPage() {
             {isSaving ? (
               <div className="flex items-center gap-2">
                 <LoadingSpinner size="sm" />
-                <span>Saving...</span>
+                <span>{t('profile.language.saving')}</span>
               </div>
             ) : hasChanges ? (
-              'Save Changes'
+              t('profile.language.saveChanges')
             ) : (
-              'Save'
+              t('profile.language.save')
             )}
           </Button>
         </div>
 
         {/* Note */}
         <p className="mt-4 text-xs text-gray-500 dark:text-gray-400 text-center">
-          Note: Changing the language may require a page refresh to take full effect.
+          {t('profile.language.languageNote')}
         </p>
       </main>
 

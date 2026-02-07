@@ -9,6 +9,7 @@ import {
   IconTrophy,
 } from '@tabler/icons-react';
 import { cn } from '@/lib/utils';
+import { useTranslation } from '@/hooks/useTranslation';
 
 /**
  * Post type options
@@ -23,6 +24,8 @@ interface PostTypeConfig {
   label: string;
   icon: React.ComponentType<{ className?: string; size?: number }>;
   description: string;
+  labelKey: string;
+  descriptionKey: string;
   colors: {
     bg: string;
     bgSelected: string;
@@ -42,6 +45,8 @@ const POST_TYPES: PostTypeConfig[] = [
     label: 'Question',
     icon: IconQuestionMark,
     description: 'Ask for help or advice',
+    labelKey: 'feed.postTypes.question',
+    descriptionKey: 'feed.postTypeDescriptions.question',
     colors: {
       bg: 'bg-blue-50 dark:bg-blue-950/30',
       bgSelected: 'bg-blue-500',
@@ -56,6 +61,8 @@ const POST_TYPES: PostTypeConfig[] = [
     label: 'Update',
     icon: IconMessage,
     description: 'Share news or progress',
+    labelKey: 'feed.postTypes.update',
+    descriptionKey: 'feed.postTypeDescriptions.update',
     colors: {
       bg: 'bg-gray-50 dark:bg-gray-900/30',
       bgSelected: 'bg-gray-600',
@@ -70,6 +77,8 @@ const POST_TYPES: PostTypeConfig[] = [
     label: 'Tip',
     icon: IconBulb,
     description: 'Share useful knowledge',
+    labelKey: 'feed.postTypes.tip',
+    descriptionKey: 'feed.postTypeDescriptions.tip',
     colors: {
       bg: 'bg-yellow-50 dark:bg-yellow-950/30',
       bgSelected: 'bg-yellow-500',
@@ -84,6 +93,8 @@ const POST_TYPES: PostTypeConfig[] = [
     label: 'Problem',
     icon: IconAlertTriangle,
     description: 'Report an issue',
+    labelKey: 'feed.postTypes.problem',
+    descriptionKey: 'feed.postTypeDescriptions.problem',
     colors: {
       bg: 'bg-red-50 dark:bg-red-950/30',
       bgSelected: 'bg-red-500',
@@ -98,6 +109,8 @@ const POST_TYPES: PostTypeConfig[] = [
     label: 'Success',
     icon: IconTrophy,
     description: 'Share your achievements',
+    labelKey: 'feed.postTypes.success',
+    descriptionKey: 'feed.postTypeDescriptions.successStory',
     colors: {
       bg: 'bg-green-50 dark:bg-green-950/30',
       bgSelected: 'bg-green-500',
@@ -133,6 +146,7 @@ export function PostTypeSelector({
   size = 'md',
   className,
 }: PostTypeSelectorProps) {
+  const { t } = useTranslation();
   // Size classes - responsive for mobile with 44px min touch targets
   // Using fixed icon sizes for SSR compatibility
   const sizeClasses = {
@@ -190,10 +204,10 @@ export function PostTypeSelector({
                     'hover:opacity-80'
                   )
             )}
-            title={postType.description}
+            title={t(postType.descriptionKey)}
           >
             <Icon size={currentSize.icon} />
-            <span className="whitespace-nowrap">{postType.label}</span>
+            <span className="whitespace-nowrap">{t(postType.labelKey)}</span>
           </button>
         );
       })}

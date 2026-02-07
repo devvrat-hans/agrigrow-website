@@ -2,48 +2,45 @@
 
 import { SectionHeader, FeatureCard } from '@/components/common';
 import { spacing, containerMaxWidth } from '@/lib/design-tokens';
-
-const features = [
-  {
-    title: 'AI Crop Diagnosis',
-    description:
-      'Upload a photo of your crop and get analysis of potential diseases, deficiencies, and recommended treatments.',
-  },
-  {
-    title: 'Community Answers',
-    description:
-      'Ask questions and get solutions from experienced farmers who have faced similar challenges.',
-  },
-  {
-    title: 'Crop Planning',
-    description:
-      'Get personalized recommendations on what to grow based on your soil, climate, and market conditions.',
-  },
-  {
-    title: 'Expert Knowledge',
-    description:
-      'Access guides reviewed by agricultural scientists and KVK experts on best farming practices.',
-  },
-  {
-    title: 'Local Languages',
-    description:
-      'Currently available in English with Hindi and other regional languages coming soon.',
-  },
-  {
-    title: 'Works Offline',
-    description:
-      'Download guides and access key features even when internet connectivity is limited.',
-  },
-];
+import { useTranslation } from '@/hooks/useTranslation';
 
 export function FeaturesSection() {
+  const { t } = useTranslation();
+
+  const features = [
+    {
+      title: t('landing.features.aiCropDiagnosis'),
+      description: t('landing.features.aiCropDiagnosisDesc'),
+    },
+    {
+      title: t('landing.features.communityAnswers'),
+      description: t('landing.features.communityAnswersDesc'),
+    },
+    {
+      title: t('landing.features.cropPlanning'),
+      description: t('landing.features.cropPlanningDesc'),
+    },
+    {
+      title: t('landing.features.expertKnowledge'),
+      description: t('landing.features.expertKnowledgeDesc'),
+    },
+    {
+      title: t('landing.features.localLanguages'),
+      description: t('landing.features.localLanguagesDesc'),
+    },
+    {
+      title: t('landing.features.worksOffline'),
+      description: t('landing.features.worksOfflineDesc'),
+    },
+  ];
+
   return (
     <section id="features" className={`${spacing.section.padding} bg-muted`}>
       <div className={`${containerMaxWidth['7xl']} mx-auto`}>
         <SectionHeader
-          label="Features"
-          title="What we are building"
-          description="Simple tools designed for real farming problems, built with input from farmers across India."
+          label={t('landing.features.label')}
+          title={t('landing.features.title')}
+          description={t('landing.features.description')}
           className="mb-12"
         />
 

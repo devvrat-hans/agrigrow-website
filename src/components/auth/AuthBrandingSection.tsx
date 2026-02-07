@@ -2,6 +2,7 @@
 
 import Image from 'next/image';
 import { Logo } from '@/components/common';
+import { useTranslation } from '@/hooks/useTranslation';
 
 interface AuthBrandingSectionProps {
   title: string;
@@ -9,6 +10,8 @@ interface AuthBrandingSectionProps {
 }
 
 export function AuthBrandingSection({ title, description }: AuthBrandingSectionProps) {
+  const { t } = useTranslation();
+
   return (
     <div className="hidden md:flex md:w-1/2 relative overflow-hidden">
       {/* Background Image */}
@@ -40,7 +43,7 @@ export function AuthBrandingSection({ title, description }: AuthBrandingSectionP
           <div className="mt-12 flex justify-center">
             <div className="flex items-center gap-3 text-white/80">
               <span className="text-2xl">🌾</span>
-              <span className="text-sm font-medium">Trusted by Farmers Across India</span>
+              <span className="text-sm font-medium">{t('auth.trustedByFarmers')}</span>
             </div>
           </div>
         </div>

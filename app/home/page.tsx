@@ -21,6 +21,7 @@ import {
   DialogTitle,
 } from '@/components/ui/dialog';
 import { useFeed, useNotifications, useNewPostsPolling, useHomeWeather } from '@/hooks';
+import { useTranslation } from '@/hooks/useTranslation';
 import { cn } from '@/lib/utils';
 import {
   IconNews,
@@ -38,22 +39,15 @@ import type { PostType } from '@/models/Post';
 // Feed category type - matches PostType for filtering
 type FeedCategory = PostType | 'all';
 
-// Category configuration
-const feedCategories = [
-  { id: 'all', label: 'All', icon: IconTrendingUp },
-  { id: 'news', label: 'News', icon: IconNews },
-  { id: 'post', label: 'Posts', icon: IconUser },
-  { id: 'question', label: 'Questions', icon: IconBulb },
-  { id: 'technique', label: 'Techniques', icon: IconBulb },
-  { id: 'technology', label: 'Tech', icon: IconTrendingUp },
-];
-
 /**
  * Error Boundary Props
  */
 interface FeedErrorBoundaryProps {
   children: ReactNode;
   onReset?: () => void;
+  errorTitle?: string;
+  errorDescription?: string;
+  tryAgainLabel?: string;
 }
 
 /**
@@ -97,17 +91,17 @@ class FeedErrorBoundary extends Component<FeedErrorBoundaryProps, FeedErrorBound
             </div>
             <div>
               <h3 className="font-semibold text-red-800 dark:text-red-200 mb-1">
-                Something went wrong
+                {this.props.errorTitle || 'Something went wrong'}
               </h3>
               <p className="text-sm text-red-600 dark:text-red-400">
-                {this.state.error?.message || 'An unexpected error occurred while loading the feed.'}
+                {this.state.error?.message || this.props.errorDescription || 'An unexpected error occurred while loading the feed.'}
               </p>
             </div>
             <button
               onClick={this.handleReset}
               className="px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg text-sm font-medium transition-colors"
             >
-              Try Again
+              {this.props.tryAgainLabel || 'Try Again'}
             </button>
           </div>
         </div>
@@ -120,6 +114,17 @@ class FeedErrorBoundary extends Component<FeedErrorBoundaryProps, FeedErrorBound
 
 export default function HomePage() {
   const router = useRouter();
+  const { t } = useTranslation();
+
+  // Category configuration with translated labels
+  const feedCategories = [
+    { id: 'all', label: t('feed.categories.all'), icon: IconTrendingUp },
+    { id: 'news', label: t('feed.categories.news'), icon: IconNews },
+    { id: 'post', label: t('feed.categories.posts'), icon: IconUser },
+    { id: 'question', label: t('feed.categories.questions'), icon: IconBulb },
+    { id: 'technique', label: t('feed.categories.techniques'), icon: IconBulb },
+    { id: 'technology', label: t('feed.categories.tech'), icon: IconTrendingUp },
+  ];
   const [selectedCategory, setSelectedCategory] = useState<FeedCategory>('all');
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
   const [isMobileFilterOpen, setIsMobileFilterOpen] = useState(false);
@@ -463,12 +468,17 @@ export default function HomePage() {
             title="Feed Preferences"
           >
             <IconAdjustmentsHorizontal size={18} />
-            <span>Preferences</span>
+            <span>{t('feed.filter.preferences')}</span>
           </button>
         </div>
 
         {/* Error Boundary wrapping the feed */}
-        <FeedErrorBoundary onReset={handleErrorReset}>
+        <FeedErrorBoundary
+          onReset={handleErrorReset}
+          errorTitle={t('feed.errorBoundary.title')}
+          errorDescription={t('feed.errorBoundary.description')}
+          tryAgainLabel={t('feed.errorBoundary.tryAgain')}
+        >
           {/* Initial Loading State - responsive skeletons matching FeedItemCard */}
           {loading && posts.length === 0 && (
             <div className="flex flex-col gap-3 sm:gap-4 py-4 sm:py-6">
@@ -524,14 +534,14 @@ export default function HomePage() {
           {feedError && posts.length === 0 && (
             <div className="mx-4 my-8">
               <EmptyState
-                message="Failed to load posts"
-                description={feedError.message || 'An error occurred'}
+                message={t('feed.empty.failedToLoad')}
+                description={feedError.message || t('feed.empty.errorOccurred')}
                 action={
                   <button
                     onClick={() => refresh()}
                     className="px-4 py-2 bg-primary-600 hover:bg-primary-700 text-white rounded-lg text-sm font-medium transition-colors active:scale-95"
                   >
-                    Try Again
+                    {t('feed.errorBoundary.tryAgain')}
                   </button>
                 }
               />
@@ -541,14 +551,14 @@ export default function HomePage() {
           {/* Empty State */}
           {!loading && !feedError && posts.length === 0 && (
             <EmptyState
-              message="No posts yet"
-              description="Be the first to share your farming experience!"
+              message={t('feed.empty.noPosts')}
+              description={t('feed.empty.noPostsDesc')}
               action={
                 <button
                   onClick={() => setIsCreateModalOpen(true)}
                   className="px-4 py-2 bg-primary-600 hover:bg-primary-700 text-white rounded-lg text-sm font-medium transition-colors"
                 >
-                  Create Post
+                  {t('feed.createPost.createPost')}
                 </button>
               }
             />
@@ -600,7 +610,7 @@ export default function HomePage() {
           <DialogHeader className="px-4 pt-4 pb-2 border-b border-gray-200 dark:border-gray-800">
             <div className="flex items-center justify-between">
               <DialogTitle className="text-lg font-semibold">
-                Filter Posts
+                {t('feed.filter.title')}
               </DialogTitle>
               <button
                 onClick={() => setIsMobileFilterOpen(false)}

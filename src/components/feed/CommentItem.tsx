@@ -25,6 +25,7 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { ReportModal } from './ReportModal';
+import { useTranslation } from '@/hooks/useTranslation';
 
 /**
  * Comment author interface
@@ -74,7 +75,7 @@ interface CommentItemProps {
 /**
  * Format timestamp to relative time
  */
-function formatRelativeTime(date: string | Date): string {
+function formatRelativeTime(date: string | Date, justNowText: string = 'just now'): string {
   const now = new Date();
   const then = new Date(date);
   const diffMs = now.getTime() - then.getTime();
@@ -83,7 +84,7 @@ function formatRelativeTime(date: string | Date): string {
   const diffHr = Math.floor(diffMin / 60);
   const diffDay = Math.floor(diffHr / 24);
 
-  if (diffSec < 60) return 'just now';
+  if (diffSec < 60) return justNowText;
   if (diffMin < 60) return `${diffMin}m`;
   if (diffHr < 24) return `${diffHr}h`;
   if (diffDay < 7) return `${diffDay}d`;
@@ -124,6 +125,7 @@ function CommentItemComponent({
   if (process.env.NODE_ENV === 'development') {
     trackRender('CommentItem');
   }
+  const { t } = useTranslation();
   const [showReplyInput, setShowReplyInput] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
   const [editContent, setEditContent] = useState(comment.content);
@@ -282,7 +284,7 @@ function CommentItemComponent({
               {comment.isHelpful && (
                 <Badge className="text-[10px] px-1.5 py-0 bg-green-100 text-green-700 dark:bg-green-900 dark:text-green-300 inline-flex items-center h-4">
                   <IconCheck size={10} className="mr-0.5" />
-                  Helpful
+                  {t('feed.comments.helpful')}
                 </Badge>
               )}
             </div>
@@ -311,7 +313,7 @@ function CommentItemComponent({
                     {isSaving ? (
                       <IconLoader2 size={14} className="animate-spin mr-1" />
                     ) : null}
-                    Save
+                    {t('feed.comments.save')}
                   </Button>
                   <Button
                     size="sm"
@@ -319,7 +321,7 @@ function CommentItemComponent({
                     onClick={handleCancelEdit}
                     disabled={isSaving}
                   >
-                    Cancel
+                    {t('feed.comments.cancel')}
                   </Button>
                 </div>
               </div>
@@ -369,7 +371,7 @@ function CommentItemComponent({
                 )}
               >
                 <IconMessageReply size={14} />
-                Reply
+                {t('feed.comments.reply')}
               </button>
             )}
 
@@ -389,14 +391,14 @@ function CommentItemComponent({
                 ) : (
                   <IconCheck size={14} />
                 )}
-                Helpful
+                {t('feed.comments.helpful')}
               </button>
             )}
 
             {/* Timestamp */}
             <span className="text-xs text-gray-400 hidden sm:inline">
-              {formatRelativeTime(comment.createdAt)}
-              {comment.isEdited && ' (edited)'}
+              {formatRelativeTime(comment.createdAt, t('feed.comments.justNow'))}
+              {comment.isEdited && ` (${t('feed.comments.edited')})`}
             </span>
 
             {/* More options dropdown - 44px touch target */}
@@ -411,7 +413,7 @@ function CommentItemComponent({
                 {isCommentAuthor && onEdit && (
                   <DropdownMenuItem onClick={() => setIsEditing(true)}>
                     <IconPencil size={14} className="mr-2" />
-                    Edit
+                    {t('feed.comments.edit')}
                   </DropdownMenuItem>
                 )}
                 {/* Delete option - only for comment author */}
@@ -425,7 +427,7 @@ function CommentItemComponent({
                     ) : (
                       <IconTrash size={14} className="mr-2" />
                     )}
-                    Delete
+                    {t('feed.comments.delete')}
                   </DropdownMenuItem>
                 )}
                 {/* Separator if there are author options */}
@@ -439,7 +441,7 @@ function CommentItemComponent({
                     className="text-red-500 focus:text-red-500"
                   >
                     <IconFlag size={14} className="mr-2" />
-                    Report
+                    {t('feed.comments.report')}
                   </DropdownMenuItem>
                 )}
               </DropdownMenuContent>
@@ -480,8 +482,7 @@ function CommentItemComponent({
                   onClick={() => setShowAllReplies(true)}
                   className="text-xs text-primary-600 dark:text-primary-400 hover:underline ml-10"
                 >
-                  Show {hiddenRepliesCount} more{' '}
-                  {hiddenRepliesCount === 1 ? 'reply' : 'replies'}
+                  {t('feed.comments.showMoreReplies')}
                 </button>
               )}
             </div>

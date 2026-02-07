@@ -22,6 +22,7 @@ import {
   IconCheck,
 } from '@tabler/icons-react';
 import { cn } from '@/lib/utils';
+import { useTranslation } from '@/hooks/useTranslation';
 import {
   REPORT_REASON_LABELS,
   REPORT_REASON_DESCRIPTIONS,
@@ -76,6 +77,7 @@ export function ReportModal({
   itemId,
   onReportSubmitted,
 }: ReportModalProps) {
+  const { t } = useTranslation();
   const [selectedReason, setSelectedReason] = useState<ReportReason | null>(null);
   const [description, setDescription] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -107,7 +109,7 @@ export function ReportModal({
    */
   const handleSubmit = useCallback(async () => {
     if (!selectedReason) {
-      setError('Please select a reason for your report');
+      setError(t('feed.report.selectReason'));
       return;
     }
 
@@ -118,7 +120,7 @@ export function ReportModal({
       // Get user phone from localStorage
       const userPhone = localStorage.getItem('userPhone');
       if (!userPhone) {
-        setError('You must be logged in to report content');
+        setError(t('feed.report.mustBeLoggedIn'));
         setIsSubmitting(false);
         return;
       }
@@ -186,9 +188,9 @@ export function ReportModal({
               <div className="w-16 h-16 rounded-full bg-green-100 dark:bg-green-900/30 flex items-center justify-center mb-4">
                 <IconCheck className="w-8 h-8 text-green-600 dark:text-green-400" />
               </div>
-              <DialogTitle className="text-center text-lg">Report Submitted</DialogTitle>
+              <DialogTitle className="text-center text-lg">{t('feed.report.submitted')}</DialogTitle>
               <DialogDescription className="text-center mt-2">
-                Thank you for helping keep our community safe. Our team will review your report.
+                {t('feed.report.submittedDesc')}
               </DialogDescription>
             </div>
           ) : (
@@ -207,10 +209,10 @@ export function ReportModal({
                     <IconAlertTriangle className="w-6 h-6 text-red-600 dark:text-red-400" />
                   </div>
                   <DialogTitle className="text-lg font-semibold">
-                    Report {itemType === 'post' ? 'Post' : 'Comment'}
+                    {itemType === 'post' ? t('feed.report.reportPost') : t('feed.report.reportComment')}
                   </DialogTitle>
                   <DialogDescription className="text-sm mt-1">
-                    Help us understand what&apos;s wrong
+                    {t('feed.report.helpUsUnderstand')}
                   </DialogDescription>
                 </div>
               </DialogHeader>
@@ -218,7 +220,7 @@ export function ReportModal({
               {/* Reason Selection */}
               <div className="pt-2">
                 <span className="text-sm font-medium block mb-3">
-                  Why are you reporting this?
+                  {t('feed.report.whyReporting')}
                   <span className="text-red-500 ml-1">*</span>
                 </span>
 
@@ -303,7 +305,7 @@ export function ReportModal({
               {/* Optional Description */}
               <div className="pt-2">
                 <label htmlFor="report-description" className="text-sm font-medium block mb-3">
-                  Additional details (optional)
+                  {t('feed.report.additionalDetails')}
                 </label>
                 <Textarea
                   id="report-description"
@@ -335,7 +337,7 @@ export function ReportModal({
                   disabled={isSubmitting}
                   className="flex-1 sm:flex-none"
                 >
-                  Cancel
+                  {t('feed.report.cancel')}
                 </Button>
                 <Button
                   type="button"
@@ -346,10 +348,10 @@ export function ReportModal({
                   {isSubmitting ? (
                     <>
                       <IconLoader2 className="w-4 h-4 mr-2 animate-spin" />
-                      Submitting...
+                      {t('feed.report.submitting')}
                     </>
                   ) : (
-                    'Submit Report'
+                    t('feed.report.submitReport')
                   )}
                 </Button>
               </DialogFooter>

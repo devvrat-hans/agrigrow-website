@@ -20,6 +20,7 @@ import {
 import { CommentItem, type CommentData } from './CommentItem';
 import { CommentInput } from './CommentInput';
 import { useComments } from '@/hooks/useComments';
+import { useTranslation } from '@/hooks/useTranslation';
 import { trackRender } from '@/lib/performance';
 
 /**
@@ -44,15 +45,6 @@ interface CommentSectionProps {
 }
 
 /**
- * Sort option labels
- */
-const SORT_OPTIONS: Record<'newest' | 'oldest' | 'helpful', string> = {
-  newest: 'Newest first',
-  oldest: 'Oldest first',
-  helpful: 'Most helpful',
-};
-
-/**
  * CommentSection Component
  * Complete comment system with list, input, pagination, and sorting
  */
@@ -68,6 +60,17 @@ function CommentSectionComponent({
   if (process.env.NODE_ENV === 'development') {
     trackRender('CommentSection');
   }
+  
+  const { t } = useTranslation();
+
+  /**
+   * Sort option labels (translated)
+   */
+  const SORT_OPTIONS: Record<'newest' | 'oldest' | 'helpful', string> = {
+    newest: t('feed.comments.newestFirst'),
+    oldest: t('feed.comments.oldestFirst'),
+    helpful: t('feed.comments.mostHelpful'),
+  };
   
   const [isExpanded, setIsExpanded] = useState(initialExpanded);
   const [replyingTo, setReplyingTo] = useState<string | null>(null);
@@ -201,7 +204,7 @@ function CommentSectionComponent({
     return (
       <CommentInput
         user={currentUser}
-        placeholder="Write a reply..."
+        placeholder={t('feed.comments.writeReply')}
         isReply
         autoFocus
         onSubmit={(content) => handleAddReply(commentId, content)}
@@ -234,7 +237,7 @@ function CommentSectionComponent({
         <div className="flex items-center gap-1.5 sm:gap-2">
           <IconMessageCircle size={16} className="sm:w-[18px] sm:h-[18px]" />
           <span>
-            {displayCount} {displayCount === 1 ? 'Comment' : 'Comments'}
+            {displayCount} {displayCount === 1 ? t('feed.comments.comment') : t('feed.comments.commentsPlural')}
           </span>
         </div>
         {isExpanded ? (
@@ -260,7 +263,7 @@ function CommentSectionComponent({
                   onClick={clearError}
                   className="text-xs text-red-600 dark:text-red-400 underline mt-1"
                 >
-                  Dismiss
+                  {t('feed.comments.dismiss')}
                 </button>
               </div>
             </div>
@@ -270,7 +273,7 @@ function CommentSectionComponent({
           {currentUser && (
             <CommentInput
               user={currentUser}
-              placeholder="Write a comment..."
+              placeholder={t('feed.comments.writeComment')}
               onSubmit={handleAddComment}
             />
           )}
@@ -323,7 +326,7 @@ function CommentSectionComponent({
                 className="mx-auto text-gray-300 dark:text-gray-600 mb-2"
               />
               <p className="text-sm text-gray-500 dark:text-gray-400">
-                No comments yet. Be the first to comment!
+                {t('feed.comments.noComments')} {t('feed.comments.beFirstToComment')}
               </p>
             </div>
           )}
@@ -361,10 +364,10 @@ function CommentSectionComponent({
                 {loadingMore ? (
                   <>
                     <IconLoader2 size={14} className="mr-1 animate-spin" />
-                    Loading...
+                    {t('feed.comments.loading')}
                   </>
                 ) : (
-                  'Load more comments'
+                  t('feed.comments.loadMore')
                 )}
               </Button>
             </div>

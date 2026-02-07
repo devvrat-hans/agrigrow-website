@@ -1,6 +1,7 @@
 import type { Metadata, Viewport } from "next";
 import "./globals.css";
 import { GlobalAIWidget, DesktopMobilePrompt } from "@/components/common";
+import { Providers } from "./providers";
 
 export const viewport: Viewport = {
   width: 'device-width',
@@ -23,9 +24,11 @@ export default function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning>
       <body className="bg-background text-foreground transition-colors">
-        {children}
-        <GlobalAIWidget />
-        <DesktopMobilePrompt />
+        <Providers>
+          {children}
+          <GlobalAIWidget />
+          <DesktopMobilePrompt />
+        </Providers>
       </body>
     </html>
   );

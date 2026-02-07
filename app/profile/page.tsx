@@ -25,6 +25,7 @@ import {
   IconLogout,
   IconAdjustmentsHorizontal,
 } from '@tabler/icons-react';
+import { useTranslation } from '@/hooks/useTranslation';
 
 interface UserData {
   fullName: string;
@@ -53,6 +54,7 @@ interface UserData {
 
 export default function ProfilePage() {
   const router = useRouter();
+  const { t } = useTranslation();
   const [user, setUser] = useState<UserData | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState('');
@@ -76,14 +78,14 @@ export default function ProfilePage() {
       if (data.success) {
         setUser(data.user);
       } else {
-        setError(data.error || 'Failed to load profile');
+        setError(data.error || t('profile.failedToLoadProfile'));
         if (data.error === 'User not found') {
           router.push('/auth/signin');
         }
       }
     } catch (err) {
       console.error('Error fetching user:', err);
-      setError('Failed to load profile');
+      setError(t('profile.failedToLoadProfile'));
     } finally {
       setIsLoading(false);
     }
@@ -100,10 +102,10 @@ export default function ProfilePage() {
   };
 
   const menuItems = [
-    { id: 'edit', icon: IconEdit, label: 'Edit Profile', onClick: () => router.push('/profile/edit') },
-    { id: 'feed-preferences', icon: IconAdjustmentsHorizontal, label: 'Feed Preferences', onClick: () => router.push('/feed-preferences') },
-    { id: 'language', icon: IconLanguage, label: 'Language Settings', onClick: () => router.push('/profile/language') },
-    { id: 'settings', icon: IconSettings, label: 'App Settings', onClick: () => router.push('/profile/settings') },
+    { id: 'edit', icon: IconEdit, label: t('profile.editProfile'), onClick: () => router.push('/profile/edit') },
+    { id: 'feed-preferences', icon: IconAdjustmentsHorizontal, label: t('profile.feedPreferences'), onClick: () => router.push('/feed-preferences') },
+    { id: 'language', icon: IconLanguage, label: t('profile.languageSettings'), onClick: () => router.push('/profile/language') },
+    { id: 'settings', icon: IconSettings, label: t('profile.appSettings'), onClick: () => router.push('/profile/settings') },
   ];
 
   // Loading state
@@ -116,7 +118,7 @@ export default function ProfilePage() {
     return (
       <ErrorState
         message={error}
-        actionLabel="Sign In Again"
+        actionLabel={t('profile.signInAgain')}
         onAction={() => router.push('/auth/signin')}
         fullScreen
       />
@@ -193,7 +195,7 @@ export default function ProfilePage() {
           onClick={handleLogout}
         >
           <IconLogout className="w-5 h-5 mr-2" />
-          Logout
+          {t('profile.logout')}
         </Button>
       </main>
 

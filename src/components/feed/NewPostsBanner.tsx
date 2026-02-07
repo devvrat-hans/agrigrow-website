@@ -4,6 +4,7 @@ import React from 'react';
 import { IconRefresh, IconArrowUp } from '@tabler/icons-react';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
+import { useTranslation } from '@/hooks/useTranslation';
 
 /**
  * Props for NewPostsBanner component
@@ -33,6 +34,8 @@ export function NewPostsBanner({
   isRefreshing = false,
   className,
 }: NewPostsBannerProps) {
+  const { t } = useTranslation();
+
   // Don't render if no new posts
   if (count <= 0) {
     return null;
@@ -80,10 +83,10 @@ export function NewPostsBanner({
         )}
         <span className="font-medium text-sm">
           {count === 1
-            ? '1 new post'
+            ? t('feed.newPosts.oneNewPost')
             : count > 99
-            ? '99+ new posts'
-            : `${count} new posts`}
+            ? t('feed.newPosts.tooManyNewPosts')
+            : `${count} ${t('feed.newPosts.manyNewPosts')}`}
         </span>
       </Button>
     </div>

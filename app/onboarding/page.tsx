@@ -7,6 +7,7 @@ import { Logo } from '@/components/common';
 import { cn } from '@/lib/utils';
 import { IconLoader2 } from '@tabler/icons-react';
 import { LANGUAGES } from '@/constants/languages';
+import { useTranslation } from '@/hooks/useTranslation';
 
 type OnboardingStep = 'language' | 'profile' | 'role' | 'location' | 'crops' | 'experience' | 'interests' | 'student_academic' | 'student_interests' | 'student_purpose' | 'business_type' | 'business_focus';
 
@@ -83,138 +84,11 @@ interface ExperienceLevel {
 /** Languages imported from shared constants */
 const languages = LANGUAGES;
 
-const roles: Role[] = [
-  { id: 'farmer', name: 'Farmer', description: 'I grow crops and manage farmland', icon: '🌾' },
-  { id: 'student', name: 'Agriculture Student', description: 'I am studying agriculture', icon: '📚' },
-  { id: 'business', name: 'Business/Organization', description: 'Agri-business, agency, or organization', icon: '🏢' },
-];
-
-const states: State[] = [
-  { code: 'AP', name: 'Andhra Pradesh' },
-  { code: 'AS', name: 'Assam' },
-  { code: 'BR', name: 'Bihar' },
-  { code: 'CG', name: 'Chhattisgarh' },
-  { code: 'GA', name: 'Goa' },
-  { code: 'GJ', name: 'Gujarat' },
-  { code: 'HR', name: 'Haryana' },
-  { code: 'HP', name: 'Himachal Pradesh' },
-  { code: 'JH', name: 'Jharkhand' },
-  { code: 'KA', name: 'Karnataka' },
-  { code: 'KL', name: 'Kerala' },
-  { code: 'MP', name: 'Madhya Pradesh' },
-  { code: 'MH', name: 'Maharashtra' },
-  { code: 'MN', name: 'Manipur' },
-  { code: 'ML', name: 'Meghalaya' },
-  { code: 'MZ', name: 'Mizoram' },
-  { code: 'NL', name: 'Nagaland' },
-  { code: 'OD', name: 'Odisha' },
-  { code: 'PB', name: 'Punjab' },
-  { code: 'RJ', name: 'Rajasthan' },
-  { code: 'SK', name: 'Sikkim' },
-  { code: 'TN', name: 'Tamil Nadu' },
-  { code: 'TS', name: 'Telangana' },
-  { code: 'TR', name: 'Tripura' },
-  { code: 'UP', name: 'Uttar Pradesh' },
-  { code: 'UK', name: 'Uttarakhand' },
-  { code: 'WB', name: 'West Bengal' },
-];
-
-const crops: Crop[] = [
-  { id: 'rice', name: 'Rice', icon: '🌾' },
-  { id: 'wheat', name: 'Wheat', icon: '🌾' },
-  { id: 'cotton', name: 'Cotton', icon: '🧵' },
-  { id: 'sugarcane', name: 'Sugarcane', icon: '🎋' },
-  { id: 'vegetables', name: 'Vegetables', icon: '🥬' },
-  { id: 'fruits', name: 'Fruits', icon: '🍎' },
-  { id: 'pulses', name: 'Pulses', icon: '🫘' },
-  { id: 'oilseeds', name: 'Oilseeds', icon: '🌻' },
-  { id: 'spices', name: 'Spices', icon: '🌶️' },
-  { id: 'millets', name: 'Millets', icon: '🌾' },
-  { id: 'maize', name: 'Maize', icon: '🌽' },
-  { id: 'other', name: 'Other', icon: '🌱' },
-];
-
-const experienceLevels: ExperienceLevel[] = [
-  { id: 'beginner', name: 'Beginner', description: 'New to farming or just starting out' },
-  { id: 'intermediate', name: 'Intermediate', description: '2-5 years of farming experience' },
-  { id: 'experienced', name: 'Experienced', description: '5-10 years of farming experience' },
-  { id: 'expert', name: 'Expert', description: 'More than 10 years of experience' },
-];
-
-const farmerInterests: Interest[] = [
-  { id: 'organic_farming', name: 'Organic Farming', description: 'Natural farming methods', icon: '🌿' },
-  { id: 'equipment_machinery', name: 'Equipment & Machinery', description: 'Farm equipment and tools', icon: '🚜' },
-  { id: 'fertilizer_pesticides', name: 'Fertilizer & Pesticides', description: 'Crop protection and nutrition', icon: '🧪' },
-  { id: 'animal_husbandry', name: 'Animal Husbandry', description: 'Livestock and dairy farming', icon: '🐄' },
-  { id: 'agri_business_news', name: 'Agri Business News', description: 'Industry news and updates', icon: '📰' },
-  { id: 'agriculture_practices', name: 'Agriculture Practices', description: 'Best farming practices', icon: '📋' },
-  { id: 'market_prices', name: 'Market Prices', description: 'Crop prices and trends', icon: '💰' },
-  { id: 'food_processing', name: 'Food Processing', description: 'Value addition and processing', icon: '🏭' },
-];
-
-const degrees: Degree[] = [
-  { id: 'bsc_agriculture', name: 'B.Sc Agriculture' },
-  { id: 'msc_agriculture', name: 'M.Sc Agriculture' },
-  { id: 'phd', name: 'PhD' },
-  { id: 'mba_abm', name: 'MBA (ABM)' },
-  { id: 'diploma_other', name: 'Diploma / Other' },
-];
-
-const yearsOfStudy: YearOfStudy[] = [
-  { id: 'final_year', name: 'Final Year' },
-  { id: 'recently_graduated', name: 'Recently Graduated' },
-  { id: 'alumni', name: 'Alumni' },
-];
-
-const studentBackgrounds: StudentBackground[] = [
-  { id: 'farming_family', name: 'Farming Family' },
-  { id: 'non_farming', name: 'Non-farming Background' },
-];
-
-const studentInterests: StudentInterest[] = [
-  { id: 'crop_production', name: 'Crop Production', icon: '🌾' },
-  { id: 'soil_science', name: 'Soil Science', icon: '🌱' },
-  { id: 'plant_pathology', name: 'Plant Pathology', icon: '🔬' },
-  { id: 'agribusiness_marketing', name: 'Agribusiness & Marketing', icon: '💼' },
-  { id: 'agricultural_economics', name: 'Agricultural Economics', icon: '📊' },
-  { id: 'precision_agriculture', name: 'Precision / Digital Agriculture', icon: '🤖' },
-  { id: 'livestock_dairy', name: 'Livestock & Dairy', icon: '🐄' },
-  { id: 'sustainability_climate', name: 'Sustainability & Climate', icon: '🌍' },
-];
-
-const studentPurposes: StudentPurpose[] = [
-  { id: 'learn_from_farmers', name: 'Learn from Farmers', icon: '📚' },
-  { id: 'share_research', name: 'Share Research / Field Learnings', icon: '📝' },
-  { id: 'connect_experts', name: 'Connect with Experts (KVKs, Scientists)', icon: '👨‍🔬' },
-  { id: 'internship', name: 'Internship / Field Exposure', icon: '🎓' },
-  { id: 'startup_innovation', name: 'Startup / Innovation', icon: '💡' },
-];
-
-const organizationTypes: OrganizationType[] = [
-  { id: 'agri_input', name: 'Agri-Input Company (Seeds, Fertilizers, Pesticides)', icon: '🌱' },
-  { id: 'agri_tech', name: 'Agri-Tech Startup', icon: '🤖' },
-  { id: 'fpo', name: 'FPO / Farmer Producer Organization', icon: '👥' },
-  { id: 'ngo', name: 'NGO', icon: '🤝' },
-  { id: 'government', name: 'Government Agency', icon: '🏛️' },
-  { id: 'research', name: 'Research Institute / University', icon: '🔬' },
-  { id: 'kvk', name: 'KVK / Extension Body', icon: '📖' },
-  { id: 'food_processor', name: 'Food Processor / Buyer', icon: '🏭' },
-];
-
-const businessFocusAreas: BusinessFocusArea[] = [
-  { id: 'crop_advisory', name: 'Crop Advisory', icon: '🌾' },
-  { id: 'market_linkages', name: 'Market Linkages', icon: '🔗' },
-  { id: 'input_supply', name: 'Input Supply', icon: '📦' },
-  { id: 'financial_services', name: 'Financial Services', icon: '💰' },
-  { id: 'training', name: 'Training & Capacity Building', icon: '📚' },
-  { id: 'research_trials', name: 'Research & Trials', icon: '🔬' },
-  { id: 'policy', name: 'Policy & Scheme Implementation', icon: '📋' },
-];
-
 function OnboardingContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const phoneFromParams = searchParams.get('phone') || '';
+  const { t, setLanguage } = useTranslation();
   
   const [step, setStep] = useState<OnboardingStep>('language');
   const [isLoading, setIsLoading] = useState(false);
@@ -274,6 +148,135 @@ function OnboardingContent() {
   // Business specific fields
   const [organizationType, setOrganizationType] = useState('');
   const [businessFocusSelected, setBusinessFocusSelected] = useState<string[]>([]);
+
+  // Translated data arrays
+  const roles: Role[] = [
+    { id: 'farmer', name: t('onboarding.farmer'), description: t('onboarding.farmerDesc'), icon: '🌾' },
+    { id: 'student', name: t('onboarding.student'), description: t('onboarding.studentDesc'), icon: '📚' },
+    { id: 'business', name: t('onboarding.business'), description: t('onboarding.businessDesc'), icon: '🏢' },
+  ];
+
+  const states: State[] = [
+    { code: 'AP', name: 'Andhra Pradesh' },
+    { code: 'AS', name: 'Assam' },
+    { code: 'BR', name: 'Bihar' },
+    { code: 'CG', name: 'Chhattisgarh' },
+    { code: 'GA', name: 'Goa' },
+    { code: 'GJ', name: 'Gujarat' },
+    { code: 'HR', name: 'Haryana' },
+    { code: 'HP', name: 'Himachal Pradesh' },
+    { code: 'JH', name: 'Jharkhand' },
+    { code: 'KA', name: 'Karnataka' },
+    { code: 'KL', name: 'Kerala' },
+    { code: 'MP', name: 'Madhya Pradesh' },
+    { code: 'MH', name: 'Maharashtra' },
+    { code: 'MN', name: 'Manipur' },
+    { code: 'ML', name: 'Meghalaya' },
+    { code: 'MZ', name: 'Mizoram' },
+    { code: 'NL', name: 'Nagaland' },
+    { code: 'OD', name: 'Odisha' },
+    { code: 'PB', name: 'Punjab' },
+    { code: 'RJ', name: 'Rajasthan' },
+    { code: 'SK', name: 'Sikkim' },
+    { code: 'TN', name: 'Tamil Nadu' },
+    { code: 'TS', name: 'Telangana' },
+    { code: 'TR', name: 'Tripura' },
+    { code: 'UP', name: 'Uttar Pradesh' },
+    { code: 'UK', name: 'Uttarakhand' },
+    { code: 'WB', name: 'West Bengal' },
+  ];
+
+  const crops: Crop[] = [
+    { id: 'rice', name: t('onboarding.crops.rice'), icon: '🌾' },
+    { id: 'wheat', name: t('onboarding.crops.wheat'), icon: '🌾' },
+    { id: 'cotton', name: t('onboarding.crops.cotton'), icon: '🧵' },
+    { id: 'sugarcane', name: t('onboarding.crops.sugarcane'), icon: '🎋' },
+    { id: 'vegetables', name: t('onboarding.crops.vegetables'), icon: '🥬' },
+    { id: 'fruits', name: t('onboarding.crops.fruits'), icon: '🍎' },
+    { id: 'pulses', name: t('onboarding.crops.pulses'), icon: '🫘' },
+    { id: 'oilseeds', name: t('onboarding.crops.oilseeds'), icon: '🌻' },
+    { id: 'spices', name: t('onboarding.crops.spices'), icon: '🌶️' },
+    { id: 'millets', name: t('onboarding.crops.millets'), icon: '🌾' },
+    { id: 'maize', name: t('onboarding.crops.maize'), icon: '🌽' },
+    { id: 'other', name: t('onboarding.crops.other'), icon: '🌱' },
+  ];
+
+  const experienceLevels: ExperienceLevel[] = [
+    { id: 'beginner', name: t('onboarding.beginner'), description: t('onboarding.beginnerDesc') },
+    { id: 'intermediate', name: t('onboarding.intermediate'), description: t('onboarding.intermediateDesc') },
+    { id: 'experienced', name: t('onboarding.experienced'), description: t('onboarding.experiencedDesc') },
+    { id: 'expert', name: t('onboarding.expert'), description: t('onboarding.expertDesc') },
+  ];
+
+  const farmerInterests: Interest[] = [
+    { id: 'organic_farming', name: t('onboarding.interests.organicFarming'), description: t('onboarding.interests.organicFarmingDesc'), icon: '🌿' },
+    { id: 'equipment_machinery', name: t('onboarding.interests.equipmentMachinery'), description: t('onboarding.interests.equipmentMachineryDesc'), icon: '🚜' },
+    { id: 'fertilizer_pesticides', name: t('onboarding.interests.fertilizerPesticides'), description: t('onboarding.interests.fertilizerPesticidesDesc'), icon: '🧪' },
+    { id: 'animal_husbandry', name: t('onboarding.interests.animalHusbandry'), description: t('onboarding.interests.animalHusbandryDesc'), icon: '🐄' },
+    { id: 'agri_business_news', name: t('onboarding.interests.agriBusinessNews'), description: t('onboarding.interests.agriBusinessNewsDesc'), icon: '📰' },
+    { id: 'agriculture_practices', name: t('onboarding.interests.agriculturePractices'), description: t('onboarding.interests.agriculturePracticesDesc'), icon: '📋' },
+    { id: 'market_prices', name: t('onboarding.interests.marketPrices'), description: t('onboarding.interests.marketPricesDesc'), icon: '💰' },
+    { id: 'food_processing', name: t('onboarding.interests.foodProcessing'), description: t('onboarding.interests.foodProcessingDesc'), icon: '🏭' },
+  ];
+
+  const degrees: Degree[] = [
+    { id: 'bsc_agriculture', name: t('onboarding.degreeOptions.bscAgriculture') },
+    { id: 'msc_agriculture', name: t('onboarding.degreeOptions.mscAgriculture') },
+    { id: 'phd', name: t('onboarding.degreeOptions.phd') },
+    { id: 'mba_abm', name: t('onboarding.degreeOptions.mbaAbm') },
+    { id: 'diploma_other', name: t('onboarding.degreeOptions.diplomaOther') },
+  ];
+
+  const yearsOfStudy: YearOfStudy[] = [
+    { id: 'final_year', name: t('onboarding.yearOptions.finalYear') },
+    { id: 'recently_graduated', name: t('onboarding.yearOptions.recentlyGraduated') },
+    { id: 'alumni', name: t('onboarding.yearOptions.alumni') },
+  ];
+
+  const studentBackgrounds: StudentBackground[] = [
+    { id: 'farming_family', name: t('onboarding.backgroundOptions.farmingFamily') },
+    { id: 'non_farming', name: t('onboarding.backgroundOptions.nonFarming') },
+  ];
+
+  const studentInterests: StudentInterest[] = [
+    { id: 'crop_production', name: t('onboarding.studentInterestOptions.cropProduction'), icon: '🌾' },
+    { id: 'soil_science', name: t('onboarding.studentInterestOptions.soilScience'), icon: '🌱' },
+    { id: 'plant_pathology', name: t('onboarding.studentInterestOptions.plantPathology'), icon: '🔬' },
+    { id: 'agribusiness_marketing', name: t('onboarding.studentInterestOptions.agribusinessMarketing'), icon: '💼' },
+    { id: 'agricultural_economics', name: t('onboarding.studentInterestOptions.agriculturalEconomics'), icon: '📊' },
+    { id: 'precision_agriculture', name: t('onboarding.studentInterestOptions.precisionAgriculture'), icon: '🤖' },
+    { id: 'livestock_dairy', name: t('onboarding.studentInterestOptions.livestockDairy'), icon: '🐄' },
+    { id: 'sustainability_climate', name: t('onboarding.studentInterestOptions.sustainabilityClimate'), icon: '🌍' },
+  ];
+
+  const studentPurposes: StudentPurpose[] = [
+    { id: 'learn_from_farmers', name: t('onboarding.studentPurposeOptions.learnFromFarmers'), icon: '📚' },
+    { id: 'share_research', name: t('onboarding.studentPurposeOptions.shareResearch'), icon: '📝' },
+    { id: 'connect_experts', name: t('onboarding.studentPurposeOptions.connectExperts'), icon: '👨‍🔬' },
+    { id: 'internship', name: t('onboarding.studentPurposeOptions.internship'), icon: '🎓' },
+    { id: 'startup_innovation', name: t('onboarding.studentPurposeOptions.startupInnovation'), icon: '💡' },
+  ];
+
+  const organizationTypes: OrganizationType[] = [
+    { id: 'agri_input', name: t('onboarding.orgTypes.agriInput'), icon: '🌱' },
+    { id: 'agri_tech', name: t('onboarding.orgTypes.agriTech'), icon: '🤖' },
+    { id: 'fpo', name: t('onboarding.orgTypes.fpo'), icon: '👥' },
+    { id: 'ngo', name: t('onboarding.orgTypes.ngo'), icon: '🤝' },
+    { id: 'government', name: t('onboarding.orgTypes.government'), icon: '🏛️' },
+    { id: 'research', name: t('onboarding.orgTypes.research'), icon: '🔬' },
+    { id: 'kvk', name: t('onboarding.orgTypes.kvk'), icon: '📖' },
+    { id: 'food_processor', name: t('onboarding.orgTypes.foodProcessor'), icon: '🏭' },
+  ];
+
+  const businessFocusAreas: BusinessFocusArea[] = [
+    { id: 'crop_advisory', name: t('onboarding.businessFocusOptions.cropAdvisory'), icon: '🌾' },
+    { id: 'market_linkages', name: t('onboarding.businessFocusOptions.marketLinkages'), icon: '🔗' },
+    { id: 'input_supply', name: t('onboarding.businessFocusOptions.inputSupply'), icon: '📦' },
+    { id: 'financial_services', name: t('onboarding.businessFocusOptions.financialServices'), icon: '💰' },
+    { id: 'training', name: t('onboarding.businessFocusOptions.training'), icon: '📚' },
+    { id: 'research_trials', name: t('onboarding.businessFocusOptions.researchTrials'), icon: '🔬' },
+    { id: 'policy', name: t('onboarding.businessFocusOptions.policy'), icon: '📋' },
+  ];
 
   // Get dynamic steps based on role
   const getStepsForRole = (): OnboardingStep[] => {
@@ -392,8 +395,8 @@ function OnboardingContent() {
       const data = await response.json();
 
       if (data.success) {
-        // Store language preference for voice recognition
-        localStorage.setItem('userLanguage', selectedLanguage);
+        // Store language preference
+        setLanguage(selectedLanguage as 'en' | 'hi');
         router.push('/home');
       } else {
         setError(data.error || 'Failed to save profile');
@@ -444,7 +447,7 @@ function OnboardingContent() {
       <div className="min-h-screen bg-background flex items-center justify-center">
         <div className="text-center">
           <IconLoader2 className="w-8 h-8 animate-spin text-primary mx-auto mb-3" />
-          <p className="text-sm text-muted-foreground">Loading...</p>
+          <p className="text-sm text-muted-foreground">{t('common.loading')}</p>
         </div>
       </div>
     );
@@ -478,10 +481,10 @@ function OnboardingContent() {
             <div className="space-y-6">
               <div>
                 <h1 className="text-2xl font-bold text-foreground mb-2">
-                  Choose your language
+                  {t('onboarding.chooseLanguage')}
                 </h1>
                 <p className="text-muted-foreground">
-                  Select your preferred language for the app
+                  {t('onboarding.chooseLanguageDesc')}
                 </p>
               </div>
 
@@ -492,7 +495,12 @@ function OnboardingContent() {
                   return (
                     <button
                       key={lang.code}
-                      onClick={() => isAvailable && setSelectedLanguage(lang.code)}
+                      onClick={() => {
+                        if (isAvailable) {
+                          setSelectedLanguage(lang.code);
+                          setLanguage(lang.code as 'en' | 'hi');
+                        }
+                      }}
                       disabled={!isAvailable}
                       className={cn(
                         "p-4 rounded-lg border-2 text-left transition-all relative",
@@ -510,11 +518,11 @@ function OnboardingContent() {
                       <p className="text-sm text-muted-foreground">{lang.name}</p>
                       {isAvailable ? (
                         <span className="absolute top-2 right-2 inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-semibold bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400">
-                          Available
+                          {t('onboarding.available')}
                         </span>
                       ) : (
                         <span className="absolute top-2 right-2 inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-semibold bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400">
-                          Coming Soon
+                          {t('onboarding.comingSoon')}
                         </span>
                       )}
                     </button>
@@ -529,23 +537,23 @@ function OnboardingContent() {
             <div className="space-y-6">
               <div>
                 <h1 className="text-2xl font-bold text-foreground mb-2">
-                  Tell us about yourself
+                  {t('onboarding.tellAboutYourself')}
                 </h1>
                 <p className="text-muted-foreground">
-                  This helps other farmers know who you are
+                  {t('onboarding.tellAboutYourselfDesc')}
                 </p>
               </div>
 
               <div className="space-y-4">
                 <div>
                   <label className="block text-sm font-medium text-foreground mb-2">
-                    Full Name <span className="text-destructive">*</span>
+                    {t('onboarding.fullName')} <span className="text-destructive">*</span>
                   </label>
                   <input
                     type="text"
                     value={fullName}
                     onChange={(e) => setFullName(e.target.value)}
-                    placeholder="Enter your full name"
+                    placeholder={t('onboarding.fullNamePlaceholder')}
                     maxLength={100}
                     className="w-full p-3 border border-border rounded-lg bg-background text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary"
                   />
@@ -553,18 +561,18 @@ function OnboardingContent() {
 
                 <div>
                   <label className="block text-sm font-medium text-foreground mb-2">
-                    Short Bio (Optional)
+                    {t('onboarding.shortBio')} ({t('onboarding.optional')})
                   </label>
                   <textarea
                     value={bio}
                     onChange={(e) => setBio(e.target.value)}
-                    placeholder="Tell us a bit about yourself, your farm, or your interests..."
+                    placeholder={t('onboarding.shortBioPlaceholder')}
                     maxLength={500}
                     rows={4}
                     className="w-full p-3 border border-border rounded-lg bg-background text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary resize-none"
                   />
                   <p className="text-xs text-muted-foreground mt-1">
-                    {bio.length}/500 characters
+                    {bio.length}/500 {t('onboarding.characters')}
                   </p>
                 </div>
               </div>
@@ -576,10 +584,10 @@ function OnboardingContent() {
             <div className="space-y-6">
               <div>
                 <h1 className="text-2xl font-bold text-foreground mb-2">
-                  I am a...
+                  {t('onboarding.iAmA')}
                 </h1>
                 <p className="text-muted-foreground">
-                  This helps us personalize your experience
+                  {t('onboarding.iAmADesc')}
                 </p>
               </div>
 
@@ -611,24 +619,24 @@ function OnboardingContent() {
             <div className="space-y-6">
               <div>
                 <h1 className="text-2xl font-bold text-foreground mb-2">
-                  Academic Details
+                  {t('onboarding.academicDetails')}
                 </h1>
                 <p className="text-muted-foreground">
-                  Tell us about your educational background
+                  {t('onboarding.academicDetailsDesc')}
                 </p>
               </div>
 
               <div className="space-y-4">
                 <div>
                   <label className="block text-sm font-medium text-foreground mb-2">
-                    Degree <span className="text-destructive">*</span>
+                    {t('onboarding.degree')} <span className="text-destructive">*</span>
                   </label>
                   <select
                     value={studentDegree}
                     onChange={(e) => setStudentDegree(e.target.value)}
                     className="w-full p-3 border border-border rounded-lg bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary"
                   >
-                    <option value="">Select your degree</option>
+                    <option value="">{t('onboarding.selectDegree')}</option>
                     {degrees.map((degree) => (
                       <option key={degree.id} value={degree.id}>
                         {degree.name}
@@ -639,27 +647,27 @@ function OnboardingContent() {
 
                 <div>
                   <label className="block text-sm font-medium text-foreground mb-2">
-                    College / University Name <span className="text-destructive">*</span>
+                    {t('onboarding.collegeName')} <span className="text-destructive">*</span>
                   </label>
                   <input
                     type="text"
                     value={collegeName}
                     onChange={(e) => setCollegeName(e.target.value)}
-                    placeholder="Enter your college/university name"
+                    placeholder={t('onboarding.collegeNamePlaceholder')}
                     className="w-full p-3 border border-border rounded-lg bg-background text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary"
                   />
                 </div>
 
                 <div>
                   <label className="block text-sm font-medium text-foreground mb-2">
-                    Year of Study <span className="text-destructive">*</span>
+                    {t('onboarding.yearOfStudy')} <span className="text-destructive">*</span>
                   </label>
                   <select
                     value={yearOfStudy}
                     onChange={(e) => setYearOfStudy(e.target.value)}
                     className="w-full p-3 border border-border rounded-lg bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary"
                   >
-                    <option value="">Select year</option>
+                    <option value="">{t('onboarding.selectYear')}</option>
                     {yearsOfStudy.map((year) => (
                       <option key={year.id} value={year.id}>
                         {year.name}
@@ -670,7 +678,7 @@ function OnboardingContent() {
 
                 <div>
                   <label className="block text-sm font-medium text-foreground mb-2">
-                    Background <span className="text-destructive">*</span>
+                    {t('onboarding.background')} <span className="text-destructive">*</span>
                   </label>
                   <div className="space-y-2">
                     {studentBackgrounds.map((bg) => (
@@ -698,10 +706,10 @@ function OnboardingContent() {
             <div className="space-y-6">
               <div>
                 <h1 className="text-2xl font-bold text-foreground mb-2">
-                  Organization Type
+                  {t('onboarding.organizationType')}
                 </h1>
                 <p className="text-muted-foreground">
-                  Select the type of organization you represent
+                  {t('onboarding.organizationTypeDesc')}
                 </p>
               </div>
 
@@ -730,24 +738,24 @@ function OnboardingContent() {
             <div className="space-y-6">
               <div>
                 <h1 className="text-2xl font-bold text-foreground mb-2">
-                  Where are you located?
+                  {t('onboarding.whereLocated')}
                 </h1>
                 <p className="text-muted-foreground">
-                  This helps us show you relevant content and connect you with nearby farmers
+                  {t('onboarding.whereLocatedDesc')}
                 </p>
               </div>
 
               <div className="space-y-4">
                 <div>
                   <label className="block text-sm font-medium text-foreground mb-2">
-                    State <span className="text-destructive">*</span>
+                    {t('onboarding.state')} <span className="text-destructive">*</span>
                   </label>
                   <select
                     value={selectedState}
                     onChange={(e) => setSelectedState(e.target.value)}
                     className="w-full p-3 border border-border rounded-lg bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary"
                   >
-                    <option value="">Select your state</option>
+                    <option value="">{t('onboarding.selectState')}</option>
                     {states.map((state) => (
                       <option key={state.code} value={state.code}>
                         {state.name}
@@ -758,13 +766,13 @@ function OnboardingContent() {
 
                 <div>
                   <label className="block text-sm font-medium text-foreground mb-2">
-                    District (Optional)
+                    {t('onboarding.district')} ({t('onboarding.optional')})
                   </label>
                   <input
                     type="text"
                     value={district}
                     onChange={(e) => setDistrict(e.target.value)}
-                    placeholder="Enter your district"
+                    placeholder={t('onboarding.enterDistrict')}
                     className="w-full p-3 border border-border rounded-lg bg-background text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary"
                   />
                 </div>
@@ -777,10 +785,10 @@ function OnboardingContent() {
             <div className="space-y-6">
               <div>
                 <h1 className="text-2xl font-bold text-foreground mb-2">
-                  What crops interest you?
+                  {t('onboarding.whatCrops')}
                 </h1>
                 <p className="text-muted-foreground">
-                  Select all that apply. You can change this later.
+                  {t('onboarding.whatCropsDesc')}
                 </p>
               </div>
 
@@ -809,10 +817,10 @@ function OnboardingContent() {
             <div className="space-y-6">
               <div>
                 <h1 className="text-2xl font-bold text-foreground mb-2">
-                  What&apos;s your experience level?
+                  {t('onboarding.experienceLevel')}
                 </h1>
                 <p className="text-muted-foreground">
-                  This helps us tailor content to your needs
+                  {t('onboarding.experienceLevelDesc')}
                 </p>
               </div>
 
@@ -845,10 +853,10 @@ function OnboardingContent() {
             <div className="space-y-6">
               <div>
                 <h1 className="text-2xl font-bold text-foreground mb-2">
-                  What interests you?
+                  {t('onboarding.whatInterests')}
                 </h1>
                 <p className="text-muted-foreground">
-                  Select topics you want to learn more about. You can change this later.
+                  {t('onboarding.whatInterestsDesc')}
                 </p>
               </div>
 
@@ -884,10 +892,10 @@ function OnboardingContent() {
             <div className="space-y-6">
               <div>
                 <h1 className="text-2xl font-bold text-foreground mb-2">
-                  Area of Interest
+                  {t('onboarding.areaOfInterest')}
                 </h1>
                 <p className="text-muted-foreground">
-                  Select your specialization areas. You can select multiple.
+                  {t('onboarding.areaOfInterestDesc')}
                 </p>
               </div>
 
@@ -922,10 +930,10 @@ function OnboardingContent() {
             <div className="space-y-6">
               <div>
                 <h1 className="text-2xl font-bold text-foreground mb-2">
-                  Purpose on Platform
+                  {t('onboarding.purposeOnPlatform')}
                 </h1>
                 <p className="text-muted-foreground">
-                  What do you want to achieve here? Select all that apply.
+                  {t('onboarding.purposeDesc')}
                 </p>
               </div>
 
@@ -958,10 +966,10 @@ function OnboardingContent() {
             <div className="space-y-6">
               <div>
                 <h1 className="text-2xl font-bold text-foreground mb-2">
-                  Focus Areas
+                  {t('onboarding.focusAreas')}
                 </h1>
                 <p className="text-muted-foreground">
-                  What areas does your organization focus on? Select all that apply.
+                  {t('onboarding.focusAreasDesc')}
                 </p>
               </div>
 
@@ -1007,7 +1015,7 @@ function OnboardingContent() {
               className="flex-1"
               size="lg"
             >
-              Back
+              {t('common.back')}
             </Button>
           )}
           <Button
@@ -1018,9 +1026,9 @@ function OnboardingContent() {
           >
             {currentStepIndex === steps.length - 1
               ? isLoading
-                ? 'Setting up...'
-                : 'Complete Setup'
-              : 'Continue'}
+                ? t('onboarding.settingUp')
+                : t('onboarding.completeSetup')
+              : t('common.continue')}
           </Button>
         </div>
       </div>

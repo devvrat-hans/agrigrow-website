@@ -13,6 +13,7 @@ import {
   AuthLink
 } from '@/components/auth';
 import { Button } from '@/components/ui/button';
+import { useTranslation } from '@/hooks/useTranslation';
 
 type AuthStep = 'phone' | 'otp';
 
@@ -23,10 +24,11 @@ export default function SigninPage() {
   const [otp, setOtp] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
+  const { t } = useTranslation();
 
   const handleSendOTP = async () => {
     if (phone.length !== 10) {
-      setError('Please enter a valid 10-digit mobile number');
+      setError(t('auth.invalidPhone'));
       return;
     }
 
@@ -41,7 +43,7 @@ export default function SigninPage() {
 
   const handleVerifyOTP = async () => {
     if (otp.length !== 6) {
-      setError('Please enter a valid 6-digit OTP');
+      setError(t('auth.invalidOtp'));
       return;
     }
 
@@ -67,7 +69,7 @@ export default function SigninPage() {
         router.push(`/onboarding?phone=${phone}`);
       }
     } catch {
-      setError('Failed to verify OTP. Please try again.');
+      setError(t('auth.otpFailed'));
     } finally {
       setIsLoading(false);
     }
@@ -99,22 +101,22 @@ export default function SigninPage() {
   return (
     <div className="min-h-screen flex flex-col md:flex-row" onKeyDown={handleKeyDown}>
       <AuthBrandingSection 
-        title="Welcome Back!"
-        description="Sign in to continue your journey with thousands of farmers sharing knowledge and growing together."
+        title={t('auth.signin.welcomeBack')}
+        description={t('auth.signin.welcomeDesc')}
       />
 
       <AuthFormContainer>
         {step === 'phone' ? (
           <>
             <AuthFormHeader 
-              title="Signin"
-              description="Enter your mobile number to signin"
+              title={t('auth.signin.title')}
+              description={t('auth.signin.description')}
             />
 
             <div className="space-y-6">
               <div>
                 <label className="block text-sm font-medium text-foreground mb-2">
-                  Mobile Number
+                  {t('auth.mobileNumber')}
                 </label>
                 <PhoneInput
                   value={phone}
@@ -133,12 +135,12 @@ export default function SigninPage() {
                 className="w-full"
                 size="lg"
               >
-                {isLoading ? 'Sending OTP...' : 'Send OTP'}
+                {isLoading ? t('auth.sendingOtp') : t('auth.sendOtp')}
               </Button>
 
               <AuthLink 
-                question="Don't have an account?"
-                linkText="Signup"
+                question={t('auth.dontHaveAccount')}
+                linkText={t('nav.signup')}
                 href="/auth/signup"
               />
             </div>
@@ -148,15 +150,15 @@ export default function SigninPage() {
             <BackButton onClick={handleBack} />
 
             <AuthFormHeader 
-              title="Verify OTP"
-              description={`Enter the 6-digit code sent to +91 ${phone}`}
+              title={t('auth.verifyOtpTitle')}
+              description={`${t('auth.verifyOtpDesc')}${phone}`}
             />
 
             <div className="space-y-6">
               {/* Demo notice */}
               <div className="p-3 bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 rounded-lg">
                 <p className="text-sm text-amber-700 dark:text-amber-300 text-center">
-                  <strong>Demo Mode:</strong> OTP verification is currently disabled. Enter any 6-digit code to proceed.
+                  <strong>{t('auth.demoMode')}</strong> {t('auth.demoModeDesc')}
                 </p>
               </div>
 
@@ -176,7 +178,7 @@ export default function SigninPage() {
                 className="w-full"
                 size="lg"
               >
-                {isLoading ? 'Verifying...' : 'Verify OTP'}
+                {isLoading ? t('auth.verifyingOtp') : t('auth.verifyOtp')}
               </Button>
 
               <ResendOTP onResend={handleResendOTP} disabled={isLoading} />

@@ -7,16 +7,18 @@ import { NavCTAButtons } from './NavCTAButtons';
 import { MobileMenuButton } from './MobileMenuButton';
 import { MobileMenu } from './MobileMenu';
 import { zIndex } from '@/lib/design-tokens';
-
-const navItems = [
-  { href: '#features', label: 'Features' },
-  { href: '#about', label: 'About' },
-  { href: '#community', label: 'Community' },
-  { href: '#resources', label: 'Resources' },
-];
+import { useTranslation } from '@/hooks/useTranslation';
 
 export function Navbar() {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const { t } = useTranslation();
+
+  const navItems = [
+    { href: '#features', label: t('nav.features') },
+    { href: '#about', label: t('nav.about') },
+    { href: '#community', label: t('nav.community') },
+    { href: '#resources', label: t('nav.resources') },
+  ];
 
   return (
     <nav 

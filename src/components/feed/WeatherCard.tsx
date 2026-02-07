@@ -18,6 +18,7 @@ import {
 } from '@tabler/icons-react';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
+import { useTranslation } from '@/hooks/useTranslation';
 
 /**
  * Weather condition type
@@ -140,17 +141,17 @@ function getAccentColor(condition: WeatherCondition): string {
 /**
  * Format day name from date string
  */
-function formatDayName(dateString: string): string {
+function formatDayName(dateString: string, todayLabel: string = 'Today', tomorrowLabel: string = 'Tmrw'): string {
   const date = new Date(dateString);
   const today = new Date();
   const tomorrow = new Date(today);
   tomorrow.setDate(tomorrow.getDate() + 1);
   
   if (date.toDateString() === today.toDateString()) {
-    return 'Today';
+    return todayLabel;
   }
   if (date.toDateString() === tomorrow.toDateString()) {
-    return 'Tmrw';
+    return tomorrowLabel;
   }
   
   return date.toLocaleDateString('en-US', { weekday: 'short' });
@@ -212,6 +213,10 @@ export function WeatherCard({
   className,
 }: WeatherCardProps) {
   const [isExpanded, setIsExpanded] = useState(false);
+  const { t } = useTranslation();
+  
+  const todayLabel = t('feed.weather.today');
+  const tomorrowLabel = t('feed.weather.tomorrow');
   
   // Show skeleton while loading
   if (loading) {
@@ -323,7 +328,7 @@ export function WeatherCard({
                 'hover:bg-gray-100 dark:hover:bg-gray-800',
                 'transition-colors duration-200'
               )}
-              aria-label="Refresh weather"
+              aria-label={t('feed.weather.refreshWeather')}
             >
               <IconRefresh className="w-4 h-4" />
             </button>
@@ -339,7 +344,7 @@ export function WeatherCard({
                 'hover:bg-gray-100 dark:hover:bg-gray-800',
                 'transition-colors duration-200'
               )}
-              aria-label={isExpanded ? 'Hide forecast' : 'Show forecast'}
+              aria-label={isExpanded ? t('feed.weather.hideForecast') : t('feed.weather.showForecast')}
             >
               {isExpanded ? (
                 <IconChevronUp className="w-4 h-4" />
@@ -359,7 +364,7 @@ export function WeatherCard({
                 className="flex items-center gap-1 text-[11px] text-gray-500 dark:text-gray-400"
               >
                 <span className="font-medium text-gray-600 dark:text-gray-300">
-                  {formatDayName(day.date)}
+                  {formatDayName(day.date, todayLabel, tomorrowLabel)}
                 </span>
                 <IconCloudRain className={cn(
                   "w-3 h-3",
@@ -396,7 +401,7 @@ export function WeatherCard({
                     )}
                   >
                     <p className="text-[10px] font-medium text-gray-500 dark:text-gray-400 mb-1">
-                      {formatDayName(day.date)}
+                      {formatDayName(day.date, todayLabel, tomorrowLabel)}
                     </p>
                     <div className="flex justify-center mb-1">
                       {day.icon ? (

@@ -43,3 +43,4 @@ export {
 export type { ResponsiveImageProps } from './ResponsiveImage';
 export { DesktopMobilePrompt } from './DesktopMobilePrompt';
 export type { default as DesktopMobilePromptDefault } from './DesktopMobilePrompt';
+export { LanguageProvider, useLanguage } from './LanguageProvider';

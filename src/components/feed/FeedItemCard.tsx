@@ -56,6 +56,7 @@ import { useShare } from '@/hooks/useShare';
 import { useMuteUser } from '@/hooks/useMuteUser';
 import { generateShareLink } from '@/lib/api-client';
 import { ResponsiveImage, isBase64Image } from '@/components/common';
+import { useTranslation } from '@/hooks/useTranslation';
 
 /**
  * Post author interface
@@ -156,7 +157,7 @@ export function getPostTypeColor(type: PostType): string {
 }
 
 /**
- * Format post type label
+ * Format post type label with translation
  */
 function formatPostTypeLabel(type: PostType): string {
   switch (type) {
@@ -164,6 +165,24 @@ function formatPostTypeLabel(type: PostType): string {
       return 'Success Story';
     default:
       return type.charAt(0).toUpperCase() + type.slice(1);
+  }
+}
+
+/**
+ * Map post type to translation key
+ */
+function getPostTypeTranslationKey(type: PostType): string {
+  switch (type) {
+    case 'success_story': return 'feed.postTypes.successStory';
+    case 'question': return 'feed.postTypes.question';
+    case 'update': return 'feed.postTypes.update';
+    case 'tip': return 'feed.postTypes.tip';
+    case 'problem': return 'feed.postTypes.problem';
+    case 'technique': return 'feed.postTypes.technique';
+    case 'technology': return 'feed.postTypes.technology';
+    case 'news': return 'feed.postTypes.news';
+    case 'post': return 'feed.postTypes.post';
+    default: return 'feed.postTypes.post';
   }
 }
 
@@ -315,7 +334,7 @@ function ImageGallery({
  * OriginalPostCard Component
  * Shows the original post for reposts
  */
-function OriginalPostCard({ post }: { post: OriginalPost }) {
+function OriginalPostCard({ post, repostedFromLabel }: { post: OriginalPost; repostedFromLabel?: string }) {
   const authorName = post.author.fullName || post.author.name;
   const authorAvatar = post.author.profileImage || post.author.avatar;
   const authorId = post.author._id || post.author.id;
@@ -324,7 +343,7 @@ function OriginalPostCard({ post }: { post: OriginalPost }) {
     <div className="p-3 rounded-lg bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-700 mb-3">
       <div className="flex items-center gap-2 mb-2">
         <IconRefresh size={14} className="text-gray-400" />
-        <span className="text-xs text-gray-500">Reposted from</span>
+        <span className="text-xs text-gray-500">{repostedFromLabel || 'Reposted from'}</span>
       </div>
       <div className="flex gap-2">
         <Link href={`/profile/${authorId}`}>
@@ -382,6 +401,9 @@ function FeedItemCardComponent({
   if (process.env.NODE_ENV === 'development') {
     trackRender('FeedItemCard');
   }
+
+  // Translation hook
+  const { t } = useTranslation();
   // State
   const [isContentExpanded, setIsContentExpanded] = useState(false);
   const [isCommentsExpanded, setIsCommentsExpanded] = useState(false);
@@ -685,12 +707,12 @@ function FeedItemCardComponent({
                 {linkCopied ? (
                   <>
                     <IconCheck size={16} className="mr-2 text-green-500" />
-                    Copied!
+                    {t('feed.actions.copied')}
                   </>
                 ) : (
                   <>
                     <IconLink size={16} className="mr-2" />
-                    Copy link
+                    {t('feed.actions.copyLink')}
                   </>
                 )}
               </DropdownMenuItem>
@@ -698,7 +720,7 @@ function FeedItemCardComponent({
               {onHide && !isOwnPost && (
                 <DropdownMenuItem onClick={() => onHide(postId)}>
                   <IconEyeOff size={16} className="mr-2" />
-                  Hide this post
+                  {t('feed.actions.hidePost')}
                 </DropdownMenuItem>
               )}
               {!isOwnPost && (
@@ -710,7 +732,7 @@ function FeedItemCardComponent({
                       if (success) {
                         // Clear any existing timer
                         if (muteToastTimerRef.current) clearTimeout(muteToastTimerRef.current);
-                        setMuteToastMessage(`${authorName} has been unmuted`);
+                        setMuteToastMessage(`${authorName} ${t('feed.actions.unmuted')}`);
                         muteToastTimerRef.current = setTimeout(() => setMuteToastMessage(null), 3000);
                       }
                     } else {
@@ -718,7 +740,7 @@ function FeedItemCardComponent({
                       if (success) {
                         // Clear any existing timer
                         if (muteToastTimerRef.current) clearTimeout(muteToastTimerRef.current);
-                        setMuteToastMessage(`${authorName} has been muted`);
+                        setMuteToastMessage(`${authorName} ${t('feed.actions.muted')}`);
                         muteToastTimerRef.current = setTimeout(() => setMuteToastMessage(null), 3000);
                         onMuteUser?.(authorId);
                       }
@@ -728,12 +750,12 @@ function FeedItemCardComponent({
                   {isAuthorMuted ? (
                     <>
                       <IconVolume size={16} className="mr-2" />
-                      Unmute this user
+                      {t('feed.actions.unmuteUser')}
                     </>
                   ) : (
                     <>
                       <IconVolume3 size={16} className="mr-2" />
-                      Mute this user
+                      {t('feed.actions.muteUser')}
                     </>
                   )}
                 </DropdownMenuItem>
@@ -744,7 +766,7 @@ function FeedItemCardComponent({
                   className="text-red-500 focus:text-red-500"
                 >
                   <IconTrash size={16} className="mr-2" />
-                  Delete post
+                  {t('feed.actions.deletePost')}
                 </DropdownMenuItem>
               )}
               {!isOwnPost && (
@@ -755,7 +777,7 @@ function FeedItemCardComponent({
                   className="text-red-500 focus:text-red-500"
                 >
                   <IconFlag size={16} className="mr-2" />
-                  Report post
+                  {t('feed.actions.reportPost')}
                 </DropdownMenuItem>
               )}
             </DropdownMenuContent>
@@ -767,12 +789,12 @@ function FeedItemCardComponent({
         <div className="px-3 sm:px-4 py-2 sm:py-3">
           {/* Post Type Badge */}
           <Badge className={cn('mb-2', getPostTypeColor(postType))}>
-            {formatPostTypeLabel(postType)}
+            {t(getPostTypeTranslationKey(postType))}
           </Badge>
 
           {/* Repost indicator and original post */}
           {item.isRepost && item.originalPost && (
-            <OriginalPostCard post={item.originalPost} />
+            <OriginalPostCard post={item.originalPost} repostedFromLabel={t('feed.actions.repostedFrom')} />
           )}
 
           {/* Repost text (if any) */}
@@ -795,11 +817,11 @@ function FeedItemCardComponent({
             >
               {isContentExpanded ? (
                 <>
-                  Show less <IconChevronUp size={14} />
+                  {t('feed.actions.showLess')} <IconChevronUp size={14} />
                 </>
               ) : (
                 <>
-                  Read more <IconChevronDown size={14} />
+                  {t('feed.actions.readMore')} <IconChevronDown size={14} />
                 </>
               )}
             </button>
@@ -978,13 +1000,13 @@ function FeedItemCardComponent({
       <AlertDialog open={isDeleteModalOpen} onOpenChange={setIsDeleteModalOpen}>
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>Delete Post</AlertDialogTitle>
+            <AlertDialogTitle>{t('feed.actions.deletePostTitle')}</AlertDialogTitle>
             <AlertDialogDescription>
-              Are you sure you want to delete this post? This action cannot be undone.
+              {t('feed.actions.deletePostConfirm')}
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel disabled={isDeleting}>Cancel</AlertDialogCancel>
+            <AlertDialogCancel disabled={isDeleting}>{t('feed.actions.cancel')}</AlertDialogCancel>
             <AlertDialogAction
               onClick={handleDeletePost}
               disabled={isDeleting}
@@ -993,10 +1015,10 @@ function FeedItemCardComponent({
               {isDeleting ? (
                 <>
                   <IconLoader2 className="w-4 h-4 mr-2 animate-spin" />
-                  Deleting...
+                  {t('feed.actions.deleting')}
                 </>
               ) : (
-                'Delete'
+                t('feed.actions.delete')
               )}
             </AlertDialogAction>
           </AlertDialogFooter>

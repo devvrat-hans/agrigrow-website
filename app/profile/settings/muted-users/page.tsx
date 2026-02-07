@@ -9,6 +9,7 @@ import { MobileBottomNav } from '@/components/common/MobileBottomNav';
 import { LoadingSpinner } from '@/components/common/LoadingSpinner';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
+import { useTranslation } from '@/hooks/useTranslation';
 
 /** Shape of a muted user returned from the API */
 interface MutedUser {
@@ -31,23 +32,24 @@ function getInitials(name: string): string {
 }
 
 /**
- * Role badge label mapping
+ * Role badge label key mapping
  */
-function getRoleLabel(role: string): string {
+function getRoleLabelKey(role: string): string {
   switch (role) {
     case 'farmer':
-      return 'Farmer';
+      return 'profile.farmerProfile';
     case 'student':
-      return 'Student';
+      return 'profile.studentProfile';
     case 'business':
-      return 'Business';
+      return 'profile.businessProfile';
     default:
-      return 'User';
+      return 'profile.userRole';
   }
 }
 
 export default function MutedUsersPage() {
   const router = useRouter();
+  const { t } = useTranslation();
   const [mutedUsers, setMutedUsers] = useState<MutedUser[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState('');
@@ -73,11 +75,11 @@ export default function MutedUsersPage() {
       if (response.data.success) {
         setMutedUsers(response.data.mutedUsers);
       } else {
-        setError(response.data.error || 'Failed to load muted users');
+        setError(response.data.error || t('profile.settings.failedToLoadMuted'));
       }
     } catch (err) {
       console.error('Error fetching muted users:', err);
-      setError('Failed to load muted users');
+      setError(t('profile.settings.failedToLoadMuted'));
     } finally {
       setIsLoading(false);
     }
@@ -126,7 +128,7 @@ export default function MutedUsersPage() {
   if (isLoading) {
     return (
       <div className="min-h-screen bg-background flex flex-col">
-        <PageHeader showBackButton title="Muted Users" />
+        <PageHeader showBackButton title={t('profile.settings.mutedUsers')} />
         <div className="flex-1 flex items-center justify-center">
           <LoadingSpinner size="lg" />
         </div>
@@ -147,12 +149,11 @@ export default function MutedUsersPage() {
               <IconVolume3 className="w-5 h-5 text-red-600 dark:text-red-400" />
             </div>
             <h1 className="text-lg font-semibold text-gray-900 dark:text-white">
-              Muted Users
+              {t('profile.settings.mutedUsers')}
             </h1>
           </div>
           <p className="text-sm text-gray-600 dark:text-gray-400">
-            Posts from muted users won&apos;t appear in your feed. You can unmute
-            them anytime.
+            {t('profile.settings.mutedUsersDesc')}
           </p>
         </div>
 
@@ -170,7 +171,7 @@ export default function MutedUsersPage() {
                 fetchMutedUsers();
               }}
             >
-              Try again
+              {t('profile.settings.tryAgain')}
             </Button>
           </div>
         )}
@@ -182,11 +183,10 @@ export default function MutedUsersPage() {
               <IconVolume className="w-8 h-8 text-gray-400 dark:text-gray-500" />
             </div>
             <h3 className="text-base font-medium text-gray-900 dark:text-white mb-1">
-              No muted users
+              {t('profile.settings.noMutedUsers')}
             </h3>
             <p className="text-sm text-gray-500 dark:text-gray-400 max-w-xs">
-              You haven&apos;t muted anyone yet. Mute users from their profile or
-              from post options to hide their posts from your feed.
+              {t('profile.settings.noMutedUsersDesc')}
             </p>
           </div>
         )}
@@ -230,7 +230,7 @@ export default function MutedUsersPage() {
                       variant="secondary"
                       className="text-xs mt-0.5"
                     >
-                      {getRoleLabel(user.role)}
+                      {t(getRoleLabelKey(user.role))}
                     </Badge>
                   </div>
                 </button>
@@ -248,7 +248,7 @@ export default function MutedUsersPage() {
                   ) : (
                     <IconVolume size={14} />
                   )}
-                  Unmute
+                  {t('profile.settings.unmute')}
                 </Button>
               </div>
             ))}

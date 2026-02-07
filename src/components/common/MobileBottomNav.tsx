@@ -11,23 +11,25 @@ import {
 } from '@tabler/icons-react';
 import { cn } from '@/lib/utils';
 import { safeAreaCalc } from '@/lib/safe-area';
+import { useTranslation } from '@/hooks/useTranslation';
 
 interface NavItem {
   href: string;
-  label: string;
+  labelKey: string;
   icon: React.ReactNode;
 }
 
 const navItems: NavItem[] = [
-  { href: '/home', label: 'Feed', icon: <IconHome size={24} /> },
-  { href: '/communities', label: 'Groups', icon: <IconUsers size={24} /> },
-  { href: '/knowledge', label: 'Learn', icon: <IconBook size={24} /> },
-  { href: '/crop-ai', label: 'Crop AI', icon: <IconPlant2 size={24} /> },
-  { href: '/profile', label: 'Profile', icon: <IconUser size={24} /> },
+  { href: '/home', labelKey: 'nav.feed', icon: <IconHome size={24} /> },
+  { href: '/communities', labelKey: 'nav.groups', icon: <IconUsers size={24} /> },
+  { href: '/knowledge', labelKey: 'nav.learn', icon: <IconBook size={24} /> },
+  { href: '/crop-ai', labelKey: 'nav.cropAi', icon: <IconPlant2 size={24} /> },
+  { href: '/profile', labelKey: 'nav.profile', icon: <IconUser size={24} /> },
 ];
 
 export function MobileBottomNav() {
   const pathname = usePathname();
+  const { t } = useTranslation();
 
   return (
     <nav 
@@ -66,11 +68,11 @@ export function MobileBottomNav() {
                   ? "text-primary" 
                   : "text-muted-foreground hover:text-foreground"
               )}
-              aria-label={item.label}
+              aria-label={t(item.labelKey)}
               aria-current={isActive ? 'page' : undefined}
             >
               {item.icon}
-              <span className="text-xs font-medium">{item.label}</span>
+              <span className="text-xs font-medium">{t(item.labelKey)}</span>
             </Link>
           );
         })}

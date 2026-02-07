@@ -9,6 +9,7 @@ import {
   IconSparkles,
 } from '@tabler/icons-react';
 import { cn } from '@/lib/utils';
+import { useTranslation } from '@/hooks/useTranslation';
 
 /**
  * User role types for placeholder text
@@ -36,42 +37,6 @@ interface CreatePostCardProps {
 }
 
 /**
- * Get placeholder text based on user role
- */
-function getPlaceholderText(role?: UserRole): string {
-  switch (role) {
-    case 'farmer':
-      return "What's on your mind?";
-    case 'student':
-      return "Share your learning...";
-    case 'expert':
-      return "Share advice...";
-    case 'business':
-      return "Share an update...";
-    default:
-      return "What's on your mind?";
-  }
-}
-
-/**
- * Get secondary placeholder based on role
- */
-function getSecondaryText(role?: UserRole): string {
-  switch (role) {
-    case 'farmer':
-      return "Ask questions, share updates, or celebrate your success";
-    case 'student':
-      return "Share notes, ask questions, or discuss farming topics";
-    case 'expert':
-      return "Help farmers with their challenges";
-    case 'business':
-      return "Promote products or share industry news";
-    default:
-      return "Share with the farming community";
-  }
-}
-
-/**
  * CreatePostCard Component
  * Feed entry point for creating posts - displays at top of feed
  * Clicking opens the CreatePostModal
@@ -85,8 +50,45 @@ export function CreatePostCard({
   showNewPostHighlight = false,
   className,
 }: CreatePostCardProps) {
+  const { t } = useTranslation();
   const [isHovered, setIsHovered] = useState(false);
   const [isPressed, setIsPressed] = useState(false);
+
+  /**
+   * Get placeholder text based on user role
+   */
+  function getPlaceholderText(role?: UserRole): string {
+    switch (role) {
+      case 'farmer':
+        return t('feed.createPost.whatsOnYourMind');
+      case 'student':
+        return t('feed.createPost.shareLearning');
+      case 'expert':
+        return t('feed.createPost.shareAdvice');
+      case 'business':
+        return t('feed.createPost.shareUpdate');
+      default:
+        return t('feed.createPost.whatsOnYourMind');
+    }
+  }
+
+  /**
+   * Get secondary placeholder based on role
+   */
+  function getSecondaryText(role?: UserRole): string {
+    switch (role) {
+      case 'farmer':
+        return t('feed.createPost.askQuestions');
+      case 'student':
+        return t('feed.createPost.shareLearning');
+      case 'expert':
+        return t('feed.createPost.shareAdvice');
+      case 'business':
+        return t('feed.createPost.shareUpdate');
+      default:
+        return t('feed.createPost.shareWithCommunity');
+    }
+  }
 
   const handleClick = useCallback(() => {
     onClick?.();
@@ -218,7 +220,7 @@ export function CreatePostCard({
               aria-label="Select post type"
             >
               <IconSparkles size={18} />
-              <span className="hidden md:inline">Post</span>
+              <span className="hidden md:inline">{t('feed.createPost.post')}</span>
               <IconChevronDown size={16} />
             </button>
           </div>
@@ -242,7 +244,7 @@ export function CreatePostCard({
             aria-label="Add photo to post"
           >
             <IconPhoto size={18} className="text-green-500" />
-            <span>Photo</span>
+            <span>{t('feed.createPost.photo')}</span>
           </button>
 
           <button
@@ -261,7 +263,7 @@ export function CreatePostCard({
             aria-label="Select post type"
           >
             <IconSparkles size={18} className="text-primary-500" />
-            <span>Type</span>
+            <span>{t('feed.createPost.type')}</span>
           </button>
         </div>
       </Card>

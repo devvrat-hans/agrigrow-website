@@ -14,6 +14,7 @@ import {
   AuthTermsText
 } from '@/components/auth';
 import { Button } from '@/components/ui/button';
+import { useTranslation } from '@/hooks/useTranslation';
 
 type AuthStep = 'phone' | 'otp';
 
@@ -24,10 +25,11 @@ export default function SignupPage() {
   const [otp, setOtp] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
+  const { t } = useTranslation();
 
   const handleSendOTP = async () => {
     if (phone.length !== 10) {
-      setError('Please enter a valid 10-digit mobile number');
+      setError(t('auth.invalidPhone'));
       return;
     }
 
@@ -42,7 +44,7 @@ export default function SignupPage() {
 
   const handleVerifyOTP = async () => {
     if (otp.length !== 6) {
-      setError('Please enter a valid 6-digit OTP');
+      setError(t('auth.invalidOtp'));
       return;
     }
 
@@ -68,7 +70,7 @@ export default function SignupPage() {
         router.push(`/onboarding?phone=${phone}`);
       }
     } catch {
-      setError('Failed to verify OTP. Please try again.');
+      setError(t('auth.otpFailed'));
     } finally {
       setIsLoading(false);
     }
@@ -100,22 +102,22 @@ export default function SignupPage() {
   return (
     <div className="min-h-screen flex flex-col md:flex-row" onKeyDown={handleKeyDown}>
       <AuthBrandingSection 
-        title="Join AgriGrow Today"
-        description="Join thousands of farmers sharing knowledge, learning modern techniques, and growing together as a community."
+        title={t('auth.signup.joinTitle')}
+        description={t('auth.signup.joinDesc')}
       />
 
       <AuthFormContainer>
         {step === 'phone' ? (
           <>
             <AuthFormHeader 
-              title="Signup"
-              description="Enter your mobile number to create an account"
+              title={t('auth.signup.title')}
+              description={t('auth.signup.description')}
             />
 
             <div className="space-y-6">
               <div>
                 <label className="block text-sm font-medium text-foreground mb-2">
-                  Mobile Number
+                  {t('auth.mobileNumber')}
                 </label>
                 <PhoneInput
                   value={phone}
@@ -134,14 +136,14 @@ export default function SignupPage() {
                 className="w-full"
                 size="lg"
               >
-                {isLoading ? 'Sending OTP...' : 'Send OTP'}
+                {isLoading ? t('auth.sendingOtp') : t('auth.sendOtp')}
               </Button>
 
               <AuthTermsText />
 
               <AuthLink 
-                question="Already have an account?"
-                linkText="Signin"
+                question={t('auth.alreadyHaveAccount')}
+                linkText={t('nav.signin')}
                 href="/auth/signin"
               />
             </div>
@@ -151,15 +153,15 @@ export default function SignupPage() {
             <BackButton onClick={handleBack} />
 
             <AuthFormHeader 
-              title="Verify OTP"
-              description={`Enter the 6-digit code sent to +91 ${phone}`}
+              title={t('auth.verifyOtpTitle')}
+              description={`${t('auth.verifyOtpDesc')}${phone}`}
             />
 
             <div className="space-y-6">
               {/* Demo notice */}
               <div className="p-3 bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 rounded-lg">
                 <p className="text-sm text-amber-700 dark:text-amber-300 text-center">
-                  <strong>Demo Mode:</strong> OTP verification is currently disabled. Enter any 6-digit code to proceed.
+                  <strong>{t('auth.demoMode')}</strong> {t('auth.demoModeDesc')}
                 </p>
               </div>
 
@@ -179,7 +181,7 @@ export default function SignupPage() {
                 className="w-full"
                 size="lg"
               >
-                {isLoading ? 'Verifying...' : 'Verify OTP'}
+                {isLoading ? t('auth.verifyingOtp') : t('auth.verifyOtp')}
               </Button>
 
               <ResendOTP onResend={handleResendOTP} disabled={isLoading} />

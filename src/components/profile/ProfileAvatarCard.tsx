@@ -41,8 +41,21 @@ export function getRoleBadgeColor(role: string) {
 
 /**
  * Gets role display text with emoji.
+ * Accepts an optional translate function for i18n support.
  */
-export function getRoleDisplayText(role: string) {
+export function getRoleDisplayText(role: string, t?: (key: string) => string) {
+  if (t) {
+    switch (role) {
+      case 'farmer':
+        return t('profile.farmerRole');
+      case 'student':
+        return t('profile.studentRole');
+      case 'business':
+        return t('profile.businessRole');
+      default:
+        return role;
+    }
+  }
   switch (role) {
     case 'farmer':
       return '🌾 Farmer';

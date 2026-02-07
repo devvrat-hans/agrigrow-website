@@ -4,6 +4,7 @@ import React, { useState, useRef, useEffect, useCallback } from 'react';
 import { IconSend, IconX, IconLoader2 } from '@tabler/icons-react';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
+import { useTranslation } from '@/hooks/useTranslation';
 
 /**
  * User info for avatar display
@@ -55,6 +56,7 @@ export function CommentInput({
   disabled = false,
   className,
 }: CommentInputProps) {
+  const { t } = useTranslation();
   const [content, setContent] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isFocused, setIsFocused] = useState(false);
@@ -186,7 +188,7 @@ export function CommentInput({
               disabled && 'cursor-not-allowed'
             )}
             style={{ outline: 'none' }}
-            aria-label={isReply ? 'Write a reply' : 'Write a comment'}
+            aria-label={isReply ? t('feed.comments.writeReply') : t('feed.comments.writeComment')}
           />
 
           {/* Action buttons - show when focused or has content */}
@@ -207,7 +209,7 @@ export function CommentInput({
                     className="min-h-[44px] h-auto px-3"
                   >
                     <IconX size={14} className="mr-1" />
-                    Cancel
+                    {t('feed.comments.cancel')}
                   </Button>
                 )}
 
@@ -224,7 +226,7 @@ export function CommentInput({
                   ) : (
                     <>
                       <IconSend size={14} className="mr-1" />
-                      {isReply ? 'Reply' : 'Post'}
+                      {isReply ? t('feed.comments.reply') : t('feed.comments.post')}
                     </>
                   )}
                 </Button>
@@ -236,7 +238,7 @@ export function CommentInput({
         {/* Keyboard hint */}
         {showActions && !isReply && (
           <p className="text-[10px] text-gray-400 mt-1">
-            Press Ctrl+Enter to submit
+            {t('feed.comments.pressCtrlEnter')}
           </p>
         )}
       </div>

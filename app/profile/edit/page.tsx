@@ -10,6 +10,7 @@ import { Input } from '@/components/ui/input';
 import { SearchableDropdown, SingleSelectGroup } from '@/components/crop-ai/common';
 import { INDIAN_STATES, STATE_DISTRICTS } from '@/constants/indian-locations';
 import { useImageUpload } from '@/hooks/useImageUpload';
+import { useTranslation } from '@/hooks/useTranslation';
 
 /**
  * User data interface for editing
@@ -52,14 +53,15 @@ interface FormErrors {
  * Experience level options for farmers
  */
 const EXPERIENCE_OPTIONS = [
-  { value: 'beginner', label: 'Beginner', description: 'Just started farming' },
-  { value: 'intermediate', label: 'Intermediate', description: '1-5 years experience' },
-  { value: 'experienced', label: 'Experienced', description: '5-10 years experience' },
-  { value: 'expert', label: 'Expert', description: '10+ years experience' },
+  { value: 'beginner', labelKey: 'profile.edit.beginner', descriptionKey: 'profile.edit.beginnerDesc' },
+  { value: 'intermediate', labelKey: 'profile.edit.intermediate', descriptionKey: 'profile.edit.intermediateDesc' },
+  { value: 'experienced', labelKey: 'profile.edit.experienced', descriptionKey: 'profile.edit.experiencedDesc' },
+  { value: 'expert', labelKey: 'profile.edit.expert', descriptionKey: 'profile.edit.expertDesc' },
 ];
 
 export default function EditProfilePage() {
   const router = useRouter();
+  const { t } = useTranslation();
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
   const [errors, setErrors] = useState<FormErrors>({});
@@ -163,13 +165,13 @@ export default function EditProfilePage() {
     const newErrors: FormErrors = {};
 
     if (!formData.fullName.trim()) {
-      newErrors.fullName = 'Full name is required';
+      newErrors.fullName = t('profile.edit.fullNameRequired');
     } else if (formData.fullName.trim().length < 2) {
-      newErrors.fullName = 'Full name must be at least 2 characters';
+      newErrors.fullName = t('profile.edit.fullNameMinLength');
     }
 
     if (formData.bio && formData.bio.length > 500) {
-      newErrors.bio = 'Bio cannot exceed 500 characters';
+      newErrors.bio = t('profile.edit.bioMaxLength');
     }
 
     setErrors(newErrors);
@@ -182,7 +184,7 @@ export default function EditProfilePage() {
 
     // Don't save while profile image is uploading
     if (profileImageUploading) {
-      setErrors({ general: 'Please wait for image to finish processing' });
+      setErrors({ general: t('profile.edit.waitForImage') });
       return;
     }
 
@@ -218,16 +220,16 @@ export default function EditProfilePage() {
       const data = await response.json();
 
       if (data.success) {
-        setSuccessMessage('Profile updated successfully!');
+        setSuccessMessage(t('profile.edit.profileUpdated'));
         setTimeout(() => {
           router.push('/profile');
         }, 1500);
       } else {
-        setErrors({ general: data.error || 'Failed to update profile' });
+        setErrors({ general: data.error || t('profile.edit.failedToUpdate') });
       }
     } catch (err) {
       console.error('Error updating profile:', err);
-      setErrors({ general: 'Failed to update profile. Please try again.' });
+      setErrors({ general: t('profile.edit.failedToUpdateRetry') });
     } finally {
       setIsSaving(false);
     }
@@ -257,7 +259,7 @@ export default function EditProfilePage() {
       {/* Header */}
       <PageHeader
         showBackButton
-        title="Edit Profile"
+        title={t('profile.edit.title')}
         rightAction={
           <Button
             onClick={handleSave}
@@ -270,7 +272,7 @@ export default function EditProfilePage() {
             ) : (
               <IconCheck className="w-4 h-4" />
             )}
-            <span className="hidden sm:inline">Save</span>
+            <span className="hidden sm:inline">{t('profile.edit.save')}</span>
           </Button>
         }
       />
@@ -310,7 +312,7 @@ export default function EditProfilePage() {
         {/* Profile Image Section */}
         <section className="space-y-4">
           <h2 className="text-lg font-semibold text-gray-900 dark:text-white">
-            Profile Photo
+            {t('profile.edit.profilePhoto')}
           </h2>
 
           {/* Hidden file input */}
@@ -399,11 +401,11 @@ export default function EditProfilePage() {
               >
                 <IconCamera className="w-4 h-4" />
                 {selectedProfileImages.length > 0 || currentProfileImage
-                  ? 'Change Photo'
-                  : 'Add Photo'}
+                  ? t('profile.edit.changePhoto')
+                  : t('profile.edit.addPhoto')}
               </Button>
               <p className="text-xs text-gray-500 dark:text-gray-400">
-                JPEG, PNG, or WebP. Max 5MB.
+                {t('profile.edit.imageFormatNote')}
               </p>
             </div>
           </div>
@@ -418,7 +420,7 @@ export default function EditProfilePage() {
                 />
               </div>
               <p className="text-xs text-gray-500 dark:text-gray-400">
-                Processing image... {profileImageProgress}%
+                {t('profile.edit.processingImage')} {profileImageProgress}%
               </p>
             </div>
           )}
@@ -439,7 +441,7 @@ export default function EditProfilePage() {
         {/* Basic Information Section */}
         <section className="space-y-4">
           <h2 className="text-lg font-semibold text-gray-900 dark:text-white">
-            Basic Information
+            {t('profile.edit.basicInformation')}
           </h2>
 
           {/* Full Name */}
@@ -451,14 +453,14 @@ export default function EditProfilePage() {
                 errors.fullName ? 'text-red-500' : 'text-gray-700 dark:text-gray-300'
               )}
             >
-              Full Name <span className="text-red-500">*</span>
+              {t('profile.edit.fullName')} <span className="text-red-500">*</span>
             </label>
             <Input
               id="fullName"
               type="text"
               value={formData.fullName}
               onChange={(e) => handleChange('fullName', e.target.value)}
-              placeholder="Enter your full name"
+              placeholder={t('profile.edit.enterFullName')}
               className={cn(
                 'w-full min-h-[48px]',
                 errors.fullName && 'border-red-500 focus:border-red-500'
@@ -478,13 +480,13 @@ export default function EditProfilePage() {
                 errors.bio ? 'text-red-500' : 'text-gray-700 dark:text-gray-300'
               )}
             >
-              Bio <span className="text-gray-400 text-xs">(Optional)</span>
+              {t('profile.edit.bio')} <span className="text-gray-400 text-xs">{t('profile.edit.bioOptional')}</span>
             </label>
             <textarea
               id="bio"
               value={formData.bio}
               onChange={(e) => handleChange('bio', e.target.value)}
-              placeholder="Tell us about yourself..."
+              placeholder={t('profile.edit.bioPlaceholder')}
               rows={3}
               maxLength={500}
               className={cn(
@@ -515,26 +517,26 @@ export default function EditProfilePage() {
         {/* Location Section */}
         <section className="space-y-4">
           <h2 className="text-lg font-semibold text-gray-900 dark:text-white">
-            Location
+            {t('profile.edit.location')}
           </h2>
 
           {/* State */}
           <div className="space-y-2">
             <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
-              State / Union Territory
+              {t('profile.edit.stateLabel')}
             </label>
             <SearchableDropdown
               options={stateOptions}
               value={formData.state}
               onChange={(value) => handleChange('state', value)}
-              placeholder="Select your state..."
+              placeholder={t('profile.edit.selectState')}
             />
           </div>
 
           {/* District */}
           <div className="space-y-2">
             <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
-              District
+              {t('profile.edit.districtLabel')}
             </label>
             <SearchableDropdown
               options={districtOptions}
@@ -542,8 +544,8 @@ export default function EditProfilePage() {
               onChange={(value) => handleChange('district', value)}
               placeholder={
                 formData.state
-                  ? 'Select your district...'
-                  : 'Please select a state first'
+                  ? t('profile.edit.selectDistrict')
+                  : t('profile.edit.selectStateFirst')
               }
               disabled={!formData.state}
             />
@@ -554,16 +556,16 @@ export default function EditProfilePage() {
         {formData.role === 'farmer' && (
           <section className="space-y-4">
             <h2 className="text-lg font-semibold text-gray-900 dark:text-white">
-              Farming Details
+              {t('profile.edit.farmingDetails')}
             </h2>
 
             {/* Experience Level */}
             <div className="space-y-2">
               <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
-                Experience Level
+                {t('profile.experienceLevel')}
               </label>
               <SingleSelectGroup
-                options={EXPERIENCE_OPTIONS}
+                options={EXPERIENCE_OPTIONS.map(opt => ({ value: opt.value, label: t(opt.labelKey), description: t(opt.descriptionKey) }))}
                 value={formData.experienceLevel || 'beginner'}
                 onChange={(value) => handleChange('experienceLevel', value)}
                 columns={2}
@@ -575,7 +577,7 @@ export default function EditProfilePage() {
         {formData.role === 'student' && (
           <section className="space-y-4">
             <h2 className="text-lg font-semibold text-gray-900 dark:text-white">
-              Education Details
+              {t('profile.edit.educationDetails')}
             </h2>
 
             {/* College Name */}
@@ -584,14 +586,14 @@ export default function EditProfilePage() {
                 htmlFor="collegeName"
                 className="block text-sm font-medium text-gray-700 dark:text-gray-300"
               >
-                College / University
+                {t('profile.edit.collegeLabel')}
               </label>
               <Input
                 id="collegeName"
                 type="text"
                 value={formData.collegeName || ''}
                 onChange={(e) => handleChange('collegeName', e.target.value)}
-                placeholder="Enter your college name"
+                placeholder={t('profile.edit.enterCollege')}
                 className="w-full min-h-[48px]"
               />
             </div>
@@ -602,14 +604,14 @@ export default function EditProfilePage() {
                 htmlFor="studentDegree"
                 className="block text-sm font-medium text-gray-700 dark:text-gray-300"
               >
-                Degree / Course
+                {t('profile.edit.degreeLabel')}
               </label>
               <Input
                 id="studentDegree"
                 type="text"
                 value={formData.studentDegree || ''}
                 onChange={(e) => handleChange('studentDegree', e.target.value)}
-                placeholder="e.g., B.Sc Agriculture"
+                placeholder={t('profile.edit.degreePlaceholder')}
                 className="w-full min-h-[48px]"
               />
             </div>
@@ -620,14 +622,14 @@ export default function EditProfilePage() {
                 htmlFor="yearOfStudy"
                 className="block text-sm font-medium text-gray-700 dark:text-gray-300"
               >
-                Year of Study
+                {t('profile.edit.yearLabel')}
               </label>
               <Input
                 id="yearOfStudy"
                 type="text"
                 value={formData.yearOfStudy || ''}
                 onChange={(e) => handleChange('yearOfStudy', e.target.value)}
-                placeholder="e.g., 2nd Year"
+                placeholder={t('profile.edit.yearPlaceholder')}
                 className="w-full min-h-[48px]"
               />
             </div>
@@ -637,7 +639,7 @@ export default function EditProfilePage() {
         {formData.role === 'business' && (
           <section className="space-y-4">
             <h2 className="text-lg font-semibold text-gray-900 dark:text-white">
-              Business Details
+              {t('profile.edit.businessDetails')}
             </h2>
 
             {/* Organization Type */}
@@ -646,14 +648,14 @@ export default function EditProfilePage() {
                 htmlFor="organizationType"
                 className="block text-sm font-medium text-gray-700 dark:text-gray-300"
               >
-                Organization Type
+                {t('profile.edit.orgTypeLabel')}
               </label>
               <Input
                 id="organizationType"
                 type="text"
                 value={formData.organizationType || ''}
                 onChange={(e) => handleChange('organizationType', e.target.value)}
-                placeholder="e.g., Agri-tech Company"
+                placeholder={t('profile.edit.orgTypePlaceholder')}
                 className="w-full min-h-[48px]"
               />
             </div>
@@ -670,12 +672,12 @@ export default function EditProfilePage() {
             {isSaving ? (
               <>
                 <IconLoader2 className="w-5 h-5 animate-spin" />
-                Saving...
+                {t('profile.edit.saving')}
               </>
             ) : (
               <>
                 <IconCheck className="w-5 h-5" />
-                Save Changes
+                {t('profile.edit.saveChanges')}
               </>
             )}
           </Button>

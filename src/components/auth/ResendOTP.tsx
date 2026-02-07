@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
+import { useTranslation } from '@/hooks/useTranslation';
 
 interface ResendOTPProps {
   onResend: () => void;
@@ -16,6 +17,7 @@ export function ResendOTP({
 }: ResendOTPProps) {
   const [countdown, setCountdown] = useState(initialCountdown);
   const [canResend, setCanResend] = useState(false);
+  const { t } = useTranslation();
 
   useEffect(() => {
     if (countdown > 0) {
@@ -43,11 +45,11 @@ export function ResendOTP({
           disabled={disabled}
           className="text-primary hover:text-primary/80"
         >
-          Resend OTP
+          {t('auth.resendOtp')}
         </Button>
       ) : (
         <p className="text-sm text-muted-foreground">
-          Resend OTP in <span className="font-medium text-foreground">{countdown}s</span>
+          {t('auth.resendOtpIn')}<span className="font-medium text-foreground">{countdown}s</span>
         </p>
       )}
     </div>
