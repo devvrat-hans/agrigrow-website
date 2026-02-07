@@ -197,7 +197,7 @@ export function useSavedPosts(options: UseSavedPostsOptions = {}): UseSavedPosts
     setIsTogglingMap((prev) => new Map(prev).set(postId, true));
 
     try {
-      const response = await apiClient.post<ToggleSaveResponse>(`/api/posts/${postId}/save`);
+      const response = await apiClient.post<ToggleSaveResponse>(`/posts/${postId}/save`);
       const data = response.data;
 
       if (data.success) {

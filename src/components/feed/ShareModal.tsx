@@ -222,26 +222,19 @@ export function ShareModal({
         variant="mobile-sheet"
         hideCloseButton
         className={cn(
-          // Mobile: bottom sheet
-          'w-full p-0 overflow-hidden',
+          'p-0 overflow-hidden',
           'h-auto max-h-[85dvh]',
-          'border-t border-x border-b-0',
+          'border border-gray-200 dark:border-gray-800',
           'flex flex-col',
-          // Desktop: standard modal
-          'sm:max-w-md sm:border sm:h-auto',
+          'sm:max-w-md sm:h-auto',
           // Ensure no duplicate default close button
           "[&>button[aria-label='Close']]:hidden",
           'bg-white dark:bg-gray-950',
           className
         )}
       >
-        {/* Handle indicator for mobile sheet */}
-        <div className="flex justify-center pt-2 pb-0 sm:hidden">
-          <div className="w-10 h-1 bg-gray-300 dark:bg-gray-600 rounded-full" />
-        </div>
-
         {/* Header */}
-        <DialogHeader className="px-4 pt-2 pb-3 sm:py-3 border-b border-gray-200 dark:border-gray-800">
+        <DialogHeader className="px-4 pt-4 pb-3 sm:py-3 border-b border-gray-200 dark:border-gray-800">
           <div className="flex items-center justify-between">
             <DialogTitle className="text-lg font-semibold">
               Share Post

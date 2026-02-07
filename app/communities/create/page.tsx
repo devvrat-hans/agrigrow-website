@@ -3,9 +3,9 @@
 import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { IconArrowLeft, IconHome, IconChevronRight } from '@tabler/icons-react';
+import { IconHome, IconChevronRight } from '@tabler/icons-react';
 import { cn } from '@/lib/utils';
-import { MobileBottomNav } from '@/components/common';
+import { MobileBottomNav, PageHeader } from '@/components/common';
 import { CreateGroupForm } from '@/components/groups/create';
 
 // ============================================
@@ -179,35 +179,18 @@ export default function CreateGroupPage() {
   return (
     <div className="min-h-screen bg-background pb-[calc(5rem+env(safe-area-inset-bottom))] md:pb-8">
       {/* Header */}
-      <header className="border-b border-border p-3 sm:p-4 sticky top-0 bg-background/95 backdrop-blur z-40">
-        <div className="max-w-2xl mx-auto">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-3">
-              <button
-                onClick={handleBack}
-                className="min-w-[44px] min-h-[44px] -ml-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-800 active:scale-[0.95] transition-all flex items-center justify-center"
-                aria-label="Go back"
-              >
-                <IconArrowLeft className="w-5 h-5 text-gray-600 dark:text-gray-400" />
-              </button>
-              <h1 className="text-lg sm:text-xl md:text-2xl font-bold text-gray-900 dark:text-gray-100">
-                Create Community
-              </h1>
-            </div>
-          </div>
-          
-          {/* Breadcrumb - hidden on mobile */}
-          <div className="hidden sm:block mt-3">
-            <Breadcrumb
-              items={[
-                { label: 'Home', href: '/' },
-                { label: 'Communities', href: '/communities' },
-                { label: 'Create Community' },
-              ]}
-            />
-          </div>
-        </div>
-      </header>
+      <PageHeader showBackButton onBack={handleBack} title="Create Community" />
+
+      {/* Breadcrumb - hidden on mobile */}
+      <div className="hidden sm:block max-w-2xl mx-auto px-3 sm:px-4 md:px-6 pt-2">
+        <Breadcrumb
+          items={[
+            { label: 'Home', href: '/' },
+            { label: 'Communities', href: '/communities' },
+            { label: 'Create Community' },
+          ]}
+        />
+      </div>
 
       {/* Main content */}
       <main className="max-w-2xl mx-auto px-3 sm:px-4 md:px-6 py-4 sm:py-6">

@@ -15,7 +15,11 @@ export interface CropData {
   name: string;
   /** Emoji icon */
   icon: string;
-  /** Optional YouTube video URL for tutorials */
+  /** YouTube video URL for Hindi tutorials */
+  videoUrlHi?: string;
+  /** YouTube video URL for English tutorials */
+  videoUrlEn?: string;
+  /** Resolved video URL based on user language (set at runtime) */
   videoUrl?: string;
 }
 
@@ -25,10 +29,34 @@ export interface CropData {
  */
 export const cropsData: CropData[] = [
   // Featured crops with videos
-  { id: 'rice', name: 'Rice', icon: '🌾', videoUrl: 'https://youtu.be/rg1P41tSD9k' },
-  { id: 'wheat', name: 'Wheat', icon: '🌾', videoUrl: 'https://youtu.be/0j__2-X7puw' },
-  { id: 'groundnut', name: 'Groundnut', icon: '🥜', videoUrl: 'https://youtu.be/x6lB2LBteZw' },
-  { id: 'bajra', name: 'Bajra', icon: '🌾', videoUrl: 'https://youtu.be/EQmH4B43Itw' },
+  {
+    id: 'rice',
+    name: 'Rice',
+    icon: '🌾',
+    videoUrlHi: 'https://youtu.be/rg1P41tSD9k',
+    videoUrlEn: 'https://youtu.be/GzU204loUt0',
+  },
+  {
+    id: 'wheat',
+    name: 'Wheat',
+    icon: '🌾',
+    videoUrlHi: 'https://youtu.be/0j__2-X7puw',
+    videoUrlEn: 'https://youtu.be/ys85szkTeJ41',
+  },
+  {
+    id: 'groundnut',
+    name: 'Groundnut',
+    icon: '🥜',
+    videoUrlHi: 'https://youtu.be/x6lB2LBteZw',
+    videoUrlEn: 'https://youtu.be/RYwo2dHmI-A',
+  },
+  {
+    id: 'jowar',
+    name: 'Jowar',
+    icon: '🌾',
+    videoUrlHi: 'https://youtu.be/EQmH4B43Itw',
+    videoUrlEn: 'https://youtu.be/lxPFGJVwH0s',
+  },
   // Other crops (coming soon)
   { id: 'cotton', name: 'Cotton', icon: '🧵' },
   { id: 'sugarcane', name: 'Sugarcane', icon: '🎋' },
@@ -101,34 +129,58 @@ export function getYouTubeEmbedUrl(url: string, autoplay: boolean = true): strin
 }
 
 /**
- * Get featured crops (crops with videos)
- * 
- * @returns Array of crops that have video tutorials
+ * Resolve video URLs based on user language.
+ * English users get English videos, all others get Hindi videos.
+ * Falls back to whichever language is available.
+ *
+ * @param language - User's preferred language code (e.g., 'en', 'hi')
+ * @returns Crops array with resolved videoUrl field
  */
-export function getFeaturedCrops(): CropData[] {
-  return cropsData.filter(crop => crop.videoUrl !== undefined);
+export function getLocalizedCrops(language: string = 'en'): CropData[] {
+  return cropsData.map(crop => {
+    let videoUrl: string | undefined;
+    if (language === 'en') {
+      videoUrl = crop.videoUrlEn || crop.videoUrlHi;
+    } else {
+      videoUrl = crop.videoUrlHi || crop.videoUrlEn;
+    }
+    return { ...crop, videoUrl };
+  });
 }
 
 /**
- * Get other crops (crops without videos)
+ * Get featured crops (crops with videos) for a given language
  * 
+ * @param language - User's preferred language code
+ * @returns Array of crops that have video tutorials in the user's language
+ */
+export function getFeaturedCrops(language: string = 'en'): CropData[] {
+  return getLocalizedCrops(language).filter(crop => crop.videoUrl !== undefined);
+}
+
+/**
+ * Get other crops (crops without videos) for a given language
+ * 
+ * @param language - User's preferred language code
  * @returns Array of crops without video tutorials
  */
-export function getOtherCrops(): CropData[] {
-  return cropsData.filter(crop => crop.videoUrl === undefined);
+export function getOtherCrops(language: string = 'en'): CropData[] {
+  return getLocalizedCrops(language).filter(crop => crop.videoUrl === undefined);
 }
 
 /**
- * Search crops by name
+ * Search crops by name with language-resolved video URLs
  * 
  * @param query - Search query
+ * @param language - User's preferred language code
  * @returns Filtered crops matching the query
  */
-export function searchCrops(query: string): CropData[] {
-  if (!query.trim()) return cropsData;
+export function searchCrops(query: string, language: string = 'en'): CropData[] {
+  const localized = getLocalizedCrops(language);
+  if (!query.trim()) return localized;
   
   const lowerQuery = query.toLowerCase().trim();
-  return cropsData.filter(crop => 
+  return localized.filter(crop => 
     crop.name.toLowerCase().includes(lowerQuery)
   );
 }

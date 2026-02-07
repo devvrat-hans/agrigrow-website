@@ -19,7 +19,6 @@ import {
   IconPlant,
   IconMapPin,
   IconBulb,
-  IconTool,
   IconWorld,
   IconLock,
   IconUserPlus,
@@ -31,7 +30,6 @@ import {
   IconPlus,
   IconTrash,
   IconX,
-  IconDeviceFloppy,
   IconPhoto,
   IconUpload,
 } from '@tabler/icons-react';
@@ -124,15 +122,9 @@ const GROUP_TYPES: {
   },
   {
     value: 'topic',
-    label: 'Topic Based',
-    description: 'Discuss specific agricultural topics and techniques',
+    label: 'Topic / Practice Based',
+    description: 'Discuss agricultural topics, techniques, and farming practices',
     icon: IconBulb,
-  },
-  {
-    value: 'practice',
-    label: 'Practice Based',
-    description: 'Share farming practices like organic, sustainable, etc.',
-    icon: IconTool,
   },
 ];
 
@@ -191,7 +183,7 @@ const STEPS = [
   { id: 'review', title: 'Review', shortTitle: 'Review' },
 ];
 
-const DRAFT_STORAGE_KEY = 'agrigrow_create_group_draft';
+
 
 // ============================================
 // STEP COMPONENTS
@@ -226,7 +218,7 @@ function GroupTypeStep({ formData, updateFormData, errors }: StepProps) {
                 'flex items-start gap-2 sm:gap-3 p-3 sm:p-4 rounded-lg border-2 text-left transition-all min-h-[44px]',
                 'active:scale-[0.98]',
                 isSelected
-                  ? 'border-primary-500 bg-primary-50 dark:bg-primary-900/20'
+                  ? 'border-green-500 bg-green-50 dark:bg-green-900/20'
                   : 'border-gray-200 dark:border-gray-700 hover:border-gray-300 dark:hover:border-gray-600'
               )}
             >
@@ -234,7 +226,7 @@ function GroupTypeStep({ formData, updateFormData, errors }: StepProps) {
                 className={cn(
                   'w-9 h-9 sm:w-10 sm:h-10 rounded-lg flex items-center justify-center shrink-0',
                   isSelected
-                    ? 'bg-primary-500 text-white'
+                    ? 'bg-green-500 text-white'
                     : 'bg-gray-100 dark:bg-gray-800 text-gray-500'
                 )}
               >
@@ -243,7 +235,7 @@ function GroupTypeStep({ formData, updateFormData, errors }: StepProps) {
               <div className="flex-1 min-w-0">
                 <span className={cn(
                   'text-sm sm:text-base font-medium block',
-                  isSelected ? 'text-primary-700 dark:text-primary-400' : 'text-gray-900 dark:text-white'
+                  isSelected ? 'text-green-700 dark:text-green-400' : 'text-gray-900 dark:text-white'
                 )}>
                   {type.label}
                 </span>
@@ -252,7 +244,7 @@ function GroupTypeStep({ formData, updateFormData, errors }: StepProps) {
                 </span>
               </div>
               {isSelected && (
-                <IconCheck className="h-4 w-4 sm:h-5 sm:w-5 text-primary-500 shrink-0" />
+                <IconCheck className="h-4 w-4 sm:h-5 sm:w-5 text-green-500 shrink-0" />
               )}
             </button>
           );
@@ -575,7 +567,7 @@ function DetailsStep({ formData, updateFormData, errors }: StepProps) {
   const [tagInput, setTagInput] = useState('');
 
   const handleAddTag = () => {
-    const tag = tagInput.trim().toLowerCase();
+    const tag = tagInput.trim().toLowerCase().replace(/^#+/, '');
     if (!tag || formData.tags.includes(tag) || formData.tags.length >= 10) return;
     updateFormData({ tags: [...formData.tags, tag] });
     setTagInput('');
@@ -621,13 +613,18 @@ function DetailsStep({ formData, updateFormData, errors }: StepProps) {
                   type="button"
                   onClick={() => handleToggleCrop(crop)}
                   className={cn(
-                    'px-2.5 sm:px-3 py-1.5 sm:py-2 rounded-full text-xs sm:text-sm font-medium transition-colors min-h-[36px] sm:min-h-[40px] active:scale-[0.95]',
+                    'relative px-2.5 sm:px-3 py-1.5 sm:py-2 rounded-full text-xs sm:text-sm font-medium transition-all min-h-[36px] sm:min-h-[40px] active:scale-[0.95]',
                     isSelected
-                      ? 'bg-primary-500 text-white'
+                      ? 'bg-green-500 text-white pr-7 sm:pr-8'
                       : 'bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700'
                   )}
                 >
                   {crop}
+                  {isSelected && (
+                    <span className="absolute top-1/2 -translate-y-1/2 right-1.5 sm:right-2 w-4 h-4 sm:w-5 sm:h-5 rounded-full bg-white/30 flex items-center justify-center">
+                      <IconX className="h-3 w-3 sm:h-3.5 sm:w-3.5" />
+                    </span>
+                  )}
                 </button>
               );
             })}
@@ -654,15 +651,20 @@ function DetailsStep({ formData, updateFormData, errors }: StepProps) {
                 <button
                   key={region}
                   type="button"
-                  onClick={() => updateFormData({ region })}
+                  onClick={() => updateFormData({ region: isSelected ? '' : region })}
                   className={cn(
-                    'px-2.5 sm:px-3 py-1.5 sm:py-2 rounded-full text-xs sm:text-sm font-medium transition-colors min-h-[36px] sm:min-h-[40px] active:scale-[0.95]',
+                    'relative px-2.5 sm:px-3 py-1.5 sm:py-2 rounded-full text-xs sm:text-sm font-medium transition-all min-h-[36px] sm:min-h-[40px] active:scale-[0.95]',
                     isSelected
-                      ? 'bg-primary-500 text-white'
+                      ? 'bg-green-500 text-white pr-7 sm:pr-8'
                       : 'bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700'
                   )}
                 >
                   {region}
+                  {isSelected && (
+                    <span className="absolute top-1/2 -translate-y-1/2 right-1.5 sm:right-2 w-4 h-4 sm:w-5 sm:h-5 rounded-full bg-white/30 flex items-center justify-center">
+                      <IconX className="h-3 w-3 sm:h-3.5 sm:w-3.5" />
+                    </span>
+                  )}
                 </button>
               );
             })}
@@ -761,14 +763,14 @@ function PrivacyStep({ formData, updateFormData }: StepProps) {
                 'w-full flex items-center gap-2 sm:gap-3 p-3 sm:p-4 rounded-lg border-2 text-left transition-all min-h-[44px]',
                 'active:scale-[0.98]',
                 isSelected
-                  ? 'border-primary-500 bg-primary-50 dark:bg-primary-900/20'
+                  ? 'border-green-500 bg-green-50 dark:bg-green-900/20'
                   : 'border-gray-200 dark:border-gray-700 hover:border-gray-300'
               )}
             >
               <div className={cn(
                 'w-9 h-9 sm:w-10 sm:h-10 rounded-full flex items-center justify-center',
                 isSelected
-                  ? 'bg-primary-500 text-white'
+                  ? 'bg-green-500 text-white'
                   : 'bg-gray-100 dark:bg-gray-800 text-gray-500'
               )}>
                 <Icon className="h-4 w-4 sm:h-5 sm:w-5" />
@@ -776,13 +778,13 @@ function PrivacyStep({ formData, updateFormData }: StepProps) {
               <div className="flex-1 min-w-0">
                 <span className={cn(
                   'text-sm sm:text-base font-medium',
-                  isSelected ? 'text-primary-700 dark:text-primary-400' : 'text-gray-900 dark:text-white'
+                  isSelected ? 'text-green-700 dark:text-green-400' : 'text-gray-900 dark:text-white'
                 )}>
                   {option.label}
                 </span>
                 <p className="text-xs sm:text-sm text-gray-500 dark:text-gray-400">{option.description}</p>
               </div>
-              {isSelected && <IconCheck className="h-4 w-4 sm:h-5 sm:w-5 text-primary-500" />}
+              {isSelected && <IconCheck className="h-4 w-4 sm:h-5 sm:w-5 text-green-500" />}
             </button>
           );
         })}
@@ -1067,20 +1069,7 @@ export function CreateGroupForm({ className }: CreateGroupFormProps) {
   
   // State
   const [currentStep, setCurrentStep] = useState(0);
-  const [formData, setFormData] = useState<FormData>(() => {
-    // Try to load draft from localStorage
-    if (typeof window !== 'undefined') {
-      const draft = localStorage.getItem(DRAFT_STORAGE_KEY);
-      if (draft) {
-        try {
-          return { ...INITIAL_FORM_DATA, ...JSON.parse(draft) };
-        } catch {
-          // Invalid draft, ignore
-        }
-      }
-    }
-    return INITIAL_FORM_DATA;
-  });
+  const [formData, setFormData] = useState<FormData>(INITIAL_FORM_DATA);
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState<string | null>(null);
@@ -1138,23 +1127,7 @@ export function CreateGroupForm({ className }: CreateGroupFormProps) {
     });
   }, []);
 
-  /**
-   * Save draft to localStorage
-   */
-  const saveDraft = useCallback(() => {
-    if (typeof window !== 'undefined') {
-      localStorage.setItem(DRAFT_STORAGE_KEY, JSON.stringify(formData));
-    }
-  }, [formData]);
 
-  /**
-   * Clear draft from localStorage
-   */
-  const clearDraft = useCallback(() => {
-    if (typeof window !== 'undefined') {
-      localStorage.removeItem(DRAFT_STORAGE_KEY);
-    }
-  }, []);
 
   /**
    * Validate current step
@@ -1194,17 +1167,15 @@ export function CreateGroupForm({ className }: CreateGroupFormProps) {
    */
   const handleNext = useCallback(() => {
     if (!validateStep()) return;
-    saveDraft();
     setCurrentStep((prev) => Math.min(prev + 1, STEPS.length - 1));
-  }, [validateStep, saveDraft]);
+  }, [validateStep]);
 
   /**
    * Go to previous step
    */
   const handleBack = useCallback(() => {
-    saveDraft();
     setCurrentStep((prev) => Math.max(prev - 1, 0));
-  }, [saveDraft]);
+  }, []);
 
   /**
    * Submit form
@@ -1246,17 +1217,29 @@ export function CreateGroupForm({ className }: CreateGroupFormProps) {
       });
 
       if (response.data.success) {
-        clearDraft();
         // Redirect to new group page
         router.push(`/communities/${response.data.data.slug || response.data.data._id}`);
       }
     } catch (err: unknown) {
       console.error('Error creating group:', err);
-      setSubmitError(
-        err instanceof Error
-          ? err.message
-          : 'Failed to create group. Please try again.'
-      );
+      
+      // Extract meaningful error message from Axios error response
+      let errorMessage = 'Failed to create group. Please try again.';
+      
+      if (err && typeof err === 'object' && 'response' in err) {
+        const axiosErr = err as { response?: { data?: { error?: string; details?: string[] }; status?: number } };
+        if (axiosErr.response?.data?.error) {
+          errorMessage = axiosErr.response.data.error;
+          // Append validation details if present
+          if (axiosErr.response.data.details?.length) {
+            errorMessage += ': ' + axiosErr.response.data.details.join(', ');
+          }
+        }
+      } else if (err instanceof Error) {
+        errorMessage = err.message;
+      }
+      
+      setSubmitError(errorMessage);
     } finally {
       setIsSubmitting(false);
     }
@@ -1314,7 +1297,7 @@ export function CreateGroupForm({ className }: CreateGroupFormProps) {
     <div className={cn('max-w-2xl mx-auto', className)}>
       {/* Progress Indicator */}
       <div className="mb-6 sm:mb-8">
-        <div className="flex items-center justify-between mb-2">
+        <div className="flex items-center justify-between mb-2 px-1">
           {STEPS.map((step, index) => (
             <React.Fragment key={step.id}>
               <div className="flex flex-col items-center">
@@ -1322,9 +1305,9 @@ export function CreateGroupForm({ className }: CreateGroupFormProps) {
                   className={cn(
                     'w-7 h-7 sm:w-8 sm:h-8 rounded-full flex items-center justify-center text-xs sm:text-sm font-medium transition-colors',
                     index < currentStep
-                      ? 'bg-primary-500 text-white'
+                      ? 'bg-green-500 text-white'
                       : index === currentStep
-                      ? 'bg-primary-500 text-white ring-2 sm:ring-4 ring-primary-100 dark:ring-primary-900'
+                      ? 'bg-green-500 text-white shadow-[0_0_0_3px_rgba(34,197,94,0.3)] sm:shadow-[0_0_0_4px_rgba(34,197,94,0.3)]'
                       : 'bg-gray-200 dark:bg-gray-700 text-gray-500 dark:text-gray-400'
                   )}
                 >
@@ -1343,7 +1326,7 @@ export function CreateGroupForm({ className }: CreateGroupFormProps) {
                   className={cn(
                     'flex-1 h-0.5 sm:h-1 mx-1 sm:mx-2',
                     index < currentStep
-                      ? 'bg-primary-500'
+                      ? 'bg-green-500'
                       : 'bg-gray-200 dark:bg-gray-700'
                   )}
                 />
@@ -1373,11 +1356,6 @@ export function CreateGroupForm({ className }: CreateGroupFormProps) {
               Back
             </Button>
           )}
-          <Button variant="ghost" onClick={saveDraft} disabled={isSubmitting} className="min-h-[44px] active:scale-[0.95]">
-            <IconDeviceFloppy className="h-4 w-4 mr-1" />
-            <span className="hidden sm:inline">Save Draft</span>
-            <span className="sm:hidden">Save</span>
-          </Button>
         </div>
 
         <Button

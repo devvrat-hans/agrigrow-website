@@ -27,7 +27,7 @@ const features = [
   {
     title: 'Local Languages',
     description:
-      'Use the platform in Hindi, Marathi, or English - whichever you are comfortable with.',
+      'Currently available in English with Hindi and other regional languages coming soon.',
   },
   {
     title: 'Works Offline',

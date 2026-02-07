@@ -1,5 +1,6 @@
 'use client';
 
+import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { HighlightCard } from '@/components/common';
 import { opacity, spacing, containerMaxWidth } from '@/lib/design-tokens';
@@ -49,9 +50,11 @@ export function HeroSection() {
           </p>
 
           <div className="flex flex-col sm:flex-row gap-3 mb-16">
-            <Button variant="outline" size="lg">
-              Learn More
-            </Button>
+            <Link href="/auth/signup">
+              <Button variant="outline" size="lg">
+                Learn More
+              </Button>
+            </Link>
           </div>
         </div>
 

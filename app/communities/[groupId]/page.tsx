@@ -6,7 +6,6 @@ import Link from 'next/link';
 import {
   IconLock,
   IconMail,
-  IconArrowLeft,
   IconAlertTriangle,
   IconMoodSad,
   IconShare,
@@ -16,7 +15,7 @@ import {
   IconLoader2,
 } from '@tabler/icons-react';
 import { Button } from '@/components/ui/button';
-import { MobileBottomNav } from '@/components/common';
+import { MobileBottomNav, PageHeader } from '@/components/common';
 import { GroupHeader, GroupTabs, GroupAbout } from '@/components/groups/detail';
 import { GroupPostList, GroupPostComposer } from '@/components/groups/posts';
 import { MembersList } from '@/components/groups/members';
@@ -103,14 +102,7 @@ interface ErrorStateProps {
 function ErrorState({ title, message, icon, action }: ErrorStateProps) {
   return (
     <div className="min-h-screen bg-background pb-[calc(5rem+env(safe-area-inset-bottom))] md:pb-8">
-      <header className="border-b border-border p-4 sticky top-0 bg-background z-40">
-        <div className="max-w-4xl mx-auto">
-          <Link href="/communities" className="inline-flex items-center gap-2 text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100">
-            <IconArrowLeft className="w-5 h-5" />
-            <span>Back to Communities</span>
-          </Link>
-        </div>
-      </header>
+      <PageHeader showBackButton title="Communities" />
 
       <main className="max-w-4xl mx-auto px-4 py-12">
         <div className="flex flex-col items-center justify-center text-center">
@@ -370,18 +362,20 @@ export default function GroupDetailPage() {
 
   // Handle share
   const handleShare = useCallback(() => {
+    const shareUrl = `${window.location.origin}/communities/${groupId}`;
+    
     if (navigator.share) {
       navigator.share({
         title: group?.name || 'Community',
-        text: group?.description || 'Check out this community on Agrigrow!',
-        url: window.location.href,
+        url: shareUrl,
       }).catch(console.error);
     } else {
-      // Fallback: copy to clipboard
-      navigator.clipboard.writeText(window.location.href);
-      // TODO: Show toast
+      // Fallback: copy only the URL to clipboard
+      navigator.clipboard.writeText(shareUrl).then(() => {
+        // TODO: Show toast
+      }).catch(console.error);
     }
-  }, [group]);
+  }, [group, groupId]);
 
   // Handle settings
   const handleSettings = useCallback(() => {
@@ -424,23 +418,12 @@ export default function GroupDetailPage() {
 
   return (
     <div className="min-h-screen bg-background pb-[calc(5rem+env(safe-area-inset-bottom))] md:pb-8">
-      {/* Minimal header with back button */}
-      <header className="border-b border-border p-4 sticky top-0 bg-background/95 backdrop-blur z-40">
-        <div className="max-w-4xl mx-auto flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <button
-              onClick={() => router.push('/communities')}
-              className="min-w-[44px] min-h-[44px] -ml-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-800 active:scale-[0.95] transition-all flex items-center justify-center"
-              aria-label="Back to Communities"
-            >
-              <IconArrowLeft className="w-5 h-5 text-gray-600 dark:text-gray-400" />
-            </button>
-            <h1 className="text-lg font-semibold text-gray-900 dark:text-gray-100 truncate max-w-[200px] sm:max-w-none">
-              {group.name}
-            </h1>
-          </div>
-
-          {/* Desktop actions */}
+      {/* Header */}
+      <PageHeader
+        showBackButton
+        onBack={() => router.push('/communities')}
+        title={group.name}
+        rightAction={
           <div className="hidden sm:flex items-center gap-2">
             <Button variant="ghost" size="sm" onClick={handleShare} className="gap-2">
               <IconShare className="w-4 h-4" />
@@ -453,8 +436,8 @@ export default function GroupDetailPage() {
               </Button>
             )}
           </div>
-        </div>
-      </header>
+        }
+      />
 
       {/* Group Header */}
       <GroupHeader

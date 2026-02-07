@@ -262,15 +262,11 @@ export function ImageEditModal({
         variant="mobile-sheet"
         hideCloseButton
         className={cn(
-          // Mobile: full width bottom sheet
-          'w-full max-w-none',
-          'h-[90vh] max-h-[90vh]',
+          'max-h-[85vh]',
           'p-0 overflow-hidden flex flex-col',
           'bg-white dark:bg-gray-900',
           'border border-gray-200 dark:border-gray-800',
-          // Desktop: centered dialog
-          'sm:w-[calc(100vw-1rem)] sm:max-w-lg',
-          'sm:h-auto sm:max-h-[700px]'
+          'sm:max-w-lg sm:max-h-[700px]'
         )}
       >
         {/* Header */}

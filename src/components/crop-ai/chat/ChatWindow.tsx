@@ -135,12 +135,20 @@ export function ChatWindow({
   const [conversationId, setConversationId] = useState<string | null>(
     resumedConversation?.id || null
   );
+  // Ref to always have the latest conversationId in callbacks/closures
+  const conversationIdRef = useRef<string | null>(conversationId);
+  
   const [isLoading, setIsLoading] = useState(false);
   const [loadingMessageId, setLoadingMessageId] = useState<string | null>(null);
 
   // Refs
   const messagesContainerRef = useRef<HTMLDivElement>(null);
   const initialMessageSentRef = useRef(false);
+
+  // Keep conversationIdRef in sync with state
+  useEffect(() => {
+    conversationIdRef.current = conversationId;
+  }, [conversationId]);
 
   // Scroll to bottom
   const scrollToBottom = useCallback(() => {
@@ -199,7 +207,9 @@ export function ChatWindow({
 
       if (response.data.success && response.data.data) {
         // Store the conversation ID for subsequent updates
-        setConversationId(response.data.data.conversationId);
+        const newId = response.data.data.conversationId;
+        conversationIdRef.current = newId;
+        setConversationId(newId);
       }
     } catch (error) {
       // Silently fail — persistence is non-critical for chat UX
@@ -258,8 +268,8 @@ export function ChatWindow({
         return updatedMessages;
       });
 
-      // Persist conversation to MongoDB in background (outside state updater)
-      persistConversation(updatedMessages, conversationId);
+      // Persist conversation to MongoDB (await to ensure conversationId is set before next message)
+      await persistConversation(updatedMessages, conversationIdRef.current);
     } catch (error) {
       console.error('Chat error:', error);
 
@@ -278,7 +288,7 @@ export function ChatWindow({
       setIsLoading(false);
       setLoadingMessageId(null);
     }
-  }, [isLoading, conversationHistory, persistConversation, conversationId]);
+  }, [isLoading, conversationHistory, persistConversation]);
 
   // Handle initial message
   useEffect(() => {

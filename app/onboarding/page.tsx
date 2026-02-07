@@ -6,14 +6,9 @@ import { Button } from '@/components/ui/button';
 import { Logo } from '@/components/common';
 import { cn } from '@/lib/utils';
 import { IconLoader2 } from '@tabler/icons-react';
+import { LANGUAGES } from '@/constants/languages';
 
 type OnboardingStep = 'language' | 'profile' | 'role' | 'location' | 'crops' | 'experience' | 'interests' | 'student_academic' | 'student_interests' | 'student_purpose' | 'business_type' | 'business_focus';
-
-interface Language {
-  code: string;
-  name: string;
-  nativeName: string;
-}
 
 interface Role {
   id: 'farmer' | 'student' | 'business';
@@ -85,16 +80,8 @@ interface ExperienceLevel {
   description: string;
 }
 
-const languages: Language[] = [
-  { code: 'en', name: 'English', nativeName: 'English' },
-  { code: 'hi', name: 'Hindi', nativeName: 'हिंदी' },
-  { code: 'mr', name: 'Marathi', nativeName: 'मराठी' },
-  { code: 'te', name: 'Telugu', nativeName: 'తెలుగు' },
-  { code: 'ta', name: 'Tamil', nativeName: 'தமிழ்' },
-  { code: 'kn', name: 'Kannada', nativeName: 'ಕನ್ನಡ' },
-  { code: 'gu', name: 'Gujarati', nativeName: 'ગુજરાતી' },
-  { code: 'pa', name: 'Punjabi', nativeName: 'ਪੰਜਾਬੀ' },
-];
+/** Languages imported from shared constants */
+const languages = LANGUAGES;
 
 const roles: Role[] = [
   { id: 'farmer', name: 'Farmer', description: 'I grow crops and manage farmland', icon: '🌾' },
@@ -405,6 +392,8 @@ function OnboardingContent() {
       const data = await response.json();
 
       if (data.success) {
+        // Store language preference for voice recognition
+        localStorage.setItem('userLanguage', selectedLanguage);
         router.push('/home');
       } else {
         setError(data.error || 'Failed to save profile');
@@ -462,7 +451,7 @@ function OnboardingContent() {
   }
 
   return (
-    <div className="h-screen bg-background flex flex-col overflow-hidden">
+    <div className="h-dvh bg-background flex flex-col overflow-hidden">
       {/* Header */}
       <div className="flex-shrink-0 p-4 sm:p-6 border-b border-border bg-background z-50">
         <div className="max-w-2xl mx-auto flex items-center justify-between">
@@ -497,21 +486,40 @@ function OnboardingContent() {
               </div>
 
               <div className="grid grid-cols-2 gap-3">
-                {languages.map((lang) => (
-                  <button
-                    key={lang.code}
-                    onClick={() => setSelectedLanguage(lang.code)}
-                    className={cn(
-                      "p-4 rounded-lg border-2 text-left transition-all",
-                      selectedLanguage === lang.code
-                        ? "border-primary bg-primary/5"
-                        : "border-border hover:border-primary/50"
-                    )}
-                  >
-                    <p className="font-medium text-foreground">{lang.nativeName}</p>
-                    <p className="text-sm text-muted-foreground">{lang.name}</p>
-                  </button>
-                ))}
+                {languages.map((lang) => {
+                  const isAvailable = lang.status === 'available';
+                  const isSelected = selectedLanguage === lang.code;
+                  return (
+                    <button
+                      key={lang.code}
+                      onClick={() => isAvailable && setSelectedLanguage(lang.code)}
+                      disabled={!isAvailable}
+                      className={cn(
+                        "p-4 rounded-lg border-2 text-left transition-all relative",
+                        isAvailable
+                          ? isSelected
+                            ? "border-primary bg-primary/5"
+                            : "border-border hover:border-primary/50 cursor-pointer"
+                          : "border-border/50 opacity-60 cursor-not-allowed bg-muted/30"
+                      )}
+                    >
+                      <p className={cn(
+                        "font-medium",
+                        isAvailable ? "text-foreground" : "text-muted-foreground"
+                      )}>{lang.nativeName}</p>
+                      <p className="text-sm text-muted-foreground">{lang.name}</p>
+                      {isAvailable ? (
+                        <span className="absolute top-2 right-2 inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-semibold bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400">
+                          Available
+                        </span>
+                      ) : (
+                        <span className="absolute top-2 right-2 inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-semibold bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400">
+                          Coming Soon
+                        </span>
+                      )}
+                    </button>
+                  );
+                })}
               </div>
             </div>
           )}

@@ -1,14 +1,13 @@
 'use client';
 
 import React, { useCallback } from 'react';
-import { IconBookmark, IconArrowLeft } from '@tabler/icons-react';
 import Link from 'next/link';
-// cn utility imported for potential future use
-// import { cn } from '@/lib/utils';
+import { IconBookmark } from '@tabler/icons-react';
 import { Button } from '@/components/ui/button';
 import { FeedItemCard } from '@/components/feed/FeedItemCard';
 import { LoadingSpinner } from '@/components/common/LoadingSpinner';
 import { EmptyState } from '@/components/common/EmptyState';
+import { PageHeader } from '@/components/common/PageHeader';
 import { useSavedPosts } from '@/hooks/useSavedPosts';
 
 /**
@@ -37,26 +36,17 @@ export default function SavedPostsPage() {
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-950">
       {/* Header */}
-      <header className="sticky top-0 z-40 bg-white dark:bg-gray-900 border-b border-gray-200 dark:border-gray-800">
-        <div className="max-w-2xl mx-auto px-4">
-          <div className="flex items-center gap-3 h-14">
-            <Link href="/profile">
-              <Button variant="ghost" size="icon" className="h-9 w-9">
-                <IconArrowLeft size={20} />
-              </Button>
-            </Link>
-            <div className="flex items-center gap-2">
-              <IconBookmark size={20} className="text-primary-600 dark:text-primary-400" />
-              <h1 className="text-lg font-semibold">Saved Posts</h1>
-            </div>
-            {pagination.total > 0 && (
-              <span className="ml-auto text-sm text-gray-500 dark:text-gray-400">
-                {pagination.total} saved
-              </span>
-            )}
-          </div>
-        </div>
-      </header>
+      <PageHeader
+        showBackButton
+        title="Saved Posts"
+        rightAction={
+          pagination.total > 0 ? (
+            <span className="text-sm text-gray-500 dark:text-gray-400">
+              {pagination.total} saved
+            </span>
+          ) : undefined
+        }
+      />
 
       {/* Content */}
       <main className="max-w-2xl mx-auto">

@@ -4,6 +4,7 @@ import dbConnect from '@/lib/mongodb';
 import Post, { PostType, PostVisibility, PostCategory, IImageMeta } from '@/models/Post';
 import User from '@/models/User';
 import UserFeedPreference from '@/models/UserFeedPreference';
+import Report from '@/models/Report';
 import { buildFeedAggregationPipeline } from '@/lib/feed-algorithm';
 import {
   validateBase64Image,
@@ -84,6 +85,16 @@ export async function GET(request: NextRequest) {
       }
     }
 
+    // Fetch post IDs reported by the current user to exclude from feed
+    let reportedPostIds: mongoose.Types.ObjectId[] = [];
+    if (currentUser) {
+      const reports = await Report.find({
+        reportedBy: currentUser._id,
+        reportedItemType: 'post',
+      }).select('itemId').lean();
+      reportedPostIds = reports.map(r => r.itemId);
+    }
+
     const skip = (page - 1) * limit;
 
     // If requesting personalized feed with authenticated user, use the feed algorithm
@@ -96,6 +107,7 @@ export async function GET(request: NextRequest) {
           limit,
           category: postType as PostType || undefined,
           crop: crop || undefined,
+          reportedPostIds,
         }
       );
     }
@@ -114,6 +126,18 @@ export async function GET(request: NextRequest) {
       }
       if (feedPreferences.mutedUsers && feedPreferences.mutedUsers.length > 0) {
         query.author = { $nin: feedPreferences.mutedUsers };
+      }
+    }
+
+    // Exclude posts reported by the current user
+    if (reportedPostIds.length > 0) {
+      if (query._id) {
+        (query._id as Record<string, unknown[]>).$nin = [
+          ...((query._id as Record<string, unknown[]>).$nin || []),
+          ...reportedPostIds,
+        ];
+      } else {
+        query._id = { $nin: reportedPostIds };
       }
     }
     
@@ -283,9 +307,10 @@ async function getPersonalizedFeed(
     limit: number;
     category?: PostType;
     crop?: string;
+    reportedPostIds?: mongoose.Types.ObjectId[];
   }
 ): Promise<NextResponse> {
-  const { cursor, limit, category, crop } = options;
+  const { cursor, limit, category, crop, reportedPostIds = [] } = options;
 
   try {
     // Build the aggregation pipeline using the feed algorithm
@@ -298,6 +323,7 @@ async function getPersonalizedFeed(
         crop,
         hiddenPosts: (feedPreferences?.hiddenPosts as mongoose.Types.ObjectId[]) || [],
         mutedUsers: (feedPreferences?.mutedUsers as mongoose.Types.ObjectId[]) || [],
+        excludePostIds: reportedPostIds,
       }
     );
 

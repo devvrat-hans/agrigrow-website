@@ -293,18 +293,6 @@ export function WeatherCard({
               <span className="text-xs text-gray-500 dark:text-gray-400 capitalize truncate">
                 {current.description}
               </span>
-              {/* Rain indicator badge - visible on all screen sizes */}
-              {forecast.length > 0 && forecast[0].precipitationProbability > 0 && (
-                <span className={cn(
-                  "xs:hidden inline-flex items-center gap-0.5 px-1.5 py-0.5 rounded-full text-[10px] font-medium",
-                  forecast[0].precipitationProbability > 50 
-                    ? "bg-blue-100 text-blue-600 dark:bg-blue-900/50 dark:text-blue-400"
-                    : "bg-gray-100 text-gray-600 dark:bg-gray-800 dark:text-gray-400"
-                )}>
-                  <IconCloudRain className="w-3 h-3" />
-                  {forecast[0].precipitationProbability}%
-                </span>
-              )}
             </div>
             <div className="flex items-center gap-1 text-xs text-gray-500 dark:text-gray-400">
               <IconMapPin className="w-3 h-3 flex-shrink-0" />
@@ -320,23 +308,6 @@ export function WeatherCard({
               <IconDroplet className="w-3.5 h-3.5 text-blue-400" />
               <span>{current.humidity}%</span>
             </div>
-            {/* Rain Probability - Show today's forecast */}
-            {forecast.length > 0 && (
-              <div 
-                className="flex items-center gap-1" 
-                title="Chance of Rain"
-              >
-                <IconCloudRain className={cn(
-                  "w-3.5 h-3.5",
-                  forecast[0].precipitationProbability > 50 ? "text-blue-500" : "text-gray-400"
-                )} />
-                <span className={cn(
-                  forecast[0].precipitationProbability > 50 && "text-blue-500 font-medium"
-                )}>
-                  {forecast[0].precipitationProbability}%
-                </span>
-              </div>
-            )}
           </div>
           
           {/* Refresh Button */}
@@ -378,6 +349,31 @@ export function WeatherCard({
             </button>
           )}
         </div>
+
+        {/* Compact rain forecast — always visible in collapsed view */}
+        {forecast.length > 0 && (
+          <div className="flex items-center gap-3 mt-2 ml-[52px]">
+            {forecast.slice(0, 3).map((day, index) => (
+              <div
+                key={index}
+                className="flex items-center gap-1 text-[11px] text-gray-500 dark:text-gray-400"
+              >
+                <span className="font-medium text-gray-600 dark:text-gray-300">
+                  {formatDayName(day.date)}
+                </span>
+                <IconCloudRain className={cn(
+                  "w-3 h-3",
+                  day.precipitationProbability > 50 ? "text-blue-500" : "text-gray-400"
+                )} />
+                <span className={cn(
+                  day.precipitationProbability > 50 && "text-blue-500 font-medium"
+                )}>
+                  {day.precipitationProbability}%
+                </span>
+              </div>
+            ))}
+          </div>
+        )}
       </div>
       
       {/* Expandable Forecast Section */}

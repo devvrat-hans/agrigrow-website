@@ -117,7 +117,11 @@ export function ChatInput({
     const recognition = new SpeechRecognitionAPI();
     recognition.continuous = true;
     recognition.interimResults = true;
-    recognition.lang = 'en-IN';
+    
+    // Set recognition language based on user's preference
+    // Hindi users get Hindi transcription (Devanagari), others get English
+    const userLang = localStorage.getItem('userLanguage') || 'en';
+    recognition.lang = userLang === 'hi' ? 'hi-IN' : 'en-IN';
 
     recognition.onresult = (event: SpeechRecognitionEvent) => {
       let finalTranscript = '';

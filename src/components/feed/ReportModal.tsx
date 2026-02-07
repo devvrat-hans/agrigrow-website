@@ -236,9 +236,9 @@ export function ReportModal({
                         className={cn(
                           'w-full flex items-center gap-3 p-3 rounded-lg text-left box-border',
                           'border-2 transition-all duration-200',
-                          'focus:outline-none focus-visible:ring-2 focus-visible:ring-primary-500 focus-visible:ring-offset-2',
+                          'focus:outline-none focus-visible:ring-2 focus-visible:ring-red-500 focus-visible:ring-offset-2',
                           isSelected
-                            ? 'border-primary-500 bg-primary-50 dark:bg-primary-900/20 shadow-sm'
+                            ? 'border-red-500 bg-red-50 dark:bg-red-900/20 shadow-sm'
                             : 'border-gray-200 dark:border-gray-700 hover:border-gray-300 dark:hover:border-gray-600',
                           isSubmitting && 'opacity-50 cursor-not-allowed'
                         )}
@@ -249,7 +249,7 @@ export function ReportModal({
                             'w-5 h-5 rounded-full border-2 flex-shrink-0',
                             'flex items-center justify-center transition-all duration-200',
                             isSelected
-                              ? 'border-primary-500 bg-primary-500'
+                              ? 'border-red-500 bg-red-500'
                               : 'border-gray-300 dark:border-gray-600'
                           )}
                         >
@@ -264,7 +264,7 @@ export function ReportModal({
                             className={cn(
                               'w-7 h-7 flex items-center justify-center rounded-md transition-colors duration-200 flex-shrink-0',
                               isSelected
-                                ? 'bg-primary-100 dark:bg-primary-800/30'
+                                ? 'bg-red-100 dark:bg-red-800/30'
                                 : 'bg-gray-100 dark:bg-gray-800'
                             )}
                           >
@@ -273,7 +273,7 @@ export function ReportModal({
                               className={cn(
                                 'transition-colors duration-200',
                                 isSelected
-                                  ? 'text-primary-600 dark:text-primary-400'
+                                  ? 'text-red-600 dark:text-red-400'
                                   : 'text-gray-500 dark:text-gray-400'
                               )}
                             />
@@ -283,7 +283,7 @@ export function ReportModal({
                               className={cn(
                                 'font-medium text-sm block transition-colors duration-200',
                                 isSelected
-                                  ? 'text-primary-700 dark:text-primary-300'
+                                  ? 'text-red-700 dark:text-red-300'
                                   : 'text-gray-900 dark:text-gray-100'
                               )}
                             >

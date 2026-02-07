@@ -4,13 +4,12 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
 import {
-  IconArrowLeft,
   IconLoader2,
   IconAlertCircle,
   IconHome,
 } from '@tabler/icons-react';
-import { cn } from '@/lib/utils';
 import { FeedItemCard, type FeedItemData, type FeedItemAuthor } from '@/components/feed/FeedItemCard';
+import { PageHeader } from '@/components/common/PageHeader';
 import apiClient from '@/lib/api-client';
 
 /**
@@ -237,33 +236,6 @@ export default function PostDetailPage() {
   );
 
   /**
-   * Handle save post toggle
-   */
-  const handleSave = useCallback(
-    async (id: string): Promise<{ isSaved: boolean; message: string } | null> => {
-      if (!userPhone) return null;
-
-      try {
-        const response = await apiClient.post(`/posts/${id}/save`);
-        const data = response.data;
-
-        if (data.success) {
-          const saved = data.data?.saved ?? !post?.isSaved;
-          setPost((prev) => (prev ? { ...prev, isSaved: saved } : prev));
-          return {
-            isSaved: saved,
-            message: saved ? 'Post saved' : 'Post unsaved',
-          };
-        }
-        return null;
-      } catch {
-        return null;
-      }
-    },
-    [userPhone, post?.isSaved]
-  );
-
-  /**
    * Loading state
    */
   if (!mounted || loading) {
@@ -323,7 +295,6 @@ export default function PostDetailPage() {
           currentUserId={currentUserId}
           onLike={handleLike}
           onDelete={handleDelete}
-          onSave={handleSave}
           className="rounded-none sm:rounded-lg sm:mt-2 sm:mx-2"
         />
       </main>
@@ -336,26 +307,7 @@ export default function PostDetailPage() {
  * Provides navigation back and branding
  */
 function PostDetailHeader() {
-  const router = useRouter();
-
   return (
-    <header
-      className={cn(
-        'sticky top-0 z-40 bg-white dark:bg-gray-900',
-        'border-b border-gray-200 dark:border-gray-800',
-        'px-4 py-3 flex items-center gap-3'
-      )}
-    >
-      <button
-        onClick={() => router.back()}
-        className="p-1.5 -ml-1.5 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
-        aria-label="Go back"
-      >
-        <IconArrowLeft className="w-5 h-5 text-gray-700 dark:text-gray-300" />
-      </button>
-      <h1 className="text-base font-semibold text-gray-900 dark:text-gray-100">
-        Post
-      </h1>
-    </header>
+    <PageHeader showBackButton title="Post" />
   );
 }

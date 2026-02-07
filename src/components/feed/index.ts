@@ -120,3 +120,10 @@ export { CommentSkeleton, CommentSkeletonList, CommentSectionSkeleton } from './
 // Weather Card - Displays weather on home feed
 export { WeatherCard, WeatherCardSkeleton } from './WeatherCard';
 export type { WeatherCardData } from './WeatherCard';
+
+// ============================================================================
+// Search Components
+// ============================================================================
+
+// Feed Search Bar - Inline search with dropdown results
+export { FeedSearchBar } from './FeedSearchBar';

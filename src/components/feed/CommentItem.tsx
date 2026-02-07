@@ -337,20 +337,23 @@ function CommentItemComponent({
               onClick={handleLike}
               disabled={isLiking}
               className={cn(
-                'flex items-center gap-1 text-xs transition-colors',
+                'flex items-center gap-1 text-xs font-medium transition-colors',
                 // Minimum touch target
                 'min-h-[44px] px-2',
                 comment.isLiked
                   ? 'text-red-500'
-                  : 'text-gray-500 hover:text-red-500'
+                  : 'text-gray-500 hover:text-red-500',
+                // Make reply like buttons more prominent
+                isReply && !comment.isLiked && 'text-gray-600 dark:text-gray-400',
+                isReply && comment.isLiked && 'text-red-500'
               )}
             >
               {isLiking ? (
-                <IconLoader2 size={14} className="animate-spin" />
+                <IconLoader2 size={isReply ? 15 : 14} className="animate-spin" />
               ) : comment.isLiked ? (
-                <IconHeartFilled size={14} />
+                <IconHeartFilled size={isReply ? 15 : 14} />
               ) : (
-                <IconHeart size={14} />
+                <IconHeart size={isReply ? 15 : 14} />
               )}
               {comment.likesCount > 0 && <span>{comment.likesCount}</span>}
             </button>

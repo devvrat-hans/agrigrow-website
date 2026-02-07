@@ -138,7 +138,7 @@ export function useGroups(options: UseGroupsOptions = {}): UseGroupsReturn {
   const removeGroup = useCallback((groupId: string): void => { setState(prev => ({ ...prev, groups: prev.groups.filter(g => g._id !== groupId && g.slug !== groupId) })); }, []);
 
   useEffect(() => { if (autoFetch) fetchGroups(false, 1); }, [state.filters]);  
-  useEffect(() => { if (autoFetch) fetchGroups(false, 1); return () => { mountedRef.current = false; if (searchTimeoutRef.current) clearTimeout(searchTimeoutRef.current); }; }, []);  
+  useEffect(() => { mountedRef.current = true; if (autoFetch) fetchGroups(false, 1); return () => { mountedRef.current = false; if (searchTimeoutRef.current) clearTimeout(searchTimeoutRef.current); }; }, []);  
 
   return { groups: state.groups, loading: state.loading, refreshing: state.refreshing, error: state.error, hasMore: state.hasMore, pagination: state.pagination, searchQuery: state.searchQuery, filters: state.filters, fetchMore, refresh, search, setFilters, clearFilters, clearError, retry, updateGroup, removeGroup };
 }

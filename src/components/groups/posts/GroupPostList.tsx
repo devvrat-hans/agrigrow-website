@@ -361,22 +361,29 @@ export function GroupPostList({
         params.set('postType', activeFilter);
       }
 
-      const response = await fetch(`/api/groups/${groupId}/posts?${params}`);
+      const phone = typeof window !== 'undefined' ? localStorage.getItem('userPhone') : null;
+      const headers: Record<string, string> = {};
+      if (phone) {
+        headers['x-user-phone'] = phone;
+      }
+
+      const response = await fetch(`/api/groups/${groupId}/posts?${params}`, { headers });
       
       if (!response.ok) {
         throw new Error('Failed to fetch posts');
       }
 
       const data = await response.json();
+      const postsArray = data.data || data.posts || [];
 
       if (pageNum === 1 || isRefresh) {
-        setPosts(data.posts || []);
+        setPosts(postsArray);
         setPinnedPosts(data.pinnedPosts || []);
       } else {
-        setPosts((prev) => [...prev, ...(data.posts || [])]);
+        setPosts((prev) => [...prev, ...postsArray]);
       }
 
-      setHasMore(data.hasMore ?? data.posts?.length === 10);
+      setHasMore(data.pagination?.hasNextPage ?? data.pagination?.hasMore ?? data.hasMore ?? postsArray.length === 10);
       setPage(pageNum);
     } catch (error) {
       console.error('Failed to fetch posts:', error);

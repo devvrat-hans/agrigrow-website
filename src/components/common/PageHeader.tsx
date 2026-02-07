@@ -101,7 +101,7 @@ export function PageHeader({
             {title}
           </h1>
         ) : showLogo ? (
-          <Logo size="sm" />
+          <Logo size="md" />
         ) : null}
         {rightAction && (
           <div className="flex-shrink-0">

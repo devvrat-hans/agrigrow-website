@@ -384,10 +384,11 @@ export function useNotifications(options: UseNotificationsOptions = {}): UseNoti
    * Cleanup on unmount only
    */
   useEffect(() => {
+    isMountedRef.current = true;
     return () => {
       isMountedRef.current = false;
     };
-  }, []); // Empty dependency array - only runs on unmount
+  }, []);
 
   return {
     notifications,

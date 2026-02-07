@@ -200,25 +200,20 @@ export function AnalysisDetailModal({
       />
 
       {/* Modal Container */}
-      <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-0 sm:p-4">
-        {/* Modal Content - Sheet on mobile, centered modal on desktop */}
+      <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+        {/* Modal Content - centered popup */}
         <div
           className={cn(
-            'relative w-full max-w-3xl max-h-[90vh]',
+            'relative w-full max-w-3xl max-h-[85vh]',
             'bg-white dark:bg-gray-900',
-            'rounded-t-2xl sm:rounded-xl',
+            'rounded-xl',
             'shadow-xl',
             'overflow-hidden',
             'flex flex-col',
-            'animate-in slide-in-from-bottom sm:fade-in sm:zoom-in-95 duration-300'
+            'animate-in fade-in zoom-in-95 duration-300'
           )}
           onClick={(e) => e.stopPropagation()}
         >
-          {/* Mobile Handle */}
-          <div className="sm:hidden flex justify-center py-2">
-            <div className="w-10 h-1 rounded-full bg-gray-300 dark:bg-gray-600" />
-          </div>
-
           {/* Close Button */}
           <button
             type="button"

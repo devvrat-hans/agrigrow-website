@@ -11,6 +11,7 @@ import {
   FeedItemData,
   NewPostsBanner,
   WeatherCard,
+  FeedSearchBar,
 } from '@/components/feed';
 import { NotificationBell } from '@/components/notifications/NotificationBell';
 import {
@@ -31,7 +32,6 @@ import {
   IconFilter,
   IconCheck,
   IconX,
-  IconSearch,
 } from '@tabler/icons-react';
 import type { PostType } from '@/models/Post';
 
@@ -145,6 +145,7 @@ export default function HomePage() {
     refresh,
     setCategory,
     updatePost,
+    removePost,
     prependPost: _prependPost,  // Preserved for future use with real-time updates
   } = useFeed({
     initialCategory: selectedCategory === 'all' ? undefined : selectedCategory,
@@ -202,6 +203,10 @@ export default function HomePage() {
         if (data.success) {
           setUserId(data.user.id);
           setUserRole(data.user.role || 'farmer');
+          // Sync language preference to localStorage for voice recognition
+          if (data.user.language) {
+            localStorage.setItem('userLanguage', data.user.language);
+          }
           if (data.user.location) {
             setUserLocation({
               state: data.user.location.state,
@@ -322,6 +327,13 @@ export default function HomePage() {
   }, [refresh]);
 
   /**
+   * Handle reporting a post — optimistically remove it from the feed
+   */
+  const handleReportPost = useCallback((postId: string) => {
+    removePost(postId);
+  }, [removePost]);
+
+  /**
    * Handle muting a user — optimistically hide their posts from the feed
    */
   const handleMuteUser = useCallback((authorId: string) => {
@@ -429,14 +441,10 @@ export default function HomePage() {
             </span>
           </button>
 
-          {/* Mobile: Search button */}
-          <button
-            onClick={() => router.push('/search')}
-            className="flex sm:hidden items-center justify-center w-11 h-11 bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 rounded-full transition-colors active:scale-95"
-            aria-label="Search"
-          >
-            <IconSearch size={18} />
-          </button>
+          {/* Mobile: Inline search bar */}
+          <div className="flex sm:hidden flex-1 min-w-0">
+            <FeedSearchBar className="w-full" />
+          </div>
 
           {/* Desktop: Full category tabs */}
           <div className="hidden sm:block flex-1 min-w-0">
@@ -559,6 +567,7 @@ export default function HomePage() {
               onLike={handleLike}
               onDelete={handleDeletePost}
               onMuteUser={handleMuteUser}
+              onReport={handleReportPost}
             />
           )}
         </FeedErrorBoundary>
@@ -579,22 +588,16 @@ export default function HomePage() {
           variant="mobile-sheet"
           hideCloseButton
           className={cn(
-            'w-full max-w-none',
-            'h-auto max-h-[60vh]',
-            'border-t border-x border-b-0 rounded-t-2xl rounded-b-none',
-            'sm:max-w-lg sm:h-auto sm:max-h-[90vh] sm:rounded-lg sm:border',
+            'max-h-[60vh]',
+            'sm:max-w-lg sm:max-h-[90vh]',
             'flex flex-col',
             'bg-white dark:bg-gray-950',
+            'border border-gray-200 dark:border-gray-800',
             'p-0'
           )}
         >
-          {/* Handle indicator */}
-          <div className="flex justify-center py-1 sm:hidden">
-            <div className="w-10 h-1 bg-gray-300 dark:bg-gray-600 rounded-full" />
-          </div>
-
           {/* Header */}
-          <DialogHeader className="px-4 pb-2 border-b border-gray-200 dark:border-gray-800">
+          <DialogHeader className="px-4 pt-4 pb-2 border-b border-gray-200 dark:border-gray-800">
             <div className="flex items-center justify-between">
               <DialogTitle className="text-lg font-semibold">
                 Filter Posts

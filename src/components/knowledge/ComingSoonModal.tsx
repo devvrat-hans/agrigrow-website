@@ -46,14 +46,11 @@ export function ComingSoonModal({
         variant="mobile-sheet"
         hideCloseButton
         className={cn(
-          // Mobile: full width bottom sheet
-          'w-full max-w-none',
-          'p-6',
+          'w-[calc(100vw-2rem)] sm:w-auto sm:max-w-sm',
+          'p-6 sm:p-8',
           'bg-white dark:bg-gray-900',
           'border border-gray-200 dark:border-gray-800',
           'text-center',
-          // Desktop: regular dialog
-          'sm:w-auto sm:max-w-sm sm:p-8',
           className
         )}
       >

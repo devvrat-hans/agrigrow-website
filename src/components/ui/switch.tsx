@@ -6,13 +6,12 @@ import * as SwitchPrimitives from "@radix-ui/react-switch"
 import { cn } from "@/lib/utils"
 
 /**
- * Mobile-optimized Switch/Toggle component
+ * Switch/Toggle component (shadcn/ui style)
  * 
- * Uses proper sizing for touch targets (min 44px tap area) while
- * keeping the visual track and thumb proportional and circular.
+ * Compact, clean toggle with good mobile touch targets.
  * 
- * Mobile: 52×28 track, 22×22 thumb (large touch-friendly target)
- * Desktop: 44×24 track, 18×18 thumb
+ * Mobile: 40×22 track, 18×18 thumb
+ * Desktop: 36×20 track, 16×16 thumb
  */
 const Switch = React.forwardRef<
   React.ElementRef<typeof SwitchPrimitives.Root>,
@@ -29,10 +28,10 @@ const Switch = React.forwardRef<
       "disabled:cursor-not-allowed disabled:opacity-50",
       // Checked/unchecked colors — green when on, grey when off
       "data-[state=checked]:bg-green-500 dark:data-[state=checked]:bg-green-600 data-[state=unchecked]:bg-gray-300 dark:data-[state=unchecked]:bg-gray-600",
-      // Mobile-first sizing: 52×28
-      "h-[28px] w-[52px]",
-      // Desktop sizing: 44×24
-      "sm:h-[24px] sm:w-[44px]",
+      // Mobile sizing: 40×22
+      "h-[22px] w-[40px]",
+      // Desktop sizing: 36×20
+      "sm:h-[20px] sm:w-[36px]",
       className
     )}
     {...props}
@@ -43,12 +42,12 @@ const Switch = React.forwardRef<
         // Circular thumb with shadow
         "pointer-events-none block rounded-full bg-white shadow-lg ring-0",
         "transition-transform duration-200 ease-in-out",
-        // Mobile thumb: 22×22, translate 24px when checked (52 - 22 - 3*2 = 24)
-        "h-[22px] w-[22px]",
-        "data-[state=unchecked]:translate-x-[3px] data-[state=checked]:translate-x-[26px]",
-        // Desktop thumb: 18×18, translate 21px when checked (44 - 18 - 2.5*2 ≈ 21)
-        "sm:h-[18px] sm:w-[18px]",
-        "sm:data-[state=unchecked]:translate-x-[3px] sm:data-[state=checked]:translate-x-[22px]"
+        // Mobile thumb: 18×18
+        "h-[18px] w-[18px]",
+        "data-[state=unchecked]:translate-x-[1px] data-[state=checked]:translate-x-[19px]",
+        // Desktop thumb: 16×16
+        "sm:h-[16px] sm:w-[16px]",
+        "sm:data-[state=unchecked]:translate-x-[1px] sm:data-[state=checked]:translate-x-[17px]"
       )}
     />
   </SwitchPrimitives.Root>

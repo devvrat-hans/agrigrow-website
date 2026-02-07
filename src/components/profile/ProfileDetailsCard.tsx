@@ -3,18 +3,7 @@
 import { ReactNode } from 'react';
 import { IconMapPin, IconLanguage } from '@tabler/icons-react';
 import { ProfileInfoCard } from './ProfileInfoCard';
-
-// Language code to name mapping
-const languageMap: Record<string, string> = {
-  en: 'English',
-  hi: 'Hindi',
-  mr: 'Marathi',
-  te: 'Telugu',
-  ta: 'Tamil',
-  kn: 'Kannada',
-  gu: 'Gujarati',
-  pa: 'Punjabi',
-};
+import { getLanguageDisplayName } from '@/constants/languages';
 
 // State code to name mapping
 const stateMap: Record<string, string> = {
@@ -51,7 +40,7 @@ const stateMap: Record<string, string> = {
  * Get readable language name from code.
  */
 export function getLanguageName(code: string): string {
-  return languageMap[code] || code;
+  return getLanguageDisplayName(code);
 }
 
 /**

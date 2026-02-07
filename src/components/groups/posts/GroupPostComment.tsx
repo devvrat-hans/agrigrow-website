@@ -201,6 +201,7 @@ export function GroupPostComment({
             className={cn(
               avatarSize,
               'rounded-full bg-primary-100 dark:bg-primary-900/50',
+              'ring-2 ring-primary-200 dark:ring-primary-800',
               'flex items-center justify-center flex-shrink-0'
             )}
           >

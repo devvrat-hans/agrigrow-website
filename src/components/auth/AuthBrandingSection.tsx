@@ -13,7 +13,7 @@ export function AuthBrandingSection({ title, description }: AuthBrandingSectionP
     <div className="hidden md:flex md:w-1/2 relative overflow-hidden">
       {/* Background Image */}
       <Image
-        src="/hero-bg.jpg"
+        src="/landing-hero.jpg"
         alt="Agriculture background"
         fill
         className="object-cover"

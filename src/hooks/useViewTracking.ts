@@ -166,15 +166,20 @@ export function useViewTracking(
       // Attempt to send remaining views on unmount
       if (pendingViewsRef.current.size > 0 && userPhone) {
         const postIds = Array.from(pendingViewsRef.current);
-        // Use navigator.sendBeacon for reliable delivery on unmount
-        if (navigator.sendBeacon) {
-          navigator.sendBeacon(
-            '/api/posts/track-views',
-            JSON.stringify({ 
-              postIds,
-              _headers: { 'x-user-phone': userPhone }
-            })
-          );
+        // Use fetch with keepalive for reliable delivery on unmount
+        // (sendBeacon doesn't support custom headers)
+        try {
+          fetch('/api/posts/track-views', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              'x-user-phone': userPhone,
+            },
+            body: JSON.stringify({ postIds }),
+            keepalive: true,
+          });
+        } catch {
+          // Silently fail on unmount
         }
       }
     };

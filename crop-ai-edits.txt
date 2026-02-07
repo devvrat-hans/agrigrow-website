@@ -1,0 +1,15 @@
+[07/02/26, 3:30:58 PM] Atharva Zagade IITGN: in Crop Ai
+[07/02/26, 3:32:53 PM] Atharva Zagade IITGN: In Crop AI
+->Crop Info->Growth Stage
+-> the selection are not visible, user should be able to identify the selected option, turn that option into green highlight after selection
+
+and further into it, for the affected plant part, also hightlisght the it also in green'
+[07/02/26, 3:34:45 PM] Atharva Zagade IITGN: Crop AI,
+Crop Planning 
+the Land Unit selection is not visible clearly,
+the selected one should be highlighted in green,
+similarly in the Season and Oil
+and also in Water Irrigation also
+
+make sure that the option selected by the user is visible clear as it would be highlighted
+[07/02/26, 3:38:02 PM] Atharva Zagade IITGN: •⁠  ⁠Technical architecture

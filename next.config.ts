@@ -2,6 +2,7 @@ import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
   reactStrictMode: true,
+  devIndicators: false,
   // Increase body size limit for API routes (default is 1MB)
   // This is needed for image uploads in crop-ai diagnosis
   experimental: {

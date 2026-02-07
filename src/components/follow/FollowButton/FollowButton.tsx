@@ -130,13 +130,18 @@ export function FollowButton({
           setFollowStatus({ isFollowing: prevFollowing, isPending: prevPending });
         }
       } else {
-        // Optimistic update - we don't know yet if it will be pending or active
+        // Optimistic update — assume follow will be active (most common case)
+        setFollowStatus({ isFollowing: true, isPending: false });
         const result = await followUser(userPhone);
         if (result?.follow) {
+          // Correct the state based on actual API response (might be pending for private accounts)
           setFollowStatus({
             isFollowing: result.follow.status === 'active',
             isPending: result.follow.status === 'pending',
           });
+        } else if (!result) {
+          // API call failed — rollback optimistic update
+          setFollowStatus({ isFollowing: false, isPending: false });
         }
       }
     } finally {

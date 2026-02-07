@@ -231,7 +231,11 @@ export function CreatePostModal({
     const recognition = new SpeechRecognitionAPI();
     recognition.continuous = true;
     recognition.interimResults = true;
-    recognition.lang = 'en-IN'; // Default to Indian English, can be made configurable
+    
+    // Set recognition language based on user's preference
+    // Hindi users get Hindi transcription (Devanagari), others get English
+    const userLang = localStorage.getItem('userLanguage') || 'en';
+    recognition.lang = userLang === 'hi' ? 'hi-IN' : 'en-IN';
 
     recognition.onresult = (event: SpeechRecognitionEvent) => {
       let finalTranscript = '';
@@ -377,15 +381,10 @@ export function CreatePostModal({
         variant="mobile-sheet"
         hideCloseButton
         className={cn(
-          // Mobile: Full width bottom sheet
-          'w-full',
-          // Mobile: 85% viewport height
-          'h-[85dvh] max-h-[calc(100dvh-env(safe-area-inset-top)-1rem)]',
-          // Mobile styling  
-          'border-t border-x border-b-0',
-          // Desktop: Standard centered modal
-          'sm:w-full sm:max-w-lg sm:h-auto sm:max-h-[90vh]',
-          'sm:border',
+          // Center popup sizing
+          'max-h-[85dvh]',
+          'sm:max-w-lg sm:max-h-[90vh]',
+          'border border-gray-200 dark:border-gray-800',
           // Layout
           'flex flex-col',
           'bg-white dark:bg-gray-950',
@@ -393,13 +392,8 @@ export function CreatePostModal({
           className
         )}
       >
-        {/* Handle indicator for mobile sheet */}
-        <div className="flex justify-center pt-2 pb-1 sm:hidden">
-          <div className="w-10 h-1 bg-gray-300 dark:bg-gray-600 rounded-full" />
-        </div>
-
         {/* Header - responsive layout */}
-        <DialogHeader className="flex-shrink-0 px-4 sm:px-4 pt-2 pb-3 sm:py-3 border-b border-gray-200 dark:border-gray-800">
+        <DialogHeader className="flex-shrink-0 px-4 sm:px-4 pt-4 pb-3 sm:py-3 border-b border-gray-200 dark:border-gray-800">
           {/* Mobile layout: Title left, Close button right */}
           <div className="flex sm:hidden items-center justify-between">
             <DialogTitle className="text-lg font-semibold text-gray-900 dark:text-gray-100">

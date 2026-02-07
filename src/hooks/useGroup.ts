@@ -97,12 +97,18 @@ export function useGroup(groupIdOrSlug: string | null | undefined, options: UseG
     try {
       const params = new URLSearchParams();
       if (includeMembers) { params.set('includeMembers', 'true'); params.set('membersLimit', String(membersLimit)); }
-      const url = `/api/groups/${groupIdOrSlug}${params.toString() ? `?${params.toString()}` : ''}`;
+      const url = `/groups/${groupIdOrSlug}${params.toString() ? `?${params.toString()}` : ''}`;
       const response = await apiClient.get(url);
       if (!mountedRef.current || lastFetchIdRef.current !== groupIdOrSlug) return;
       if (response.data.success) {
         const groupData: GroupData = response.data.data;
-        const membershipData: UserMembership = response.data.membership || { ...defaultMembership };
+        // Membership info is embedded in groupData (isJoined, userRole, userMembershipStatus)
+        const membershipData: UserMembership = {
+          isMember: groupData.isJoined || false,
+          role: (groupData.userRole as MemberRole) || null,
+          joinedAt: null,
+          isPending: groupData.userMembershipStatus === 'pending',
+        };
         setCachedGroup(groupIdOrSlug, groupData);
         setState(prev => ({ ...prev, group: groupData, membership: membershipData, loading: false, refreshing: false, error: null }));
       } else { throw new Error(response.data.error || 'Failed to fetch group'); }
@@ -133,7 +139,18 @@ export function useGroup(groupIdOrSlug: string | null | undefined, options: UseG
       if (!mountedRef.current) return false;
       if (response.data.success) {
         if (groupIdOrSlug) invalidateCache(groupIdOrSlug);
-        const newMembership = response.data.membership || (requiresApproval ? { ...defaultMembership, isPending: true } : { isMember: true, role: 'member' as MemberRole, joinedAt: new Date().toISOString(), isPending: false });
+        // Join API returns membership data in response.data.data (role, status)
+        const joinData = response.data.data;
+        const newMembership: UserMembership = joinData
+          ? {
+              isMember: joinData.status === 'active',
+              role: (joinData.role as MemberRole) || 'member',
+              joinedAt: joinData.joinedAt || new Date().toISOString(),
+              isPending: joinData.status === 'pending',
+            }
+          : (requiresApproval
+              ? { ...defaultMembership, isPending: true }
+              : { isMember: true, role: 'member' as MemberRole, joinedAt: new Date().toISOString(), isPending: false });
         setState(prev => ({ ...prev, isJoining: false, membership: newMembership }));
         return true;
       } else { throw new Error(response.data.error || 'Failed to join group'); }

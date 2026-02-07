@@ -45,17 +45,6 @@ interface MembersListProps {
   className?: string;
 }
 
-interface MembersResponse {
-  members: GroupMemberData[];
-  pagination: {
-    page: number;
-    limit: number;
-    total: number;
-    totalPages: number;
-    hasMore: boolean;
-  };
-}
-
 type RoleFilter = 'all' | MemberRole;
 type ViewMode = 'list' | 'grid';
 
@@ -130,21 +119,22 @@ export function MembersList({
           params.set('role', roleFilter);
         }
 
-        const response = await apiClient.get<{ success: boolean; data: MembersResponse }>(
-          `/api/groups/${groupId}/members?${params.toString()}`
+        const response = await apiClient.get<{ success: boolean; data: GroupMemberData[]; pagination?: { page: number; limit: number; total: number; totalPages: number; hasNextPage: boolean; hasMore?: boolean } }>(
+          `/groups/${groupId}/members?${params.toString()}`
         );
 
         if (response.data.success) {
-          const { members: newMembers, pagination } = response.data.data;
+          const newMembers = response.data.data;
+          const pagination = response.data.pagination;
 
           if (append) {
-            setMembers((prev) => [...prev, ...newMembers]);
+            setMembers((prev) => [...prev, ...(Array.isArray(newMembers) ? newMembers : [])]);
           } else {
-            setMembers(newMembers);
+            setMembers(Array.isArray(newMembers) ? newMembers : []);
           }
 
-          setHasMore(pagination.hasMore);
-          setTotal(pagination.total);
+          setHasMore(pagination?.hasNextPage ?? false);
+          setTotal(pagination?.total ?? 0);
           setPage(pageNum);
         }
       } catch (err: unknown) {

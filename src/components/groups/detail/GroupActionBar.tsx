@@ -82,7 +82,7 @@ function canCreatePosts(membership: GroupMemberData | null): boolean {
  * @returns JSX element
  */
 export function GroupActionBar({
-  groupId: _groupId,
+  groupId,
   groupName,
   membership,
   notificationsEnabled = true,
@@ -102,7 +102,8 @@ export function GroupActionBar({
 
   const handleCopyLink = async () => {
     try {
-      await navigator.clipboard.writeText(window.location.href);
+      const shareUrl = `${window.location.origin}/communities/${groupId}`;
+      await navigator.clipboard.writeText(shareUrl);
       setCopied(true);
       setTimeout(() => setCopied(false), 2000);
     } catch (error) {
@@ -111,14 +112,15 @@ export function GroupActionBar({
   };
 
   const handleShareTwitter = () => {
-    const url = encodeURIComponent(window.location.href);
+    const shareUrl = `${window.location.origin}/communities/${groupId}`;
+    const url = encodeURIComponent(shareUrl);
     const text = encodeURIComponent(`Check out ${groupName} on Agrigrow!`);
     window.open(`https://twitter.com/intent/tweet?text=${text}&url=${url}`, '_blank');
   };
 
   const handleShareWhatsapp = () => {
-    const _url = encodeURIComponent(window.location.href);
-    const text = encodeURIComponent(`Check out ${groupName} on Agrigrow! ${window.location.href}`);
+    const shareUrl = `${window.location.origin}/communities/${groupId}`;
+    const text = encodeURIComponent(`Check out ${groupName} on Agrigrow! ${shareUrl}`);
     window.open(`https://wa.me/?text=${text}`, '_blank');
   };
 

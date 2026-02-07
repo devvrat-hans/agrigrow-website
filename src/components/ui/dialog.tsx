@@ -50,21 +50,13 @@ const DialogContent = React.forwardRef<
         variant === 'default' && [
           "left-[50%] top-[50%] max-w-lg translate-x-[-50%] translate-y-[-50%] p-6",
           "data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95",
-          "data-[state=closed]:slide-out-to-left-1/2 data-[state=closed]:slide-out-to-top-[48%]",
-          "data-[state=open]:slide-in-from-left-1/2 data-[state=open]:slide-in-from-top-[48%]",
           "sm:rounded-lg"
         ],
-        // Mobile sheet variant: slides up from bottom
+        // Mobile sheet variant: centered popup on all screen sizes
         variant === 'mobile-sheet' && [
-          "inset-x-0 bottom-0 top-auto translate-x-0 translate-y-0",
-          "max-w-none rounded-t-2xl rounded-b-none p-0",
-          "data-[state=closed]:slide-out-to-bottom data-[state=open]:slide-in-from-bottom",
-          // Desktop: revert to centered modal
-          "sm:left-[50%] sm:top-[50%] sm:bottom-auto sm:right-auto",
-          "sm:-translate-x-1/2 sm:-translate-y-1/2",
-          "sm:max-w-lg sm:rounded-lg sm:p-6",
-          "sm:data-[state=closed]:slide-out-to-bottom-0 sm:data-[state=open]:slide-in-from-bottom-0",
-          "sm:data-[state=closed]:zoom-out-95 sm:data-[state=open]:zoom-in-95"
+          "left-[50%] top-[50%] translate-x-[-50%] translate-y-[-50%]",
+          "max-w-[calc(100vw-2rem)] sm:max-w-lg rounded-2xl sm:rounded-lg p-0 sm:p-6",
+          "data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95",
         ],
         className
       )}

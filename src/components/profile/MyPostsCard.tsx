@@ -41,6 +41,8 @@ interface PostData {
 interface MyPostsCardProps {
   /** User's phone number for fetching posts */
   userPhone: string;
+  /** Whether this is the current user's own profile (shows delete buttons) */
+  isOwnProfile?: boolean;
   /** Additional class names */
   className?: string;
 }
@@ -48,7 +50,7 @@ interface MyPostsCardProps {
 /**
  * Profile card showing user's posts with delete functionality
  */
-export function MyPostsCard({ userPhone, className }: MyPostsCardProps) {
+export function MyPostsCard({ userPhone, isOwnProfile = true, className }: MyPostsCardProps) {
   const router = useRouter();
   const [posts, setPosts] = useState<PostData[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -154,7 +156,7 @@ export function MyPostsCard({ userPhone, className }: MyPostsCardProps) {
           <div className="text-primary">
             <IconArticle className="w-5 h-5" />
           </div>
-          <h3 className="font-semibold text-foreground">My Posts</h3>
+          <h3 className="font-semibold text-foreground">{isOwnProfile ? 'My Posts' : 'Posts'}</h3>
           <span className="text-sm text-muted-foreground ml-auto">
             {posts.length} {posts.length === 1 ? 'post' : 'posts'}
           </span>
@@ -179,7 +181,7 @@ export function MyPostsCard({ userPhone, className }: MyPostsCardProps) {
         {!isLoading && !error && posts.length === 0 && (
           <div className="text-center py-6 text-muted-foreground">
             <IconArticle className="w-10 h-10 mx-auto mb-2 opacity-50" />
-            <p className="text-sm">You haven&apos;t created any posts yet</p>
+            <p className="text-sm">{isOwnProfile ? "You haven't created any posts yet" : "No posts yet"}</p>
           </div>
         )}
 
@@ -221,14 +223,16 @@ export function MyPostsCard({ userPhone, className }: MyPostsCardProps) {
                     </span>
                   </div>
                 </div>
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  className="text-red-500 hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20 p-2 h-auto"
-                  onClick={(e) => { e.stopPropagation(); setDeletePostId(post.id); }}
-                >
-                  <IconTrash className="w-4 h-4" />
-                </Button>
+                {isOwnProfile && (
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    className="text-red-500 hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20 p-2 h-auto"
+                    onClick={(e) => { e.stopPropagation(); setDeletePostId(post.id); }}
+                  >
+                    <IconTrash className="w-4 h-4" />
+                  </Button>
+                )}
               </div>
             ))}
 

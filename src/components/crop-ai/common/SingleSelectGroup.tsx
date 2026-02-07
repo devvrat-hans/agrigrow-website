@@ -149,10 +149,11 @@ export function SingleSelectGroup({
                 'focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-primary-500',
                 // Active/pressed state
                 'active:scale-[0.98]',
-                // Selected state
+                // Selected state — strong green highlight for clear visibility
                 isSelected && [
-                  'border-primary-500 bg-primary-50 dark:bg-primary-950/50',
-                  'ring-1 ring-primary-500/20',
+                  'border-primary-500 bg-primary-100 dark:bg-primary-950/70',
+                  'ring-2 ring-primary-500/40',
+                  'shadow-sm shadow-primary-200 dark:shadow-primary-900/30',
                 ],
                 // Unselected state
                 !isSelected && [
@@ -178,10 +179,10 @@ export function SingleSelectGroup({
                   {/* Label */}
                   <span
                     className={cn(
-                      'block font-medium text-sm sm:text-base truncate',
+                      'block text-sm sm:text-base truncate',
                       isSelected
-                        ? 'text-primary-700 dark:text-primary-300'
-                        : 'text-gray-900 dark:text-gray-100'
+                        ? 'font-semibold text-primary-800 dark:text-primary-200'
+                        : 'font-medium text-gray-900 dark:text-gray-100'
                     )}
                   >
                     {option.label}
@@ -193,7 +194,7 @@ export function SingleSelectGroup({
                       className={cn(
                         'block text-xs sm:text-sm mt-0.5 truncate',
                         isSelected
-                          ? 'text-primary-600/80 dark:text-primary-400/80'
+                          ? 'text-primary-700/90 dark:text-primary-300/90'
                           : 'text-gray-500 dark:text-gray-400'
                       )}
                     >
@@ -211,7 +212,7 @@ export function SingleSelectGroup({
                     'flex items-center justify-center',
                     'transition-all duration-200',
                     isSelected
-                      ? 'bg-primary-500 text-white'
+                      ? 'bg-primary-600 text-white ring-2 ring-primary-300 dark:ring-primary-700'
                       : 'bg-gray-100 dark:bg-gray-800 border border-gray-300 dark:border-gray-600'
                   )}
                 >

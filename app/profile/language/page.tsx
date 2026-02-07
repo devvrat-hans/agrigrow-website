@@ -8,21 +8,7 @@ import { Button } from '@/components/ui/button';
 import { PageHeader } from '@/components/common/PageHeader';
 import { MobileBottomNav } from '@/components/common/MobileBottomNav';
 import { LoadingSpinner } from '@/components/common/LoadingSpinner';
-
-/**
- * Available languages for the application
- */
-const LANGUAGES = [
-  { code: 'en', name: 'English', nativeName: 'English' },
-  { code: 'hi', name: 'Hindi', nativeName: 'हिन्दी' },
-  { code: 'mr', name: 'Marathi', nativeName: 'मराठी' },
-  { code: 'gu', name: 'Gujarati', nativeName: 'ગુજરાતી' },
-  { code: 'pa', name: 'Punjabi', nativeName: 'ਪੰਜਾਬੀ' },
-  { code: 'ta', name: 'Tamil', nativeName: 'தமிழ்' },
-  { code: 'te', name: 'Telugu', nativeName: 'తెలుగు' },
-  { code: 'kn', name: 'Kannada', nativeName: 'ಕನ್ನಡ' },
-  { code: 'bn', name: 'Bengali', nativeName: 'বাংলা' },
-];
+import { LANGUAGES, isLanguageAvailable } from '@/constants/languages';
 
 export default function LanguageSettingsPage() {
   const router = useRouter();
@@ -50,6 +36,8 @@ export default function LanguageSettingsPage() {
           const lang = data.user.language || 'en';
           setSelectedLanguage(lang);
           setOriginalLanguage(lang);
+          // Sync language preference to localStorage for voice recognition
+          localStorage.setItem('userLanguage', lang);
         }
       } catch (err) {
         console.error('Error fetching user language:', err);
@@ -62,8 +50,9 @@ export default function LanguageSettingsPage() {
     fetchUserLanguage();
   }, [router]);
 
-  // Handle language selection
+  // Handle language selection - only allow available languages
   const handleSelectLanguage = useCallback((langCode: string) => {
+    if (!isLanguageAvailable(langCode)) return;
     setSelectedLanguage(langCode);
     setError(null);
     setSuccessMessage(null);
@@ -101,6 +90,8 @@ export default function LanguageSettingsPage() {
 
       if (data.success) {
         setOriginalLanguage(selectedLanguage);
+        // Store language preference for voice recognition
+        localStorage.setItem('userLanguage', selectedLanguage);
         setSuccessMessage('Language updated successfully');
         setTimeout(() => setSuccessMessage(null), 2000);
       } else {
@@ -143,7 +134,7 @@ export default function LanguageSettingsPage() {
             </h1>
           </div>
           <p className="text-sm text-gray-600 dark:text-gray-400">
-            Select your preferred language for the Agrigrow app. This will change the language used throughout the application.
+            Select your preferred language. English and Hindi are fully available. Other regional languages will be available soon.
           </p>
         </div>
 
@@ -165,38 +156,57 @@ export default function LanguageSettingsPage() {
         <div className="space-y-2">
           {LANGUAGES.map((language) => {
             const isSelected = selectedLanguage === language.code;
+            const isAvailable = language.status === 'available';
             return (
               <button
                 key={language.code}
                 onClick={() => handleSelectLanguage(language.code)}
+                disabled={!isAvailable}
                 className={cn(
                   'w-full flex items-center justify-between p-4 rounded-xl',
                   'border transition-all duration-200',
                   'min-h-[60px]',
-                  isSelected
-                    ? 'border-primary-500 bg-primary-50 dark:bg-primary-950/30'
-                    : 'border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 hover:border-gray-300 dark:hover:border-gray-600'
+                  isAvailable
+                    ? isSelected
+                      ? 'border-primary-500 bg-primary-50 dark:bg-primary-950/30'
+                      : 'border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 hover:border-gray-300 dark:hover:border-gray-600'
+                    : 'border-gray-200/50 dark:border-gray-700/50 bg-gray-50 dark:bg-gray-800/50 opacity-60 cursor-not-allowed'
                 )}
               >
                 <div className="flex flex-col items-start">
-                  <span className={cn(
-                    'font-medium',
-                    isSelected
-                      ? 'text-primary-700 dark:text-primary-300'
-                      : 'text-gray-900 dark:text-white'
-                  )}>
-                    {language.name}
-                  </span>
+                  <div className="flex items-center gap-2">
+                    <span className={cn(
+                      'font-medium',
+                      isAvailable
+                        ? isSelected
+                          ? 'text-primary-700 dark:text-primary-300'
+                          : 'text-gray-900 dark:text-white'
+                        : 'text-gray-500 dark:text-gray-400'
+                    )}>
+                      {language.name}
+                    </span>
+                    {isAvailable ? (
+                      <span className="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-semibold bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400">
+                        Available
+                      </span>
+                    ) : (
+                      <span className="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-semibold bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400">
+                        Coming Soon
+                      </span>
+                    )}
+                  </div>
                   <span className={cn(
                     'text-sm',
-                    isSelected
-                      ? 'text-primary-600 dark:text-primary-400'
-                      : 'text-gray-500 dark:text-gray-400'
+                    isAvailable
+                      ? isSelected
+                        ? 'text-primary-600 dark:text-primary-400'
+                        : 'text-gray-500 dark:text-gray-400'
+                      : 'text-gray-400 dark:text-gray-500'
                   )}>
                     {language.nativeName}
                   </span>
                 </div>
-                {isSelected && (
+                {isSelected && isAvailable && (
                   <IconCheck className="w-5 h-5 text-primary-600 dark:text-primary-400" />
                 )}
               </button>

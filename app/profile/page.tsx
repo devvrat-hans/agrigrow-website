@@ -130,13 +130,7 @@ export default function ProfilePage() {
 
   return (
     <div className="min-h-screen bg-background pb-[calc(5rem+env(safe-area-inset-bottom))] md:pb-0">
-      <PageHeader
-        rightAction={
-          <Button variant="ghost" size="sm" className="min-w-[44px] min-h-[44px]">
-            <IconSettings className="w-5 h-5" />
-          </Button>
-        }
-      />
+      <PageHeader />
 
       <main className="max-w-2xl mx-auto px-3 sm:px-4 space-y-3 sm:space-y-4">
         {/* Profile Header with Follow Stats and Trust Score */}

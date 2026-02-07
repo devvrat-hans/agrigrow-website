@@ -150,8 +150,9 @@ export default function UserProfilePage({ params }: PageProps) {
           followingCount={user.followingCount || 0}
           trustScore={user.trustScore || 0}
           onFollowChange={() => {
-            // Optionally refetch user data to update counts
-            fetchUserProfile();
+            // Delay re-fetch to allow DB follower counts to settle,
+            // preventing stale data from overwriting the optimistic count update
+            setTimeout(() => fetchUserProfile(), 1000);
           }}
         />
 
@@ -202,7 +203,7 @@ export default function UserProfilePage({ params }: PageProps) {
 
         {/* User's Posts */}
         {user.phone && (
-          <MyPostsCard userPhone={user.phone} />
+          <MyPostsCard userPhone={user.phone} isOwnProfile={false} />
         )}
       </main>
 

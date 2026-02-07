@@ -4,7 +4,6 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
 import {
-  IconArrowLeft,
   IconSettings,
   IconLock,
   IconListDetails,
@@ -14,7 +13,7 @@ import {
 } from '@tabler/icons-react';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
-import { MobileBottomNav } from '@/components/common';
+import { MobileBottomNav, PageHeader } from '@/components/common';
 import {
   GroupSettingsForm,
   GroupPrivacySettings,
@@ -100,14 +99,7 @@ function UnauthorizedState({ groupId }: UnauthorizedStateProps) {
 
   return (
     <div className="min-h-screen bg-background pb-16 md:pb-0">
-      <header className="border-b border-border p-4 sticky top-0 bg-background z-40">
-        <div className="max-w-2xl mx-auto">
-          <Link href={`/communities/${groupId}`} className="inline-flex items-center gap-2 text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100">
-            <IconArrowLeft className="w-5 h-5" />
-            <span>Back to Community</span>
-          </Link>
-        </div>
-      </header>
+      <PageHeader showBackButton title="Access Denied" />
 
       <main className="max-w-2xl mx-auto px-4 py-12">
         <div className="flex flex-col items-center justify-center text-center">
@@ -138,14 +130,7 @@ function UnauthorizedState({ groupId }: UnauthorizedStateProps) {
 function ErrorState({ groupId: _groupId }: { groupId: string }) {
   return (
     <div className="min-h-screen bg-background pb-16 md:pb-0">
-      <header className="border-b border-border p-4 sticky top-0 bg-background z-40">
-        <div className="max-w-2xl mx-auto">
-          <Link href="/communities" className="inline-flex items-center gap-2 text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100">
-            <IconArrowLeft className="w-5 h-5" />
-            <span>Back to Communities</span>
-          </Link>
-        </div>
-      </header>
+      <PageHeader showBackButton title="Community Not Found" />
 
       <main className="max-w-2xl mx-auto px-4 py-12">
         <div className="flex flex-col items-center justify-center text-center">
@@ -324,25 +309,7 @@ export default function GroupSettingsPage() {
   return (
     <div className="min-h-screen bg-background pb-16 md:pb-0">
       {/* Header */}
-      <header className="border-b border-border p-4 sticky top-0 bg-background/95 backdrop-blur z-40">
-        <div className="max-w-2xl mx-auto flex items-center gap-3">
-          <button
-            onClick={handleBack}
-            className="p-2 -ml-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
-            aria-label="Back to Community"
-          >
-            <IconArrowLeft className="w-5 h-5 text-gray-600 dark:text-gray-400" />
-          </button>
-          <div>
-            <h1 className="text-lg font-semibold text-gray-900 dark:text-gray-100">
-              Community Settings
-            </h1>
-            <p className="text-sm text-gray-500 dark:text-gray-400 truncate max-w-[200px] sm:max-w-none">
-              {group.name}
-            </p>
-          </div>
-        </div>
-      </header>
+      <PageHeader showBackButton onBack={handleBack} title="Community Settings" />
 
       {/* Main content */}
       <main className="max-w-2xl mx-auto px-4 py-6">

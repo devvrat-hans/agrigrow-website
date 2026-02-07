@@ -16,10 +16,8 @@ import {
   IconChevronDown,
   IconChevronUp,
   IconUserOff,
-  IconEyeOff,
   IconHeart,
   IconBell,
-  IconTrash,
   IconX,
   IconRefresh,
   IconLoader2,
@@ -224,7 +222,6 @@ export default function FeedPreferencesPage() {
   const [unmutingUserId, setUnmutingUserId] = useState<string | null>(null);
   const [removingTopic, setRemovingTopic] = useState<string | null>(null);
   const [removingCrop, setRemovingCrop] = useState<string | null>(null);
-  const [isClearingHiddenPosts, setIsClearingHiddenPosts] = useState(false);
   const [savingSettings, setSavingSettings] = useState<string | null>(null);
   
   // Success feedback
@@ -489,49 +486,6 @@ export default function FeedPreferencesPage() {
   }, [userPhone, preferences, showSuccess]);
 
   /**
-   * Handle clearing all hidden posts
-   */
-  const handleClearHiddenPosts = useCallback(async () => {
-    if (!userPhone || !preferences) return;
-    
-    setIsClearingHiddenPosts(true);
-    
-    try {
-      const response = await fetch('/api/feed/preferences', {
-        method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-          'x-user-phone': userPhone,
-        },
-        body: JSON.stringify({
-          hiddenPosts: {
-            operation: 'set',
-            ids: [],
-          },
-        }),
-      });
-      
-      const data = await response.json();
-      
-      if (data.success) {
-        // Update local state
-        setPreferences({
-          ...preferences,
-          hiddenPosts: [],
-        });
-        showSuccess('All hidden posts cleared');
-      } else {
-        setError(data.error || 'Failed to clear hidden posts');
-      }
-    } catch (err) {
-      console.error('Error clearing hidden posts:', err);
-      setError('Failed to clear hidden posts');
-    } finally {
-      setIsClearingHiddenPosts(false);
-    }
-  }, [userPhone, preferences, showSuccess]);
-
-  /**
    * Handle settings toggle
    */
   const handleSettingToggle = useCallback(async (
@@ -693,36 +647,6 @@ export default function FeedPreferencesPage() {
               ))}
             </div>
           )}
-        </CollapsibleSection>
-
-        {/* Hidden Posts Section */}
-        <CollapsibleSection
-          title="Hidden Posts"
-          description="Posts you've chosen to hide from your feed"
-          icon={<IconEyeOff size={20} />}
-          badge={preferences?.hiddenPosts.length || 0}
-        >
-          <div className="space-y-3">
-            <p className="text-sm text-muted-foreground">
-              You have hidden <span className="font-semibold">{preferences?.hiddenPosts.length || 0}</span> posts from your feed.
-            </p>
-            {preferences && preferences.hiddenPosts.length > 0 && (
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={handleClearHiddenPosts}
-                disabled={isClearingHiddenPosts}
-                className="w-full sm:w-auto"
-              >
-                {isClearingHiddenPosts ? (
-                  <IconLoader2 size={16} className="animate-spin mr-2" />
-                ) : (
-                  <IconTrash size={16} className="mr-2" />
-                )}
-                Clear All Hidden Posts
-              </Button>
-            )}
-          </div>
         </CollapsibleSection>
 
         {/* Interest Tuning - Topics */}

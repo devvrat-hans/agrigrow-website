@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useMemo, useCallback } from 'react';
+import { useState, useMemo, useCallback, useEffect } from 'react';
 import { MobileBottomNav, PageHeader } from '@/components/common';
 import { CropCard, VideoModal, ComingSoonModal } from '@/components/knowledge';
 import { Input } from '@/components/ui/input';
@@ -14,27 +14,49 @@ import {
 } from '@/constants/knowledge-hub';
 
 export default function KnowledgePage() {
-  // State for search and modals
+  // State for search, language, and modals
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCrop, setSelectedCrop] = useState<CropData | null>(null);
   const [isVideoModalOpen, setIsVideoModalOpen] = useState(false);
   const [isComingSoonModalOpen, setIsComingSoonModalOpen] = useState(false);
+  const [userLanguage, setUserLanguage] = useState('en');
 
-  // Get featured and other crops
-  const featuredCrops = useMemo(() => getFeaturedCrops(), []);
-  const otherCrops = useMemo(() => getOtherCrops(), []);
+  // Fetch user's language preference
+  useEffect(() => {
+    const fetchLanguage = async () => {
+      try {
+        const phone = localStorage.getItem('userPhone');
+        if (!phone) return;
+
+        const response = await fetch(`/api/user/me?phone=${phone}`);
+        const data = await response.json();
+
+        if (data.success && data.user?.language) {
+          setUserLanguage(data.user.language);
+        }
+      } catch (err) {
+        console.error('Error fetching user language:', err);
+      }
+    };
+
+    fetchLanguage();
+  }, []);
+
+  // Get featured and other crops based on user language
+  const featuredCrops = useMemo(() => getFeaturedCrops(userLanguage), [userLanguage]);
+  const otherCrops = useMemo(() => getOtherCrops(userLanguage), [userLanguage]);
 
   // Filter crops based on search query
   const filteredCrops = useMemo(() => {
     if (!searchQuery.trim()) {
       return { featured: featuredCrops, other: otherCrops };
     }
-    const filtered = searchCrops(searchQuery);
+    const filtered = searchCrops(searchQuery, userLanguage);
     return {
       featured: filtered.filter(c => c.videoUrl),
       other: filtered.filter(c => !c.videoUrl),
     };
-  }, [searchQuery, featuredCrops, otherCrops]);
+  }, [searchQuery, featuredCrops, otherCrops, userLanguage]);
 
   // Handle crop card click
   const handleCropClick = useCallback((crop: CropData) => {

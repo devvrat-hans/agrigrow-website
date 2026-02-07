@@ -430,7 +430,7 @@ export function GroupPostCard({
                 containerClassName="w-10 h-10"
                 isAvatar
                 fallbackComponent={
-                  <div className="w-full h-full rounded-full bg-primary-100 dark:bg-primary-900/50 flex items-center justify-center">
+                  <div className="w-full h-full rounded-full bg-primary-100 dark:bg-primary-900/50 ring-2 ring-primary-200 dark:ring-primary-800 flex items-center justify-center">
                     <span className="text-sm font-medium text-primary-700 dark:text-primary-300">
                       {getInitial(authorInfo?.fullName)}
                     </span>
@@ -438,7 +438,7 @@ export function GroupPostCard({
                 }
               />
             ) : (
-              <div className="w-10 h-10 rounded-full bg-primary-100 dark:bg-primary-900/50 flex items-center justify-center">
+              <div className="w-10 h-10 rounded-full bg-primary-100 dark:bg-primary-900/50 ring-2 ring-primary-200 dark:ring-primary-800 flex items-center justify-center">
                 <span className="text-sm font-medium text-primary-700 dark:text-primary-300">
                   {getInitial(authorInfo?.fullName)}
                 </span>

@@ -135,7 +135,7 @@ export function useAnalysisHistory(options: UseAnalysisHistoryOptions = {}): Use
     try {
       const queryString = buildQueryString(1, filters);
       const response = await apiClient.get<GetHistoryResponse>(
-        `/api/crop-ai/history?${queryString}`
+        `/crop-ai/history?${queryString}`
       );
 
       if (!isMounted.current) return;
@@ -194,7 +194,7 @@ export function useAnalysisHistory(options: UseAnalysisHistoryOptions = {}): Use
     try {
       const queryString = buildQueryString(nextPage, filters);
       const response = await apiClient.get<GetHistoryResponse>(
-        `/api/crop-ai/history?${queryString}`
+        `/crop-ai/history?${queryString}`
       );
 
       if (!isMounted.current) return;
@@ -251,7 +251,7 @@ export function useAnalysisHistory(options: UseAnalysisHistoryOptions = {}): Use
     try {
       const queryString = buildQueryString(1, filters);
       const response = await apiClient.get<GetHistoryResponse>(
-        `/api/crop-ai/history?${queryString}`
+        `/crop-ai/history?${queryString}`
       );
 
       if (!isMounted.current) return;
@@ -298,7 +298,7 @@ export function useAnalysisHistory(options: UseAnalysisHistoryOptions = {}): Use
   const deleteAnalysis = useCallback(async (id: string): Promise<boolean> => {
     try {
       const response = await apiClient.delete<DeleteAnalysisResponse>(
-        `/api/crop-ai/${id}`
+        `/crop-ai/${id}`
       );
 
       if (!isMounted.current) return false;

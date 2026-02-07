@@ -121,7 +121,7 @@ export function FollowersModal({
     <div
       className={cn(
         'fixed inset-0 z-50',
-        'flex items-end sm:items-center justify-center',
+        'flex items-center justify-center p-4',
         'bg-black/50 backdrop-blur-sm',
         'animate-in fade-in duration-200'
       )}
@@ -136,10 +136,10 @@ export function FollowersModal({
           'relative w-full sm:max-w-md',
           'max-h-[85vh] sm:max-h-[80vh]',
           'bg-white dark:bg-gray-900',
-          'rounded-t-2xl sm:rounded-2xl',
+          'rounded-2xl',
           'shadow-xl',
           'flex flex-col',
-          'animate-in slide-in-from-bottom sm:zoom-in-95 duration-200'
+          'animate-in fade-in zoom-in-95 duration-200'
         )}
         onClick={(e) => e.stopPropagation()}
       >

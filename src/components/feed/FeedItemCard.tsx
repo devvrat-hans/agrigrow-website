@@ -751,7 +751,6 @@ function FeedItemCardComponent({
                 <DropdownMenuItem
                   onClick={() => {
                     setIsReportModalOpen(true);
-                    onReport?.(postId);
                   }}
                   className="text-red-500 focus:text-red-500"
                 >
@@ -972,6 +971,7 @@ function FeedItemCardComponent({
         onClose={() => setIsReportModalOpen(false)}
         itemType="post"
         itemId={postId}
+        onReportSubmitted={() => onReport?.(postId)}
       />
 
       {/* Delete Confirmation Modal */}
