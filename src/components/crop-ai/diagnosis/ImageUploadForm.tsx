@@ -1,6 +1,7 @@
 'use client';
 
 import { useCallback, useRef, useState } from 'react';
+import { useTranslation } from '@/hooks/useTranslation';
 import { IconCamera, IconX, IconUpload, IconPhoto, IconCrop } from '@tabler/icons-react';
 import { cn } from '@/lib/utils';
 import { SingleSelectGroup } from '../common';
@@ -61,6 +62,7 @@ export function ImageUploadForm({
   errors = {},
   className,
 }: ImageUploadFormProps) {
+  const { t } = useTranslation();
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [isDragging, setIsDragging] = useState(false);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
@@ -231,7 +233,7 @@ export function ImageUploadForm({
             errors.imageFile ? 'text-red-500' : 'text-gray-700 dark:text-gray-300'
           )}
         >
-          Crop Image <span className="text-red-500">*</span>
+          {t('cropAi.diagnosis.uploadCropImage')} <span className="text-red-500">*</span>
         </label>
 
         {/* Hidden file input with camera capture support */}
@@ -291,7 +293,7 @@ export function ImageUploadForm({
                 aria-label="Edit image"
               >
                 <IconCrop className="w-4 h-4" />
-                <span className="hidden sm:inline">Edit</span>
+                <span className="hidden sm:inline">{t('cropAi.diagnosis.editImage')}</span>
               </button>
               
               {/* Change image button */}
@@ -312,7 +314,7 @@ export function ImageUploadForm({
                 aria-label="Change image"
               >
                 <IconPhoto className="w-4 h-4" />
-                <span className="hidden sm:inline">Change</span>
+                <span className="hidden sm:inline">{t('cropAi.diagnosis.browseFiles')}</span>
               </button>
             </div>
           </div>
@@ -363,10 +365,10 @@ export function ImageUploadForm({
                   'mb-1'
                 )}
               >
-                Tap to take photo or upload image
+                {t('cropAi.diagnosis.tapToSelect')}
               </p>
               <p className="text-xs sm:text-sm text-gray-500 dark:text-gray-400">
-                Drag and drop an image here, or click to select
+                {t('cropAi.diagnosis.dragAndDrop')}
               </p>
             </div>
 
@@ -389,7 +391,7 @@ export function ImageUploadForm({
           <p className="text-sm text-red-500 mt-1">{errors.imageFile}</p>
         )}
         <p className="text-xs text-gray-500 dark:text-gray-400">
-          Take a clear photo of the affected part of your crop for best results.
+          {t('cropAi.diagnosis.clearPhoto')}
         </p>
       </div>
 
@@ -401,7 +403,7 @@ export function ImageUploadForm({
             errors.affectedPart ? 'text-red-500' : 'text-gray-700 dark:text-gray-300'
           )}
         >
-          Affected Plant Part <span className="text-red-500">*</span>
+          {t('cropAi.diagnosis.affectedPlantPart')} <span className="text-red-500">*</span>
         </label>
         <SingleSelectGroup
           options={affectedPartOptions}

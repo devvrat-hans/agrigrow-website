@@ -43,7 +43,7 @@ interface VisibilityOption {
   description: string;
 }
 
-const VISIBILITY_OPTIONS: VisibilityOption[] = [
+const _VISIBILITY_OPTIONS: VisibilityOption[] = [
   {
     value: 'public',
     label: 'Public',
@@ -69,7 +69,7 @@ const MAX_CONTENT_LENGTH = 2000;
 /**
  * Placeholder texts based on user role (untranslated fallback)
  */
-const PLACEHOLDER_BY_ROLE: Record<string, string> = {
+const _PLACEHOLDER_BY_ROLE: Record<string, string> = {
   farmer: 'What challenge are you facing today?',
   student: 'What are you learning about?',
   business: 'Share your agricultural insights...',

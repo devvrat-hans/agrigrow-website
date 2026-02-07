@@ -1,5 +1,6 @@
 'use client';
 
+import { useTranslation } from '@/hooks/useTranslation';
 import { cn } from '@/lib/utils';
 import { SearchableDropdown, SingleSelectGroup } from '../common';
 import { CROP_LIST } from '@/constants/crops';
@@ -54,6 +55,7 @@ export function CropInfoForm({
   errors = {},
   className,
 }: CropInfoFormProps) {
+  const { t } = useTranslation();
   // Convert CROP_LIST to dropdown options
   const cropOptions = CROP_LIST.map(crop => ({
     value: crop.id,
@@ -103,13 +105,13 @@ export function CropInfoForm({
             errors.cropName ? 'text-red-500' : 'text-gray-700 dark:text-gray-300'
           )}
         >
-          Crop Name <span className="text-red-500">*</span>
+          {t('cropAi.diagnosis.cropName')} <span className="text-red-500">*</span>
         </label>
         <SearchableDropdown
           options={cropOptions}
           value={values.cropName}
           onChange={handleCropChange}
-          placeholder="Search and select your crop..."
+          placeholder={t('cropAi.diagnosis.searchCrop')}
           className={errors.cropName ? 'border-red-500 focus:border-red-500' : ''}
         />
         {errors.cropName && (
@@ -123,14 +125,14 @@ export function CropInfoForm({
           htmlFor="cropVariety"
           className="block text-sm font-medium text-gray-700 dark:text-gray-300"
         >
-          Crop Variety <span className="text-gray-400 text-xs">(Optional)</span>
+          {t('cropAi.diagnosis.cropVariety')} <span className="text-gray-400 text-xs"></span>
         </label>
         <Input
           id="cropVariety"
           type="text"
           value={values.cropVariety}
           onChange={handleVarietyChange}
-          placeholder="e.g., Basmati, Desi, Hybrid..."
+          placeholder={t('cropAi.diagnosis.cropVarietyPlaceholder')}
           className={cn(
             'w-full',
             errors.cropVariety ? 'border-red-500 focus:border-red-500' : ''
@@ -140,7 +142,7 @@ export function CropInfoForm({
           <p className="text-sm text-red-500 mt-1">{errors.cropVariety}</p>
         )}
         <p className="text-xs text-gray-500 dark:text-gray-400">
-          If you know the specific variety, enter it here for more accurate diagnosis.
+          {t('cropAi.diagnosis.growthStageDesc')}
         </p>
       </div>
 
@@ -152,7 +154,7 @@ export function CropInfoForm({
             errors.growthStage ? 'text-red-500' : 'text-gray-700 dark:text-gray-300'
           )}
         >
-          Growth Stage <span className="text-red-500">*</span>
+          {t('cropAi.diagnosis.cropGrowthStage')} <span className="text-red-500">*</span>
         </label>
         <SingleSelectGroup
           options={growthStageOptions}

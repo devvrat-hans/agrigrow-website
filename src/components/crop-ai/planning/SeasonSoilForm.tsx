@@ -1,6 +1,7 @@
 'use client';
 
 import { useMemo } from 'react';
+import { useTranslation } from '@/hooks/useTranslation';
 import { cn } from '@/lib/utils';
 import { SearchableDropdown, SingleSelectGroup } from '../common';
 import { SEASONS, SOIL_TYPES, MONTHS } from '@/constants/crop-ai';
@@ -53,6 +54,7 @@ export function SeasonSoilForm({
   errors = {},
   className,
 }: SeasonSoilFormProps) {
+  const { t } = useTranslation();
   // Convert SEASONS to single select options
   const seasonOptions: SelectOption[] = useMemo(() =>
     SEASONS.map(season => ({
@@ -129,7 +131,7 @@ export function SeasonSoilForm({
           <p className="text-sm text-red-500 mt-1">{errors.season}</p>
         )}
         <p className="text-xs text-gray-500 dark:text-gray-400">
-          Select the season during which you plan to grow crops.
+          {t('cropAi.planning.seasonSoilDetails')}
         </p>
       </div>
 
@@ -142,13 +144,13 @@ export function SeasonSoilForm({
             errors.sowingMonth ? 'text-red-500' : 'text-gray-700 dark:text-gray-300'
           )}
         >
-          Planned Sowing Month <span className="text-red-500">*</span>
+          {t('cropAi.planning.sowingMonth')} <span className="text-red-500">*</span>
         </label>
         <SearchableDropdown
           options={monthOptions}
           value={values.sowingMonth}
           onChange={handleSowingMonthChange}
-          placeholder="Select your planned sowing month..."
+          placeholder={t('cropAi.planning.selectSowingMonth')}
           className={errors.sowingMonth ? 'border-red-500 focus:border-red-500' : ''}
         />
         {errors.sowingMonth && (
@@ -164,7 +166,7 @@ export function SeasonSoilForm({
             errors.soilType ? 'text-red-500' : 'text-gray-700 dark:text-gray-300'
           )}
         >
-          Soil Type <span className="text-red-500">*</span>
+          {t('cropAi.planning.soilType')} <span className="text-red-500">*</span>
         </label>
         <SingleSelectGroup
           options={soilTypeOptions}
@@ -176,7 +178,7 @@ export function SeasonSoilForm({
           <p className="text-sm text-red-500 mt-1">{errors.soilType}</p>
         )}
         <p className="text-xs text-gray-500 dark:text-gray-400">
-          If unsure about your soil type, consider getting a soil test done at your local KVK.
+          {t('cropAi.planning.soilType')}
         </p>
       </div>
     </div>

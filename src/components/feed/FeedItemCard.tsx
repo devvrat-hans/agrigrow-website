@@ -159,7 +159,7 @@ export function getPostTypeColor(type: PostType): string {
 /**
  * Format post type label with translation
  */
-function formatPostTypeLabel(type: PostType): string {
+function _formatPostTypeLabel(type: PostType): string {
   switch (type) {
     case 'success_story':
       return 'Success Story';

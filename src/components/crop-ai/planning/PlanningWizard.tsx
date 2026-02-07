@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useCallback } from 'react';
+import { useTranslation } from '@/hooks/useTranslation';
 import { cn } from '@/lib/utils';
 import { FormProgress, FormNavigation } from '../common';
 import { LocationLandForm, type LocationLandFormValues, type LocationLandFormErrors } from './LocationLandForm';
@@ -39,11 +40,11 @@ interface PlanningWizardProps {
   className?: string;
 }
 
-// Step labels for the wizard
+// Step labels for the wizard (labelKey/descKey resolved via t() inside component)
 const STEPS = [
-  { label: 'Location', description: 'Enter your location and land details' },
-  { label: 'Season & Soil', description: 'Select season and soil type' },
-  { label: 'Water', description: 'Irrigation and water availability' },
+  { labelKey: 'cropAi.planning.stepLocationLand', descKey: 'cropAi.planning.locationLandDetails' },
+  { labelKey: 'cropAi.planning.stepSeasonSoil', descKey: 'cropAi.planning.seasonSoilDetails' },
+  { labelKey: 'cropAi.planning.stepWaterAvailability', descKey: 'cropAi.planning.waterAvailability' },
 ];
 
 // Initial form values
@@ -79,6 +80,7 @@ export function PlanningWizard({
   onCancel,
   className,
 }: PlanningWizardProps) {
+  const { t } = useTranslation();
   const [currentStep, setCurrentStep] = useState(1);
   const [formValues, setFormValues] = useState<PlanningWizardFormValues>(INITIAL_VALUES);
   const [errors, setErrors] = useState<PlanningFormErrors>({});
@@ -89,19 +91,19 @@ export function PlanningWizard({
     const newErrors: LocationLandFormErrors = {};
 
     if (!formValues.state) {
-      newErrors.state = 'Please select a state';
+      newErrors.state = t('cropAi.planning.selectStateRequired');
     }
 
     if (!formValues.district) {
-      newErrors.district = 'Please select a district';
+      newErrors.district = t('cropAi.planning.selectDistrictRequired');
     }
 
     if (!formValues.landSize || parseFloat(formValues.landSize) <= 0) {
-      newErrors.landSize = 'Please enter a valid land size';
+      newErrors.landSize = t('cropAi.planning.enterLandSize');
     }
 
     if (!formValues.landUnit) {
-      newErrors.landUnit = 'Please select a land unit';
+      newErrors.landUnit = t('cropAi.planning.enterLandSize');
     }
 
     setErrors(newErrors);
@@ -113,15 +115,15 @@ export function PlanningWizard({
     const newErrors: SeasonSoilFormErrors = {};
 
     if (!formValues.season) {
-      newErrors.season = 'Please select a season';
+      newErrors.season = t('cropAi.planning.selectSeasonRequired');
     }
 
     if (!formValues.sowingMonth) {
-      newErrors.sowingMonth = 'Please select a sowing month';
+      newErrors.sowingMonth = t('cropAi.planning.selectSowingMonthRequired');
     }
 
     if (!formValues.soilType) {
-      newErrors.soilType = 'Please select your soil type';
+      newErrors.soilType = t('cropAi.planning.selectSoilTypeRequired');
     }
 
     setErrors(newErrors);
@@ -133,12 +135,12 @@ export function PlanningWizard({
     const newErrors: WaterAvailabilityFormErrors = {};
 
     if (!formValues.irrigationAvailability) {
-      newErrors.irrigationAvailability = 'Please select irrigation availability';
+      newErrors.irrigationAvailability = t('cropAi.planning.selectIrrigationRequired');
     }
 
     // Irrigation method required if not rainfed
     if (formValues.irrigationAvailability !== 'rainfed' && !formValues.irrigationMethod) {
-      newErrors.irrigationMethod = 'Please select an irrigation method';
+      newErrors.irrigationMethod = t('cropAi.planning.selectIrrigationMethodRequired');
     }
 
     setErrors(newErrors);
@@ -209,7 +211,7 @@ export function PlanningWizard({
       const data = await response.json();
 
       if (!response.ok || !data.success) {
-        throw new Error(data.error || 'Failed to get crop recommendations');
+        throw new Error(data.error || t('cropAi.common.error'));
       }
 
       // Call onComplete with the result and input data
@@ -219,7 +221,7 @@ export function PlanningWizard({
       setErrors({
         irrigationAvailability: error instanceof Error 
           ? error.message 
-          : 'Failed to get recommendations. Please try again.',
+          : t('cropAi.common.error'),
       });
     } finally {
       setIsSubmitting(false);
@@ -310,7 +312,7 @@ export function PlanningWizard({
       <FormProgress
         currentStep={currentStep}
         totalSteps={STEPS.length}
-        stepLabels={STEPS.map(s => s.label)}
+        stepLabels={STEPS.map(s => t(s.labelKey))}
         className="mb-8"
       />
 
@@ -323,10 +325,10 @@ export function PlanningWizard({
             'mb-2'
           )}
         >
-          {STEPS[currentStep - 1].label}
+          {t(STEPS[currentStep - 1].labelKey)}
         </h2>
         <p className="text-sm sm:text-base text-gray-600 dark:text-gray-300">
-          {STEPS[currentStep - 1].description}
+          {t(STEPS[currentStep - 1].descKey)}
         </p>
       </div>
 

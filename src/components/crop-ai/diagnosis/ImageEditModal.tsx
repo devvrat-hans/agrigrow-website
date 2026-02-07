@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useRef, useCallback, useEffect } from 'react';
+import { useTranslation } from '@/hooks/useTranslation';
 import { 
   IconRotateClockwise, 
   IconRotate, 
@@ -40,6 +41,7 @@ export function ImageEditModal({
   imageSrc,
   onSave,
 }: ImageEditModalProps) {
+  const { t } = useTranslation();
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const [rotation, setRotation] = useState(0);
   const [isCropping, setIsCropping] = useState(false);
@@ -273,7 +275,7 @@ export function ImageEditModal({
         <DialogHeader className="px-4 py-3 border-b border-gray-200 dark:border-gray-800 flex-shrink-0">
           <div className="flex items-center justify-between">
             <DialogTitle className="text-lg font-semibold">
-              Edit Image
+              {t('cropAi.diagnosis.editImageTitle')}
             </DialogTitle>
             <button
               onClick={onClose}
@@ -314,7 +316,7 @@ export function ImageEditModal({
                 className="flex items-center gap-2"
               >
                 <IconX className="w-4 h-4" />
-                Cancel
+                {t('cropAi.diagnosis.cancel')}
               </Button>
               <Button
                 size="sm"
@@ -322,7 +324,7 @@ export function ImageEditModal({
                 className="flex items-center gap-2"
               >
                 <IconCheck className="w-4 h-4" />
-                Apply Crop
+                {t('cropAi.diagnosis.cropImage')}
               </Button>
             </div>
           ) : (
@@ -336,7 +338,7 @@ export function ImageEditModal({
                 title="Rotate Left"
               >
                 <IconRotate className="w-4 h-4" />
-                <span className="hidden sm:inline">Left</span>
+                <span className="hidden sm:inline">{t('cropAi.diagnosis.rotateLeft')}</span>
               </Button>
               <Button
                 variant="outline"
@@ -346,7 +348,7 @@ export function ImageEditModal({
                 title="Rotate Right"
               >
                 <IconRotateClockwise className="w-4 h-4" />
-                <span className="hidden sm:inline">Right</span>
+                <span className="hidden sm:inline">{t('cropAi.diagnosis.rotateRight')}</span>
               </Button>
               <div className="w-px h-6 bg-gray-200 dark:bg-gray-700 mx-1" />
               <Button
@@ -357,7 +359,7 @@ export function ImageEditModal({
                 title="Crop Image"
               >
                 <IconCrop className="w-4 h-4" />
-                <span className="hidden sm:inline">Crop</span>
+                <span className="hidden sm:inline">{t('cropAi.diagnosis.cropImage')}</span>
               </Button>
               <div className="w-px h-6 bg-gray-200 dark:bg-gray-700 mx-1" />
               <Button
@@ -368,7 +370,7 @@ export function ImageEditModal({
                 title="Reset"
               >
                 <IconRotate2 className="w-4 h-4" />
-                <span className="hidden sm:inline">Reset</span>
+                <span className="hidden sm:inline">{t('cropAi.diagnosis.reset')}</span>
               </Button>
             </div>
           )}
@@ -381,14 +383,14 @@ export function ImageEditModal({
             className="flex-1"
             onClick={onClose}
           >
-            Cancel
+            {t('cropAi.diagnosis.cancel')}
           </Button>
           <Button
             className="flex-1"
             onClick={handleSave}
             disabled={isCropping}
           >
-            Save Changes
+            {t('cropAi.diagnosis.saveChanges')}
           </Button>
         </div>
       </DialogContent>

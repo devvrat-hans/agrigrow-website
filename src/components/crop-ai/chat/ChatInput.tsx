@@ -4,6 +4,7 @@ import { useState, useCallback, useRef, useEffect, KeyboardEvent } from 'react';
 import { IconSend, IconLoader2, IconMicrophone, IconMicrophoneOff } from '@tabler/icons-react';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
+import { useTranslation } from '@/hooks/useTranslation';
 
 // Web Speech API type declarations
 interface SpeechRecognitionEvent extends Event {
@@ -69,7 +70,7 @@ export interface ChatInputProps {
 
 // CONSTANTS
 
-const DEFAULT_PLACEHOLDER = 'Ask anything about your crops...';
+const _DEFAULT_PLACEHOLDER = 'Ask anything about your crops...';
 const DEFAULT_MAX_LENGTH = 2000;
 
 /**
@@ -81,12 +82,15 @@ const DEFAULT_MAX_LENGTH = 2000;
 export function ChatInput({
   onSend,
   disabled = false,
-  placeholder = DEFAULT_PLACEHOLDER,
+  placeholder,
   loading = false,
   className,
   autoFocus = false,
   maxLength = DEFAULT_MAX_LENGTH,
 }: ChatInputProps) {
+  const { t } = useTranslation();
+  const resolvedPlaceholder = placeholder || t('cropAi.chat.inputPlaceholder');
+
   const [message, setMessage] = useState('');
   const textareaRef = useRef<HTMLTextAreaElement>(null);
 
@@ -245,7 +249,7 @@ export function ChatInput({
           value={message}
           onChange={handleChange}
           onKeyDown={handleKeyDown}
-          placeholder={placeholder}
+          placeholder={resolvedPlaceholder}
           disabled={disabled || loading}
           rows={1}
           style={{ outline: 'none', boxShadow: 'none' }}
@@ -281,7 +285,7 @@ export function ChatInput({
                 : 'bg-gray-200 dark:bg-gray-700 text-gray-500 hover:bg-gray-300 dark:hover:bg-gray-600',
               'focus:ring-0 focus:outline-none focus-visible:ring-0'
             )}
-            aria-label={isListening ? 'Stop voice input' : 'Start voice input'}
+            aria-label={isListening ? t('cropAi.chat.voiceListening') : t('cropAi.chat.voiceInput')}
           >
             {isListening ? (
               <IconMicrophoneOff className="w-5 h-5" />

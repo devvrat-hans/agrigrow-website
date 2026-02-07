@@ -1,6 +1,7 @@
 'use client';
 
 import { useMemo } from 'react';
+import { useTranslation } from '@/hooks/useTranslation';
 import { cn } from '@/lib/utils';
 import { SingleSelectGroup } from '../common';
 import { IRRIGATION_AVAILABILITY, IRRIGATION_METHODS } from '@/constants/crop-ai';
@@ -50,6 +51,7 @@ export function WaterAvailabilityForm({
   errors = {},
   className,
 }: WaterAvailabilityFormProps) {
+  const { t } = useTranslation();
   // Convert IRRIGATION_AVAILABILITY to single select options
   const availabilityOptions: SelectOption[] = useMemo(() =>
     IRRIGATION_AVAILABILITY.map(item => ({
@@ -103,7 +105,7 @@ export function WaterAvailabilityForm({
             errors.irrigationAvailability ? 'text-red-500' : 'text-gray-700 dark:text-gray-300'
           )}
         >
-          Water / Irrigation Availability <span className="text-red-500">*</span>
+          {t('cropAi.planning.waterAvailability')} <span className="text-red-500">*</span>
         </label>
         <SingleSelectGroup
           options={availabilityOptions}
@@ -115,7 +117,7 @@ export function WaterAvailabilityForm({
           <p className="text-sm text-red-500 mt-1">{errors.irrigationAvailability}</p>
         )}
         <p className="text-xs text-gray-500 dark:text-gray-400">
-          Select the level of irrigation access available for your land.
+          {t('cropAi.planning.irrigationAvailability')}
         </p>
       </div>
 
@@ -128,7 +130,7 @@ export function WaterAvailabilityForm({
               errors.irrigationMethod ? 'text-red-500' : 'text-gray-700 dark:text-gray-300'
             )}
           >
-            Irrigation Method <span className="text-red-500">*</span>
+            {t('cropAi.planning.irrigationMethod')} <span className="text-red-500">*</span>
           </label>
           <SingleSelectGroup
             options={methodOptions}
@@ -140,7 +142,7 @@ export function WaterAvailabilityForm({
             <p className="text-sm text-red-500 mt-1">{errors.irrigationMethod}</p>
           )}
           <p className="text-xs text-gray-500 dark:text-gray-400">
-            Drip irrigation is most water-efficient but requires initial investment.
+            {t('cropAi.planning.selectIrrigationMethod')}
           </p>
         </div>
       )}
@@ -155,8 +157,7 @@ export function WaterAvailabilityForm({
           )}
         >
           <p className="text-sm text-blue-700 dark:text-blue-300">
-            <strong>Rainfed Farming:</strong> Your crop recommendations will focus on 
-            drought-tolerant varieties and crops that can thrive with monsoon rainfall alone.
+            <strong>{t('cropAi.planning.rainfed')}:</strong> {t('cropAi.planning.rainfedInfo')}
           </p>
         </div>
       )}

@@ -7,7 +7,7 @@ import { opacity, spacing, containerMaxWidth } from '@/lib/design-tokens';
 import { useTranslation } from '@/hooks/useTranslation';
 
 export function HeroSection() {
-  const { t, translations } = useTranslation();
+  const { t } = useTranslation();
 
   const highlights = [
     {

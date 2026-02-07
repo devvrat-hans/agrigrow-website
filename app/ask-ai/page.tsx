@@ -4,6 +4,7 @@ import { useState, useCallback } from 'react';
 import { IconHistory } from '@tabler/icons-react';
 import { cn } from '@/lib/utils';
 import { MobileBottomNav } from '@/components/common/MobileBottomNav';
+import { useTranslation } from '@/hooks/useTranslation';
 import {
   ChatWindow,
   ChatHeader,
@@ -23,6 +24,7 @@ type ChatViewMode = 'chat' | 'history';
  * Includes the MobileBottomNav for consistent navigation.
  */
 export default function AskAIPage() {
+  const { t } = useTranslation();
   const [chatViewMode, setChatViewMode] = useState<ChatViewMode>('chat');
   const [resumedConversation, setResumedConversation] = useState<ResumedConversation | null>(null);
 
@@ -63,7 +65,7 @@ export default function AskAIPage() {
     <div className="h-[100dvh] bg-background flex flex-col overflow-hidden">
       {/* Chat Header */}
       <ChatHeader
-        title={chatViewMode === 'history' ? 'Chat History' : 'Ask AI'}
+        title={chatViewMode === 'history' ? t('cropAi.pages.chatHistory') : t('cropAi.pages.askAi')}
         onClose={handleBack}
         leftAction={
           chatViewMode === 'history' ? (
@@ -91,8 +93,8 @@ export default function AskAIPage() {
                 'transition-colors duration-150',
                 'focus:outline-none focus:ring-2 focus:ring-primary-500/20'
               )}
-              aria-label="Chat history"
-              title="Chat History"
+              aria-label={t('cropAi.chat.chatHistory')}
+              title={t('cropAi.chat.chatHistory')}
             >
               <IconHistory className="w-5 h-5" />
             </button>
@@ -111,7 +113,7 @@ export default function AskAIPage() {
         ) : (
           <ChatWindow
             key={resumedConversation?.id || 'new-chat'}
-            placeholder="Ask about your crops..."
+            placeholder={t('cropAi.chat.placeholder')}
             autoFocus
             showHeader={false}
             resumedConversation={resumedConversation}

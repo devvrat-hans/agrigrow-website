@@ -1,11 +1,11 @@
 'use client';
 
 import { useMemo } from 'react';
+import { useTranslation } from '@/hooks/useTranslation';
 import { cn } from '@/lib/utils';
 import { SearchableDropdown, SingleSelectGroup } from '../common';
 import { Input } from '@/components/ui/input';
 import { INDIAN_STATES, STATE_DISTRICTS } from '@/constants/indian-locations';
-import type { SelectOption } from '../common';
 
 /**
  * Values for the LocationLandForm
@@ -43,16 +43,16 @@ interface LocationLandFormProps {
   className?: string;
 }
 
-// Land unit options
-const LAND_UNIT_OPTIONS: SelectOption[] = [
+// Land unit options (labelKeys resolved via t() inside component)
+const LAND_UNIT_OPTIONS_KEYS = [
   {
     value: 'acres',
-    label: 'Acres',
+    labelKey: 'cropAi.planning.acres',
     description: 'Common unit in India',
   },
   {
     value: 'hectares',
-    label: 'Hectares',
+    labelKey: 'cropAi.planning.hectares',
     description: '1 hectare = 2.47 acres',
   },
 ];
@@ -74,6 +74,7 @@ export function LocationLandForm({
   errors = {},
   className,
 }: LocationLandFormProps) {
+  const { t } = useTranslation();
   // Convert INDIAN_STATES to dropdown options
   const stateOptions = useMemo(() =>
     INDIAN_STATES.map(state => ({
@@ -157,7 +158,7 @@ export function LocationLandForm({
           options={stateOptions}
           value={values.state}
           onChange={handleStateChange}
-          placeholder="Search and select your state..."
+          placeholder={t('cropAi.planning.selectState')}
           className={errors.state ? 'border-red-500 focus:border-red-500' : ''}
         />
         {errors.state && (
@@ -174,7 +175,7 @@ export function LocationLandForm({
             errors.district ? 'text-red-500' : 'text-gray-700 dark:text-gray-300'
           )}
         >
-          District <span className="text-red-500">*</span>
+          {t('cropAi.planning.district')} <span className="text-red-500">*</span>
         </label>
         <SearchableDropdown
           options={districtOptions}
@@ -182,8 +183,8 @@ export function LocationLandForm({
           onChange={handleDistrictChange}
           placeholder={
             values.state
-              ? 'Search and select your district...'
-              : 'Please select a state first'
+              ? t('cropAi.planning.selectDistrict')
+              : t('cropAi.planning.selectStateFirst')
           }
           disabled={!values.state}
           className={errors.district ? 'border-red-500 focus:border-red-500' : ''}
@@ -199,14 +200,14 @@ export function LocationLandForm({
           htmlFor="village"
           className="block text-sm font-medium text-gray-700 dark:text-gray-300"
         >
-          Village / Town <span className="text-gray-400 text-xs">(Optional)</span>
+          {t('cropAi.planning.village')} <span className="text-gray-400 text-xs">(Optional)</span>
         </label>
         <Input
           id="village"
           type="text"
           value={values.village}
           onChange={handleVillageChange}
-          placeholder="Enter your village or town name..."
+          placeholder={t('cropAi.planning.villagePlaceholder')}
           className={cn(
             'w-full',
             errors.village ? 'border-red-500 focus:border-red-500' : ''
@@ -226,7 +227,7 @@ export function LocationLandForm({
             errors.landSize ? 'text-red-500' : 'text-gray-700 dark:text-gray-300'
           )}
         >
-          Land Size <span className="text-red-500">*</span>
+          {t('cropAi.planning.landSize')} <span className="text-red-500">*</span>
         </label>
         <Input
           id="landSize"
@@ -234,7 +235,7 @@ export function LocationLandForm({
           inputMode="decimal"
           value={values.landSize}
           onChange={handleLandSizeChange}
-          placeholder="Enter your total land size..."
+          placeholder={t('cropAi.planning.landSizePlaceholder')}
           className={cn(
             'w-full',
             errors.landSize ? 'border-red-500 focus:border-red-500' : ''
@@ -256,7 +257,7 @@ export function LocationLandForm({
           Land Unit <span className="text-red-500">*</span>
         </label>
         <SingleSelectGroup
-          options={LAND_UNIT_OPTIONS}
+          options={LAND_UNIT_OPTIONS_KEYS.map(o => ({ value: o.value, label: t(o.labelKey), description: o.description }))}
           value={values.landUnit}
           onChange={handleLandUnitChange}
           columns={2}

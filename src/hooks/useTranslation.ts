@@ -66,7 +66,6 @@ export function useTranslation(): UseTranslationReturn {
     if (stored !== language) {
       setLanguageState(stored);
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   // Sync with localStorage changes (e.g., from other tabs or LanguageProvider)
@@ -95,7 +94,6 @@ export function useTranslation(): UseTranslationReturn {
       window.removeEventListener('storage', handleStorageChange);
       window.removeEventListener('languageChange', handleLanguageChange);
     };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const translations = getTranslations(language);

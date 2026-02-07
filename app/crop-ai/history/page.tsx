@@ -15,10 +15,12 @@ import {
   AnalysisDetailModal,
 } from '@/components/crop-ai/history';
 import { useAnalysisHistory } from '@/hooks/useAnalysisHistory';
+import { useTranslation } from '@/hooks/useTranslation';
 import type { AnalysisFilters } from '@/types/crop-ai';
 
 export default function CropAIHistoryPage() {
   const router = useRouter();
+  const { t } = useTranslation();
   const [showFilters, setShowFilters] = useState(false);
   const [selectedAnalysisId, setSelectedAnalysisId] = useState<string | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -97,7 +99,7 @@ export default function CropAIHistoryPage() {
       className={cn(showFilters && 'bg-gray-100 dark:bg-gray-800')}
     >
       <IconFilter className="w-4 h-4" />
-      <span className="sr-only sm:not-sr-only sm:ml-2">Filter</span>
+      <span className="sr-only sm:not-sr-only sm:ml-2">{t('cropAi.pages.filter')}</span>
     </Button>
   );
 
@@ -116,7 +118,7 @@ export default function CropAIHistoryPage() {
       <PageHeader
         showBackButton
         onBack={handleBack}
-        title="Analysis History"
+        title={t('cropAi.pages.analysisHistory')}
         rightAction={headerRightAction}
       />
 
@@ -129,11 +131,11 @@ export default function CropAIHistoryPage() {
               <IconHistory className="w-5 h-5 text-primary-600 dark:text-primary-400" />
             </div>
             <h1 className="text-lg font-semibold text-gray-900 dark:text-white">
-              Your Analysis History
+              {t('cropAi.history.yourAnalysisHistory')}
             </h1>
           </div>
           <p className="text-sm text-gray-600 dark:text-gray-400">
-            View all your past crop diagnoses and planning recommendations.
+            {t('cropAi.history.viewPastAnalyses')}
           </p>
         </div>
 
@@ -150,7 +152,7 @@ export default function CropAIHistoryPage() {
               onClick={handleClearFilters}
               className="mt-2 text-gray-500"
             >
-              Clear Filters
+              {t('cropAi.history.clearFilters')}
             </Button>
           </div>
         )}
@@ -165,7 +167,7 @@ export default function CropAIHistoryPage() {
               onClick={refresh}
               className="mt-2 text-red-600 hover:text-red-700"
             >
-              Try Again
+              {t('cropAi.history.tryAgain')}
             </Button>
           </div>
         )}
@@ -174,7 +176,7 @@ export default function CropAIHistoryPage() {
         {refreshing && (
           <div className="flex items-center justify-center py-4 mb-4">
             <LoadingSpinner size="sm" />
-            <span className="ml-2 text-sm text-gray-500 dark:text-gray-400">Refreshing...</span>
+            <span className="ml-2 text-sm text-gray-500 dark:text-gray-400">{t('cropAi.history.refreshing')}</span>
           </div>
         )}
 
@@ -183,18 +185,18 @@ export default function CropAIHistoryPage() {
           <div className="flex flex-col items-center justify-center py-12">
             <LoadingSpinner size="lg" />
             <p className="mt-4 text-sm text-gray-500 dark:text-gray-400">
-              Loading your history...
+              {t('cropAi.history.loadingHistory')}
             </p>
           </div>
         ) : analyses.length === 0 && !loading ? (
           /* Empty State */
           <EmptyState
             icon={<IconHistory className="w-12 h-12 text-gray-400" />}
-            message="No Analysis History"
-            description="You haven't analyzed any crops yet. Start by uploading a crop image or getting crop recommendations."
+            message={t('cropAi.history.noAnalysisHistory')}
+            description={t('cropAi.history.noAnalysisHistoryDesc')}
             action={
               <Button onClick={() => router.push('/crop-ai')}>
-                Start Analysis
+                {t('cropAi.history.startAnalysis')}
               </Button>
             }
           />
@@ -208,7 +210,7 @@ export default function CropAIHistoryPage() {
             onCardClick={handleCardClick}
             selectedId={selectedAnalysisId || undefined}
             useInfiniteScroll
-            emptyMessage="No analyses match your filters"
+            emptyMessage={t('cropAi.history.noMatchingFilters')}
           />
         )}
       </main>

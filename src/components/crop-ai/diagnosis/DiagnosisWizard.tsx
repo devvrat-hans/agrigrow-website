@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useCallback } from 'react';
+import { useTranslation } from '@/hooks/useTranslation';
 import { cn } from '@/lib/utils';
 import { FormProgress, FormNavigation } from '../common';
 import { CropInfoForm, type CropInfoFormValues, type CropInfoFormErrors } from './CropInfoForm';
@@ -33,10 +34,10 @@ interface DiagnosisWizardProps {
   className?: string;
 }
 
-// Step labels for the wizard
+// Step labels for the wizard (labelKey/descKey resolved via t() inside component)
 const STEPS = [
-  { label: 'Crop Info', description: 'Select your crop and growth stage' },
-  { label: 'Upload Image', description: 'Add a photo of the affected area' },
+  { labelKey: 'cropAi.diagnosis.stepCropInfo', descKey: 'cropAi.diagnosis.growthStageDesc' },
+  { labelKey: 'cropAi.diagnosis.stepImageUpload', descKey: 'cropAi.diagnosis.uploadDesc' },
 ];
 
 // Initial form values
@@ -67,6 +68,7 @@ export function DiagnosisWizard({
   onCancel,
   className,
 }: DiagnosisWizardProps) {
+  const { t } = useTranslation();
   const [currentStep, setCurrentStep] = useState(1);
   const [formValues, setFormValues] = useState<DiagnosisWizardFormValues>(INITIAL_VALUES);
   const [errors, setErrors] = useState<DiagnosisFormErrors>({});
@@ -77,11 +79,11 @@ export function DiagnosisWizard({
     const newErrors: CropInfoFormErrors = {};
 
     if (!formValues.cropName.trim()) {
-      newErrors.cropName = 'Please select a crop';
+      newErrors.cropName = t('cropAi.diagnosis.selectCropRequired');
     }
 
     if (!formValues.growthStage) {
-      newErrors.growthStage = 'Please select the growth stage';
+      newErrors.growthStage = t('cropAi.diagnosis.selectGrowthStage');
     }
 
     setErrors(newErrors);
@@ -93,11 +95,11 @@ export function DiagnosisWizard({
     const newErrors: ImageUploadFormErrors = {};
 
     if (!formValues.imageFile || !formValues.imagePreview) {
-      newErrors.imageFile = 'Please upload an image of your crop';
+      newErrors.imageFile = t('cropAi.diagnosis.uploadImageRequired');
     }
 
     if (!formValues.affectedPart) {
-      newErrors.affectedPart = 'Please select the affected plant part';
+      newErrors.affectedPart = t('cropAi.diagnosis.selectAffectedArea');
     }
 
     setErrors(newErrors);
@@ -155,7 +157,7 @@ export function DiagnosisWizard({
       const data = await response.json();
 
       if (!response.ok || !data.success) {
-        throw new Error(data.error || 'Failed to analyze crop');
+        throw new Error(data.error || t('cropAi.common.error'));
       }
 
       // Call onComplete with the result
@@ -163,7 +165,7 @@ export function DiagnosisWizard({
     } catch (error) {
       console.error('Diagnosis error:', error);
       setErrors({
-        imageFile: error instanceof Error ? error.message : 'Failed to analyze. Please try again.',
+        imageFile: error instanceof Error ? error.message : t('cropAi.common.error'),
       });
     } finally {
       setIsSubmitting(false);
@@ -226,7 +228,7 @@ export function DiagnosisWizard({
       <FormProgress
         currentStep={currentStep}
         totalSteps={STEPS.length}
-        stepLabels={STEPS.map(s => s.label)}
+        stepLabels={STEPS.map(s => t(s.labelKey))}
         className="mb-8"
       />
 
@@ -239,10 +241,10 @@ export function DiagnosisWizard({
             'mb-2'
           )}
         >
-          {STEPS[currentStep - 1].label}
+          {t(STEPS[currentStep - 1].labelKey)}
         </h2>
         <p className="text-sm sm:text-base text-gray-600 dark:text-gray-300">
-          {STEPS[currentStep - 1].description}
+          {t(STEPS[currentStep - 1].descKey)}
         </p>
       </div>
 
@@ -281,8 +283,8 @@ export function DiagnosisWizard({
         onNext={handleNext}
         onSubmit={handleSubmit}
         isLoading={isSubmitting}
-        backLabel={currentStep === 1 ? 'Cancel' : 'Back'}
-        submitLabel="Analyze Crop"
+        backLabel={currentStep === 1 ? t('cropAi.diagnosis.cancel') : t('cropAi.common.back')}
+        submitLabel={t('cropAi.diagnosis.analyze')}
       />
     </div>
   );

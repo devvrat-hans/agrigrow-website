@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useRef } from 'react';
 import { IconHistory, IconLoader2 } from '@tabler/icons-react';
 import { cn } from '@/lib/utils';
+import { useTranslation } from '@/hooks/useTranslation';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { AnalysisHistoryItem } from '@/types/crop-ai';
@@ -70,6 +71,8 @@ interface EmptyStateProps {
 }
 
 function EmptyState({ message }: EmptyStateProps) {
+  const { t } = useTranslation();
+
   return (
     <div className="flex flex-col items-center justify-center py-12 px-4">
       <div
@@ -83,7 +86,7 @@ function EmptyState({ message }: EmptyStateProps) {
         <IconHistory className="w-8 h-8 text-gray-400" />
       </div>
       <h3 className="font-medium text-gray-900 dark:text-white mb-1">
-        No Analyses Found
+        {t('cropAi.history.noAnalysisHistory')}
       </h3>
       <p className="text-sm text-gray-500 dark:text-gray-400 text-center max-w-xs">
         {message}
@@ -106,9 +109,10 @@ export function HistoryGrid({
   onCardClick,
   selectedId,
   className,
-  emptyMessage = 'Start analyzing your crops to build your history',
+  emptyMessage,
   useInfiniteScroll = false,
 }: HistoryGridProps) {
+  const { t } = useTranslation();
   const loadMoreRef = useRef<HTMLDivElement>(null);
   const observerRef = useRef<IntersectionObserver | null>(null);
 
@@ -162,7 +166,7 @@ export function HistoryGrid({
 
   // Empty state
   if (!loading && analyses.length === 0) {
-    return <EmptyState message={emptyMessage} />;
+    return <EmptyState message={emptyMessage ?? ''} />;
   }
 
   return (
@@ -190,7 +194,7 @@ export function HistoryGrid({
             loading && (
               <div className="flex items-center gap-2 text-gray-500 dark:text-gray-400">
                 <IconLoader2 className="w-5 h-5 animate-spin" />
-                <span className="text-sm">Loading more...</span>
+                <span className="text-sm">{t('cropAi.history.loadingHistory')}</span>
               </div>
             )
           ) : (
@@ -204,10 +208,10 @@ export function HistoryGrid({
               {loading ? (
                 <>
                   <IconLoader2 className="w-4 h-4 mr-2 animate-spin" />
-                  Loading...
+                  {t('cropAi.history.loadingHistory')}
                 </>
               ) : (
-                'Load More'
+                t('cropAi.chat.loadMore')
               )}
             </Button>
           )}

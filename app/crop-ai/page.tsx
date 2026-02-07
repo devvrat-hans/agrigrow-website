@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import { IconHistory, IconMessageCircle } from '@tabler/icons-react';
 import { cn } from '@/lib/utils';
 import { PageHeader, MobileBottomNav } from '@/components/common';
+import { useTranslation } from '@/hooks/useTranslation';
 import { Button } from '@/components/ui/button';
 import {
   FeatureSelection,
@@ -28,27 +29,28 @@ type PageMode =
   | 'planning-result';
 
 /**
- * Get page title based on current mode
+ * Get page title key based on current mode
  */
-function getPageTitle(mode: PageMode): string {
+function getPageTitleKey(mode: PageMode): string {
   switch (mode) {
     case 'feature-selection':
-      return 'Crop AI';
+      return 'cropAi.pages.cropAi';
     case 'diagnosis-wizard':
-      return 'AI Crop Diagnosis';
+      return 'cropAi.pages.aiCropDiagnosis';
     case 'diagnosis-result':
-      return 'Diagnosis Results';
+      return 'cropAi.pages.diagnosisResults';
     case 'planning-wizard':
-      return 'Crop Planning';
+      return 'cropAi.pages.cropPlanning';
     case 'planning-result':
-      return 'Crop Recommendations';
+      return 'cropAi.pages.cropRecommendations';
     default:
-      return 'Crop AI';
+      return 'cropAi.pages.cropAi';
   }
 }
 
 export default function CropAIPage() {
   // State
+  const { t } = useTranslation();
   const router = useRouter();
   const [mode, setMode] = useState<PageMode>('feature-selection');
   const [diagnosisResult, setDiagnosisResult] = useState<DiagnosisResultType | null>(null);
@@ -178,7 +180,7 @@ export default function CropAIPage() {
     >
       <a href="/crop-ai/history" className="flex items-center gap-2">
         <IconHistory className="w-4 h-4" />
-        <span className="hidden sm:inline">History</span>
+        <span className="hidden sm:inline">{t('cropAi.pages.history')}</span>
       </a>
     </Button>
   ) : (
@@ -199,7 +201,7 @@ export default function CropAIPage() {
       <PageHeader
         showBackButton={showBackButton}
         onBack={handleBackToSelection}
-        title={showBackButton ? getPageTitle(mode) : undefined}
+        title={showBackButton ? t(getPageTitleKey(mode)) : undefined}
         rightAction={headerRightAction}
       />
 
@@ -224,10 +226,10 @@ export default function CropAIPage() {
           'bottom-24 right-4 md:bottom-6 md:right-6',
           'min-w-[56px] min-h-[56px] md:min-w-[auto] md:min-h-[auto] md:px-4 md:py-3 md:gap-2'
         )}
-        aria-label="Ask AI"
+        aria-label={t('cropAi.pages.askAiLabel')}
       >
         <IconMessageCircle className="w-6 h-6 md:w-5 md:h-5" />
-        <span className="hidden md:inline font-medium">Ask AI</span>
+        <span className="hidden md:inline font-medium">{t('cropAi.pages.askAi')}</span>
       </button>
 
       {/* Mobile Bottom Navigation */}

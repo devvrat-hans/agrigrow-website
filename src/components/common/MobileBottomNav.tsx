@@ -70,9 +70,10 @@ export function MobileBottomNav() {
               )}
               aria-label={t(item.labelKey)}
               aria-current={isActive ? 'page' : undefined}
+              suppressHydrationWarning
             >
               {item.icon}
-              <span className="text-xs font-medium">{t(item.labelKey)}</span>
+              <span className="text-xs font-medium" suppressHydrationWarning>{t(item.labelKey)}</span>
             </Link>
           );
         })}

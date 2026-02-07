@@ -3,6 +3,7 @@
 import { useState, useCallback, useEffect } from 'react';
 import { IconFilter, IconX, IconChevronDown, IconChevronUp, IconPlant2 } from '@tabler/icons-react';
 import { cn } from '@/lib/utils';
+import { useTranslation } from '@/hooks/useTranslation';
 import { Button } from '@/components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { AnalysisFilters, CropHealthStatus } from '@/types/crop-ai';
@@ -27,11 +28,11 @@ interface DateRangeOption {
   label: string;
 }
 
-const DATE_RANGE_OPTIONS: DateRangeOption[] = [
-  { value: 'all', label: 'All Time' },
-  { value: 'week', label: 'This Week' },
-  { value: 'month', label: 'This Month' },
-  { value: '3months', label: 'Last 3 Months' },
+const DATE_RANGE_OPTIONS: (DateRangeOption & { labelKey: string })[] = [
+  { value: 'all', label: 'All Time', labelKey: 'cropAi.history.allTime' },
+  { value: 'week', label: 'This Week', labelKey: 'cropAi.history.lastWeek' },
+  { value: 'month', label: 'This Month', labelKey: 'cropAi.history.lastMonth' },
+  { value: '3months', label: 'Last 3 Months', labelKey: 'cropAi.history.allDates' },
 ];
 
 // HEALTH STATUS OPTIONS
@@ -42,11 +43,11 @@ interface HealthStatusOption {
   color?: string;
 }
 
-const HEALTH_STATUS_OPTIONS: HealthStatusOption[] = [
-  { value: 'all', label: 'All Status' },
-  { value: 'healthy', label: 'Healthy', color: 'text-green-600' },
-  { value: 'moderate', label: 'Moderate', color: 'text-amber-600' },
-  { value: 'critical', label: 'Critical', color: 'text-red-600' },
+const HEALTH_STATUS_OPTIONS: (HealthStatusOption & { labelKey: string })[] = [
+  { value: 'all', label: 'All Status', labelKey: 'cropAi.history.allStatuses' },
+  { value: 'healthy', label: 'Healthy', color: 'text-green-600', labelKey: 'cropAi.history.healthy' },
+  { value: 'moderate', label: 'Moderate', color: 'text-amber-600', labelKey: 'cropAi.history.moderate' },
+  { value: 'critical', label: 'Critical', color: 'text-red-600', labelKey: 'cropAi.history.critical' },
 ];
 
 // HELPER FUNCTIONS
@@ -111,6 +112,7 @@ export function HistoryFilters({
   cropTypes = [],
   className,
 }: HistoryFiltersProps) {
+  const { t } = useTranslation();
   const [isExpanded, setIsExpanded] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
 
@@ -187,11 +189,11 @@ export function HistoryFilters({
         <SelectTrigger className="w-[140px] h-9 text-sm">
           <div className="flex items-center gap-2">
             <IconPlant2 className="w-4 h-4 text-gray-500" />
-            <SelectValue placeholder="Crop Type" />
+            <SelectValue placeholder={t('cropAi.history.cropType')} />
           </div>
         </SelectTrigger>
         <SelectContent>
-          <SelectItem value="all">All Crops</SelectItem>
+          <SelectItem value="all">{t('cropAi.history.allCrops')}</SelectItem>
           {cropTypes.map((crop) => (
             <SelectItem key={crop} value={crop}>
               {crop}
@@ -203,12 +205,12 @@ export function HistoryFilters({
       {/* Health Status Filter */}
       <Select value={currentHealthStatus} onValueChange={handleHealthStatusChange}>
         <SelectTrigger className="w-[130px] h-9 text-sm">
-          <SelectValue placeholder="Health Status" />
+          <SelectValue placeholder={t('cropAi.history.healthStatus')} />
         </SelectTrigger>
         <SelectContent>
           {HEALTH_STATUS_OPTIONS.map((option) => (
             <SelectItem key={option.value} value={option.value}>
-              <span className={option.color}>{option.label}</span>
+              <span className={option.color}>{t(option.labelKey)}</span>
             </SelectItem>
           ))}
         </SelectContent>
@@ -217,12 +219,12 @@ export function HistoryFilters({
       {/* Date Range Filter */}
       <Select value={currentDateRange} onValueChange={handleDateRangeChange}>
         <SelectTrigger className="w-[140px] h-9 text-sm">
-          <SelectValue placeholder="Date Range" />
+          <SelectValue placeholder={t('cropAi.history.dateRange')} />
         </SelectTrigger>
         <SelectContent>
           {DATE_RANGE_OPTIONS.map((option) => (
             <SelectItem key={option.value} value={option.value}>
-              {option.label}
+              {t(option.labelKey)}
             </SelectItem>
           ))}
         </SelectContent>
@@ -237,7 +239,7 @@ export function HistoryFilters({
           className="h-9 px-3 text-gray-600 dark:text-gray-400"
         >
           <IconX className="w-4 h-4 mr-1" />
-          Clear
+          {t('cropAi.history.clearFilters')}
         </Button>
       )}
     </div>
@@ -262,7 +264,7 @@ export function HistoryFilters({
         >
           <div className="flex items-center gap-2">
             <IconFilter className="w-4 h-4" />
-            <span>Filters</span>
+            <span>{t('cropAi.history.filterByType')}</span>
             {hasActiveFilters && (
               <span className="px-1.5 py-0.5 rounded-full text-xs bg-primary-100 dark:bg-primary-900/30 text-primary-700 dark:text-primary-300">
                 Active
@@ -300,7 +302,7 @@ export function HistoryFilters({
       <div className="flex items-center gap-2">
         <IconFilter className="w-4 h-4 text-gray-500" />
         <span className="text-sm font-medium text-gray-700 dark:text-gray-300">
-          Filters
+          {t('cropAi.history.filterByType')}
         </span>
       </div>
 

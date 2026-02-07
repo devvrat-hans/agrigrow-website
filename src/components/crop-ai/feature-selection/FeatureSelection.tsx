@@ -3,6 +3,7 @@
 import { IconPlant2, IconCalendarEvent } from '@tabler/icons-react';
 import { cn } from '@/lib/utils';
 import { FeatureCard } from './FeatureCard';
+import { useTranslation } from '@/hooks/useTranslation';
 
 /**
  * Props for the FeatureSelection component
@@ -33,6 +34,8 @@ export function FeatureSelection({
   onSelectPlanning,
   className,
 }: FeatureSelectionProps) {
+  const { t } = useTranslation();
+
   return (
     <div className={cn('w-full max-w-4xl mx-auto px-4', className)}>
       {/* Intro section */}
@@ -44,7 +47,7 @@ export function FeatureSelection({
             'mb-3'
           )}
         >
-          Crop AI Assistant
+          {t('cropAi.assistant')}
         </h1>
         <p
           className={cn(
@@ -54,8 +57,7 @@ export function FeatureSelection({
             'leading-relaxed'
           )}
         >
-          Get AI-powered help for your farming needs. Diagnose crop problems or
-          plan what to grow next based on your land and conditions.
+          {t('cropAi.assistantFullDesc')}
         </p>
       </div>
 
@@ -69,8 +71,8 @@ export function FeatureSelection({
       >
         {/* AI Crop Diagnosis Card */}
         <FeatureCard
-          title="AI Crop Diagnosis"
-          description="Upload a photo of your crop and get instant AI analysis for diseases, pests, and deficiencies."
+          title={t('cropAi.featureSelection.diagnosisTitle')}
+          description={t('cropAi.featureSelection.diagnosisDesc')}
           icon={<IconPlant2 stroke={1.5} />}
           onClick={onSelectDiagnosis}
           gradient="bg-gradient-to-br from-green-500 to-green-700"
@@ -78,8 +80,8 @@ export function FeatureSelection({
 
         {/* Crop Planning Card */}
         <FeatureCard
-          title="Crop Planning"
-          description="Get personalized crop recommendations based on your location, soil type, season, and water availability."
+          title={t('cropAi.featureSelection.planningTitle')}
+          description={t('cropAi.featureSelection.planningDesc')}
           icon={<IconCalendarEvent stroke={1.5} />}
           onClick={onSelectPlanning}
           gradient="bg-gradient-to-br from-emerald-600 to-teal-700"

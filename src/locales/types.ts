@@ -953,7 +953,32 @@ export interface CropAiTranslations {
   title: string;
   assistant: string;
   assistantDesc: string;
+  assistantFullDesc: string;
   selectFeature: string;
+
+  // Page titles
+  pages: {
+    cropAi: string;
+    aiCropDiagnosis: string;
+    diagnosisResults: string;
+    cropPlanning: string;
+    cropRecommendations: string;
+    analysisHistory: string;
+    askAi: string;
+    chatHistory: string;
+    history: string;
+    filter: string;
+    askAiLabel: string;
+  };
+
+  // Feature selection
+  featureSelection: {
+    diagnosisTitle: string;
+    diagnosisDesc: string;
+    planningTitle: string;
+    planningDesc: string;
+  };
+
   diagnosis: {
     title: string;
     pageTitle: string;
@@ -990,7 +1015,62 @@ export interface CropAiTranslations {
     yieldImpact: string;
     weatherAlerts: string;
     step: string;
+    // Wizard steps
+    stepCropInfo: string;
+    stepImageUpload: string;
+    // CropInfoForm
+    cropInfo: string;
+    cropName: string;
+    searchCrop: string;
+    cropVariety: string;
+    cropVarietyPlaceholder: string;
+    growthStageDesc: string;
+    // ImageUploadForm
+    uploadCropImage: string;
+    clearPhoto: string;
+    uploadDesc: string;
+    affectedPlantPart: string;
+    selectAffectedArea: string;
+    takePhoto: string;
+    browseFiles: string;
+    editImage: string;
+    dropImageHere: string;
+    dragAndDrop: string;
+    tapToSelect: string;
+    supportedFormats: string;
+    removeImage: string;
+    imageSelected: string;
+    fileSizeError: string;
+    fileTypeError: string;
+    // Plant parts
+    leaves: string;
+    stem: string;
+    roots: string;
+    fruit: string;
+    flowers: string;
+    wholePlant: string;
+    otherPart: string;
+    // ImageEditModal
+    editImageTitle: string;
+    rotateLeft: string;
+    rotateRight: string;
+    cropImage: string;
+    reset: string;
+    cancel: string;
+    saveChanges: string;
+    // DiagnosisResult
+    issuesFound: string;
+    generalRecommendations: string;
+    startNewDiagnosis: string;
+    healthyMessage: string;
+    moderateMessage: string;
+    criticalMessage: string;
+    // Validation
+    selectCropRequired: string;
+    selectGrowthStage: string;
+    uploadImageRequired: string;
   };
+
   planning: {
     title: string;
     description: string;
@@ -1019,7 +1099,60 @@ export interface CropAiTranslations {
     bestPractices: string;
     newPlan: string;
     step: string;
+    // Wizard steps
+    stepLocationLand: string;
+    stepSeasonSoil: string;
+    stepWaterAvailability: string;
+    // LocationLandForm
+    locationLandDetails: string;
+    state: string;
+    selectState: string;
+    district: string;
+    selectDistrict: string;
+    selectStateFirst: string;
+    village: string;
+    villagePlaceholder: string;
+    acres: string;
+    hectares: string;
+    landSizePlaceholder: string;
+    // SeasonSoilForm
+    seasonSoilDetails: string;
+    sowingMonth: string;
+    selectSowingMonth: string;
+    // WaterAvailabilityForm
+    irrigationAvailability: string;
+    irrigated: string;
+    rainfed: string;
+    irrigationMethod: string;
+    selectIrrigationMethod: string;
+    rainfedInfo: string;
+    // Validation
+    selectStateRequired: string;
+    selectDistrictRequired: string;
+    enterLandSize: string;
+    selectSeasonRequired: string;
+    selectSoilTypeRequired: string;
+    selectSowingMonthRequired: string;
+    selectIrrigationRequired: string;
+    selectIrrigationMethodRequired: string;
+    // Result sections
+    inputSummary: string;
+    yourInputs: string;
+    showInputs: string;
+    hideInputs: string;
+    topRecommendation: string;
+    marketDemand: string;
+    investment: string;
+    timeline: string;
+    whyThisCrop: string;
+    tips: string;
+    soilAnalysis: string;
+    weatherConsiderations: string;
+    generalTips: string;
+    planForDifferentConditions: string;
+    suitabilityScore: string;
   };
+
   chat: {
     title: string;
     askAnything: string;
@@ -1038,7 +1171,31 @@ export interface CropAiTranslations {
     sendMessage: string;
     deleteChat: string;
     deleteChatConfirm: string;
+    // ChatWindow
+    welcomeTitle: string;
+    welcomeSubtitle: string;
+    inputPlaceholder: string;
+    voiceListening: string;
+    voiceNotSupported: string;
+    characterCount: string;
+    // ChatHistoryList
+    searchConversations: string;
+    deleteConfirmTitle: string;
+    deleteConfirmDesc: string;
+    deleteButton: string;
+    cancelButton: string;
+    conversations: string;
+    messages: string;
+    startNewChat: string;
+    noConversationsFound: string;
+    loadMore: string;
+    today: string;
+    yesterday: string;
+    daysAgo: string;
+    weeksAgo: string;
+    monthsAgo: string;
   };
+
   history: {
     title: string;
     noHistory: string;
@@ -1055,7 +1212,257 @@ export interface CropAiTranslations {
     lastWeek: string;
     lastMonth: string;
     allTime: string;
+    // History page
+    yourAnalysisHistory: string;
+    viewPastAnalyses: string;
+    clearFilters: string;
+    tryAgain: string;
+    refreshing: string;
+    loadingHistory: string;
+    noAnalysisHistory: string;
+    noAnalysisHistoryDesc: string;
+    startAnalysis: string;
+    noMatchingFilters: string;
+    // HistoryCard
+    healthScore: string;
+    issuesDetected: string;
+    processingStatus: string;
+    failedStatus: string;
+    // HistoryFilters
+    cropType: string;
+    allCrops: string;
+    healthStatus: string;
+    allStatuses: string;
+    healthy: string;
+    moderate: string;
+    critical: string;
+    dateRange: string;
+    allDates: string;
+    // EmptyHistory
+    emptyTitle: string;
+    emptyDesc: string;
+    startFirstAnalysis: string;
+    diseaseDetection: string;
+    diseaseDetectionDesc: string;
+    nutrientAnalysis: string;
+    nutrientAnalysisDesc: string;
+    healthScoreLabel: string;
+    healthScoreDesc: string;
+    // AnalysisDetailModal
+    loadingAnalysis: string;
+    analysisNotFound: string;
+    analysisNotFoundDesc: string;
+    failedToLoad: string;
+    close: string;
   };
+
+  analysis: {
+    // AnalysisDetail
+    analysisDetails: string;
+    share: string;
+    deleteLabel: string;
+    deleteAnalysis: string;
+    deleteConfirmation: string;
+    cancel: string;
+    issues: string;
+    weather: string;
+    tips: string;
+    diseases: string;
+    noDiseases: string;
+    nutrientDeficiencies: string;
+    noNutrientDeficiencies: string;
+    pests: string;
+    noPests: string;
+    weatherNotAvailable: string;
+    addLocationForWeather: string;
+    personalNotes: string;
+    notesPlaceholder: string;
+    notesSavedLocally: string;
+    // AnalysisResult
+    newAnalysis: string;
+    viewFullDetails: string;
+    analyzeAnotherCrop: string;
+    // AnalysisSummary
+    healthyMessage: string;
+    moderateMessage: string;
+    criticalMessage: string;
+    disease: string;
+    diseasePlural: string;
+    deficiency: string;
+    deficiencyPlural: string;
+    pest: string;
+    pestPlural: string;
+    analyzedOn: string;
+    suggestionsAvailable: string;
+    // AnalysisActions
+    saved: string;
+    save: string;
+    // AnalysisLoading
+    uploadingImage: string;
+    uploadingImageDesc: string;
+    analyzingCrop: string;
+    analyzingCropDesc: string;
+    processingResults: string;
+    processingResultsDesc: string;
+    finalizing: string;
+    finalizingDesc: string;
+    almostDone: string;
+    starting: string;
+    justFewSeconds: string;
+    lessThan15Seconds: string;
+    about30Seconds: string;
+    pleaseWait: string;
+    farmingTip: string;
+    cancelAnalysis: string;
+    takingLonger: string;
+    previousTip: string;
+    nextTip: string;
+    goToTip: string;
+    tip1: string;
+    tip2: string;
+    tip3: string;
+    tip4: string;
+    tip5: string;
+    tip6: string;
+    tip7: string;
+    tip8: string;
+    tip9: string;
+    tip10: string;
+    // AnalysisError
+    connectionError: string;
+    connectionErrorDesc: string;
+    serverError: string;
+    serverErrorDesc: string;
+    tooManyRequests: string;
+    tooManyRequestsDesc: string;
+    analysisFailed: string;
+    analysisFailedDesc: string;
+    technicalDetails: string;
+    code: string;
+    retrying: string;
+    tryAgain: string;
+    contactSupport: string;
+    contactSupportDesc: string;
+    retryAttempt: string;
+    // HealthOverview
+    excellentHealth: string;
+    stressedHealth: string;
+    immediateAttention: string;
+    seedlingStage: string;
+    vegetativeStage: string;
+    floweringStage: string;
+    fruitingStage: string;
+    maturityStage: string;
+    readyForHarvest: string;
+    overallHealth: string;
+    // DiseaseCard
+    symptoms: string;
+    treatment: string;
+    organic: string;
+    chemical: string;
+    noTreatmentsAvailable: string;
+    preventionTips: string;
+    // PestCard
+    highDamage: string;
+    mediumDamage: string;
+    lowDamage: string;
+    confidence: string;
+    detectionConfidence: string;
+    scientificName: string;
+    treatmentOptions: string;
+    // NutrientDeficiencyCard
+    deficiencyLabel: string;
+    recommendedSolutions: string;
+    fertilizerOptions: string;
+    // DeficienciesList
+    noDeficienciesDetected: string;
+    healthyNutrientLevels: string;
+    nutrientDeficienciesCount: string;
+    showLess: string;
+    viewAllMore: string;
+    // PestsList
+    noPestsDetected: string;
+    pestFree: string;
+    pestsDetectedCount: string;
+    // YieldSuggestions
+    watering: string;
+    fertilizer: string;
+    pestControl: string;
+    generalCare: string;
+    yieldImprovementTips: string;
+    forCropType: string;
+    // WeatherAlert
+    rainExpected: string;
+    rainExpectedDesc: string;
+    highTemperature: string;
+    highTemperatureDesc: string;
+    hideDetails: string;
+    viewForecastAndTips: string;
+    sevenDayForecast: string;
+    todayLabel: string;
+    farmingSuggestions: string;
+    forToday: string;
+    rainPreparation: string;
+    upcomingWeek: string;
+  };
+
+  upload: {
+    uploadSection: string;
+    editDetails: string;
+    addDetails: string;
+    optional: string;
+    cropType: string;
+    selectOrEnterCrop: string;
+    helpsImproveAccuracy: string;
+    locationLabel: string;
+    enablesWeatherRecommendations: string;
+    uploadDescription: string;
+    // CropImageUpload
+    fileTypeError: string;
+    fileSizeError: string;
+    supportedFormats: string;
+    dropImageHere: string;
+    uploadCropImage: string;
+    dragAndDrop: string;
+    tapToSelect: string;
+    remove: string;
+    imageSelected: string;
+    // CropImagePreview
+    selectedCropImage: string;
+    selected: string;
+    // CropTypeSelector
+    selectCropType: string;
+    enterCropName: string;
+    typeYourCropName: string;
+    selectFromList: string;
+    searchCrops: string;
+    noCropsFound: string;
+    custom: string;
+    otherEnterManually: string;
+    cancelOtherInput: string;
+    // LocationSelector
+    geolocationNotSupported: string;
+    failedToGetLocation: string;
+    couldNotDetermineLocation: string;
+    locationPermissionDenied: string;
+    locationUnavailable: string;
+    locationTimedOut: string;
+    failedToGetLocationManual: string;
+    detectingLocation: string;
+    useCurrentLocation: string;
+    state: string;
+    district: string;
+    selectState: string;
+    selectDistrict: string;
+    selectStateFirst: string;
+    indianStates: string;
+    districtsIn: string;
+    // AnalyzeButton
+    analyzing: string;
+    analyzeCrop: string;
+    analyzeLabel: string;
+  };
+
   common: {
     uploadPhoto: string;
     retakePhoto: string;
@@ -1064,6 +1471,24 @@ export interface CropAiTranslations {
     error: string;
     noResults: string;
     shareWithCommunity: string;
+    // FormNavigation
+    next: string;
+    submit: string;
+    back: string;
+    // DiseaseBadge
+    low: string;
+    medium: string;
+    high: string;
+    // HealthIndicator
+    healthyStatus: string;
+    moderateStatus: string;
+    criticalStatus: string;
+    // ImagePreview
+    failedToLoadImage: string;
+    zoomIn: string;
+    zoomOut: string;
+    resetZoom: string;
+    doubleClickToZoom: string;
   };
 }
 

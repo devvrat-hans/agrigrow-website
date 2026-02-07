@@ -3,6 +3,7 @@
 import { useState, useCallback, useRef, useEffect } from 'react';
 import { IconRobot, IconHistory } from '@tabler/icons-react';
 import { cn } from '@/lib/utils';
+import { useTranslation } from '@/hooks/useTranslation';
 import apiClient from '@/lib/api-client';
 import { ChatInput } from './ChatInput';
 import { ChatMessage, ChatMessageData } from './ChatMessage';
@@ -107,6 +108,8 @@ export function ChatWindow({
   showHeader = true,
   showHistoryButton = true,
 }: ChatWindowProps) {
+  const { t } = useTranslation();
+
   // Messages state
   const [messages, setMessages] = useState<ChatMessageData[]>(() => {
     // If resuming a conversation, convert messages to display format
@@ -278,7 +281,7 @@ export function ChatWindow({
         prev.map((msg) =>
           msg.id === loadingId
             ? createAssistantMessage(
-                "I'm sorry, I couldn't process your message. Please try again.",
+                t('cropAi.chat.errorMessage'),
                 loadingId
               )
             : msg
@@ -365,10 +368,10 @@ export function ChatWindow({
               <IconRobot className="w-6 h-6 sm:w-7 sm:h-7 text-primary-600 dark:text-primary-400" />
             </div>
             <h2 className="text-base sm:text-lg font-semibold text-gray-900 dark:text-white">
-              AgriGrow AI Assistant
+              {t('cropAi.chat.welcomeTitle')}
             </h2>
             <p className="text-xs sm:text-sm text-gray-500 dark:text-gray-400 mt-1">
-              Your trusted farming companion
+              {t('cropAi.chat.welcomeSubtitle')}
             </p>
           </div>
         )}

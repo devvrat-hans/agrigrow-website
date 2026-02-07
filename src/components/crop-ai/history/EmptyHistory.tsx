@@ -3,6 +3,7 @@
 import { useCallback } from 'react';
 import { IconPlant2, IconCamera, IconArrowUp } from '@tabler/icons-react';
 import { cn } from '@/lib/utils';
+import { useTranslation } from '@/hooks/useTranslation';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 
@@ -38,13 +39,16 @@ export interface EmptyHistoryProps {
  * />
  */
 export function EmptyHistory({
-  title = 'No Crop Analyses Yet',
-  description = 'Upload a photo of your crop to get AI-powered insights, disease detection, and personalized recommendations.',
+  title: titleProp,
+  description: descriptionProp,
   uploadSectionId = 'upload-section',
   onStartAnalysis,
   compact = false,
   className,
 }: EmptyHistoryProps) {
+  const { t } = useTranslation();
+  const title = titleProp || t('cropAi.history.emptyTitle');
+  const description = descriptionProp || t('cropAi.history.emptyDesc');
   // Handle start analysis click
   const handleStartAnalysis = useCallback(() => {
     if (onStartAnalysis) {
@@ -87,7 +91,7 @@ export function EmptyHistory({
           className="gap-2"
         >
           <IconArrowUp className="w-4 h-4" />
-          Start Analysis
+          {t('cropAi.history.startAnalysis')}
         </Button>
       </div>
     );
@@ -128,15 +132,15 @@ export function EmptyHistory({
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-8 w-full">
           <FeatureItem
             icon="🔍"
-            label="Disease Detection"
+            label={t('cropAi.history.diseaseDetection')}
           />
           <FeatureItem
             icon="💧"
-            label="Nutrient Analysis"
+            label={t('cropAi.history.nutrientAnalysis')}
           />
           <FeatureItem
             icon="📊"
-            label="Health Score"
+            label={t('cropAi.history.healthScoreLabel')}
           />
         </div>
 
@@ -147,12 +151,12 @@ export function EmptyHistory({
           className="gap-2"
         >
           <IconCamera className="w-5 h-5" />
-          Start Your First Analysis
+          {t('cropAi.history.startFirstAnalysis')}
         </Button>
 
         {/* Helper Text */}
         <p className="text-xs text-muted-foreground mt-4">
-          Take a clear photo of your crop leaf or plant for best results
+          {t('cropAi.history.diseaseDetectionDesc')}
         </p>
       </div>
     </Card>

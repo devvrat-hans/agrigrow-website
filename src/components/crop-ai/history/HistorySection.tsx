@@ -4,6 +4,7 @@ import { useCallback, useMemo, useState } from 'react';
 import Link from 'next/link';
 import { IconChevronRight } from '@tabler/icons-react';
 import { cn } from '@/lib/utils';
+import { useTranslation } from '@/hooks/useTranslation';
 import { useAnalysisHistory } from '@/hooks/useAnalysisHistory';
 import { AnalysisFilters } from '@/types/crop-ai';
 import { HistoryFilters } from './HistoryFilters';
@@ -43,6 +44,8 @@ export function HistorySection({
   showFilters = true,
   emptyMessage,
 }: HistorySectionProps) {
+  const { t } = useTranslation();
+
   // Use analysis history hook with appropriate limit
   const {
     analyses,
@@ -102,15 +105,15 @@ export function HistorySection({
 
   // Default empty message
   const defaultEmptyMessage = fullView
-    ? 'No analyses match your filters. Try adjusting your criteria.'
-    : 'Start analyzing your crops to build your history';
+    ? t('cropAi.history.noMatchingFilters')
+    : t('cropAi.history.noHistoryDesc');
 
   return (
     <section className={cn('space-y-3 sm:space-y-4', className)}>
       {/* Header */}
       <div className="flex items-center justify-between">
         <h2 className="text-base sm:text-lg font-semibold text-gray-900 dark:text-white">
-          {fullView ? 'Analysis History' : 'Recent Analyses'}
+          {fullView ? t('cropAi.history.title') : t('cropAi.history.title')}
         </h2>
 
         {/* View All Link (preview mode only) */}
@@ -125,7 +128,7 @@ export function HistorySection({
               'transition-colors'
             )}
           >
-            View All
+            {t('cropAi.history.viewDetails')}
             <IconChevronRight className="w-4 h-4" />
           </Link>
         )}
@@ -143,7 +146,7 @@ export function HistorySection({
       {/* Analysis Count (full view) */}
       {fullView && pagination.totalCount > 0 && (
         <p className="text-xs sm:text-sm text-gray-500 dark:text-gray-400">
-          Showing {analyses.length} of {pagination.totalCount} analyses
+          {t('cropAi.history.title')} — {analyses.length} / {pagination.totalCount}
         </p>
       )}
 

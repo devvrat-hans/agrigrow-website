@@ -3,6 +3,7 @@
 import { useState, useCallback, useEffect } from 'react';
 import { IconX, IconLoader2, IconAlertCircle } from '@tabler/icons-react';
 import { cn } from '@/lib/utils';
+import { useTranslation } from '@/hooks/useTranslation';
 import { Button } from '@/components/ui/button';
 import apiClient from '@/lib/api-client';
 import type { CropAnalysisResult } from '@/types/crop-ai';
@@ -26,10 +27,12 @@ export interface AnalysisDetailModalProps {
 // LOADING STATE COMPONENT
 
 function LoadingState() {
+  const { t } = useTranslation();
+
   return (
     <div className="flex flex-col items-center justify-center py-16 px-4">
       <IconLoader2 className="w-10 h-10 text-primary-500 animate-spin mb-4" />
-      <p className="text-gray-600 dark:text-gray-400">Loading analysis...</p>
+      <p className="text-gray-600 dark:text-gray-400">{t('cropAi.history.loadingAnalysis')}</p>
     </div>
   );
 }
@@ -43,13 +46,15 @@ interface ErrorStateProps {
 }
 
 function ErrorState({ message, onRetry, onClose }: ErrorStateProps) {
+  const { t } = useTranslation();
+
   return (
     <div className="flex flex-col items-center justify-center py-16 px-4">
       <div className="flex items-center justify-center w-12 h-12 rounded-full bg-red-100 dark:bg-red-900/30 mb-4">
         <IconAlertCircle className="w-6 h-6 text-red-600 dark:text-red-400" />
       </div>
       <h3 className="font-medium text-gray-900 dark:text-white mb-1">
-        Failed to Load
+        {t('cropAi.history.failedToLoad')}
       </h3>
       <p className="text-sm text-gray-600 dark:text-gray-400 text-center mb-4 max-w-xs">
         {message}
@@ -57,12 +62,12 @@ function ErrorState({ message, onRetry, onClose }: ErrorStateProps) {
       <div className="flex gap-3">
         {onClose && (
           <Button variant="outline" onClick={onClose}>
-            Close
+            {t('cropAi.history.close')}
           </Button>
         )}
         {onRetry && (
           <Button onClick={onRetry}>
-            Try Again
+            {t('cropAi.history.tryAgain')}
           </Button>
         )}
       </div>
@@ -83,6 +88,8 @@ export function AnalysisDetailModal({
   onDeleted,
   onShare,
 }: AnalysisDetailModalProps) {
+  const { t } = useTranslation();
+
   // Local state for analysis data
   const [analysisResult, setAnalysisResult] = useState<CropAnalysisResult | null>(null);
   const [loading, setLoading] = useState(false);
@@ -260,7 +267,7 @@ export function AnalysisDetailModal({
             <div className="absolute inset-0 z-20 flex items-center justify-center bg-white/80 dark:bg-gray-900/80 backdrop-blur-sm">
               <div className="flex flex-col items-center">
                 <IconLoader2 className="w-8 h-8 text-red-500 animate-spin mb-3" />
-                <p className="text-gray-600 dark:text-gray-400">Deleting...</p>
+                <p className="text-gray-600 dark:text-gray-400">{t('cropAi.history.deleteHistory')}...</p>
               </div>
             </div>
           )}

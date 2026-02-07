@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import { useTranslation } from '@/hooks/useTranslation';
 import {
   IconChevronDown,
   IconChevronUp,
@@ -35,28 +36,28 @@ function getHealthColor(score: number): {
   bg: string;
   text: string;
   stroke: string;
-  label: string;
+  labelKey: string;
 } {
   if (score >= 70) {
     return {
       bg: 'bg-green-100 dark:bg-green-900/30',
       text: 'text-green-600 dark:text-green-400',
       stroke: 'stroke-green-500',
-      label: 'Good',
+      labelKey: 'cropAi.diagnosis.healthy',
     };
   } else if (score >= 40) {
     return {
       bg: 'bg-yellow-100 dark:bg-yellow-900/30',
       text: 'text-yellow-600 dark:text-yellow-400',
       stroke: 'stroke-yellow-500',
-      label: 'Fair',
+      labelKey: 'cropAi.diagnosis.moderate',
     };
   } else {
     return {
       bg: 'bg-red-100 dark:bg-red-900/30',
       text: 'text-red-600 dark:text-red-400',
       stroke: 'stroke-red-500',
-      label: 'Poor',
+      labelKey: 'cropAi.diagnosis.critical',
     };
   }
 }
@@ -75,6 +76,7 @@ function getConfidenceColor(confidence: number): string {
  * Circular Health Gauge Component
  */
 function HealthGauge({ score }: { score: number }) {
+  const { t } = useTranslation();
   const colors = getHealthColor(score);
   const circumference = 2 * Math.PI * 45;
   const strokeDashoffset = circumference - (score / 100) * circumference;
@@ -112,7 +114,7 @@ function HealthGauge({ score }: { score: number }) {
           {score}
         </span>
         <span className="text-xs sm:text-sm text-gray-500 dark:text-gray-400">
-          Health Score
+          {t('cropAi.diagnosis.overallHealth')}
         </span>
       </div>
     </div>
@@ -123,6 +125,7 @@ function HealthGauge({ score }: { score: number }) {
  * Expandable Issue Card Component
  */
 function IssueCard({ issue, index }: { issue: DiagnosisIssue; index: number }) {
+  const { t } = useTranslation();
   const [isExpanded, setIsExpanded] = useState(index === 0);
   const confidenceColor = getConfidenceColor(issue.confidence);
 
@@ -191,7 +194,7 @@ function IssueCard({ issue, index }: { issue: DiagnosisIssue; index: number }) {
               <div className="flex items-center gap-2 mb-2">
                 <IconAlertTriangle className="w-4 h-4 text-yellow-500" />
                 <h5 className="text-sm font-medium text-gray-700 dark:text-gray-300">
-                  Symptoms
+                  {t('cropAi.diagnosis.symptoms')}
                 </h5>
               </div>
               <ul className="space-y-1 ml-6">
@@ -213,7 +216,7 @@ function IssueCard({ issue, index }: { issue: DiagnosisIssue; index: number }) {
               <div className="flex items-center gap-2 mb-2">
                 <IconDroplet className="w-4 h-4 text-blue-500" />
                 <h5 className="text-sm font-medium text-gray-700 dark:text-gray-300">
-                  Possible Causes
+                  {t('cropAi.diagnosis.diseases')}
                 </h5>
               </div>
               <ul className="space-y-1 ml-6">
@@ -235,7 +238,7 @@ function IssueCard({ issue, index }: { issue: DiagnosisIssue; index: number }) {
               <div className="flex items-center gap-2 mb-2">
                 <IconFirstAidKit className="w-4 h-4 text-green-500" />
                 <h5 className="text-sm font-medium text-gray-700 dark:text-gray-300">
-                  Treatment
+                  {t('cropAi.diagnosis.treatment')}
                 </h5>
               </div>
               <ul className="space-y-1 ml-6">
@@ -257,7 +260,7 @@ function IssueCard({ issue, index }: { issue: DiagnosisIssue; index: number }) {
               <div className="flex items-center gap-2 mb-2">
                 <IconShieldCheck className="w-4 h-4 text-purple-500" />
                 <h5 className="text-sm font-medium text-gray-700 dark:text-gray-300">
-                  Prevention
+                  {t('cropAi.diagnosis.preventiveMeasures')}
                 </h5>
               </div>
               <ul className="space-y-1 ml-6">
@@ -292,6 +295,7 @@ export function DiagnosisResult({
   onNewDiagnosis,
   className,
 }: DiagnosisResultProps) {
+  const { t } = useTranslation();
   const healthColors = getHealthColor(result.overallHealthScore);
 
   return (
@@ -305,10 +309,10 @@ export function DiagnosisResult({
             'mb-2'
           )}
         >
-          Diagnosis Results
+          {t('cropAi.diagnosis.resultsTitle')}
         </h2>
         <p className="text-sm sm:text-base text-gray-600 dark:text-gray-300">
-          AI analysis of your crop health
+          {t('cropAi.diagnosis.description')}
         </p>
       </div>
 
@@ -337,7 +341,7 @@ export function DiagnosisResult({
             ) : (
               <IconAlertTriangle className="w-4 h-4" />
             )}
-            {healthColors.label} Health Condition
+            {t(healthColors.labelKey)}
           </span>
         </div>
       </div>
@@ -352,7 +356,7 @@ export function DiagnosisResult({
               'mb-4'
             )}
           >
-            Identified Issues ({result.possibleIssues.length})
+            {t('cropAi.diagnosis.issuesFound')} ({result.possibleIssues.length})
           </h3>
           <div className="space-y-4">
             {result.possibleIssues.map((issue, index) => (
@@ -372,7 +376,7 @@ export function DiagnosisResult({
               'mb-4'
             )}
           >
-            General Recommendations
+            {t('cropAi.diagnosis.generalRecommendations')}
           </h3>
           <div
             className={cn(
@@ -407,10 +411,10 @@ export function DiagnosisResult({
         >
           <IconCheck className="w-12 h-12 text-green-500 mx-auto mb-3" />
           <h3 className="text-lg font-semibold text-green-700 dark:text-green-400 mb-2">
-            No Major Issues Detected
+            {t('cropAi.diagnosis.noDiseases')}
           </h3>
           <p className="text-sm text-green-600 dark:text-green-300">
-            Your crop appears to be healthy. Continue with regular care and monitoring.
+            {t('cropAi.diagnosis.healthyMessage')}
           </p>
         </div>
       )}
@@ -424,7 +428,7 @@ export function DiagnosisResult({
           className="gap-2"
         >
           <IconRefresh className="w-5 h-5" />
-          Start New Diagnosis
+          {t('cropAi.diagnosis.startNewDiagnosis')}
         </Button>
       </div>
     </div>

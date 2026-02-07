@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import { useTranslation } from '@/hooks/useTranslation';
 import {
   IconChevronDown,
   IconChevronUp,
@@ -109,6 +110,7 @@ function getSuitabilityColor(score: number): string {
  * Input Summary Section (Collapsible)
  */
 function InputSummary({ inputData }: { inputData: PlanningWizardFormValues }) {
+  const { t } = useTranslation();
   const [isOpen, setIsOpen] = useState(false);
 
   // Get display values
@@ -139,7 +141,7 @@ function InputSummary({ inputData }: { inputData: PlanningWizardFormValues }) {
         <div className="flex items-center gap-2">
           <IconMap className="w-5 h-5 text-gray-500" />
           <span className="font-medium text-gray-700 dark:text-gray-300">
-            Your Input Summary
+            {t('cropAi.planning.inputSummary')}
           </span>
         </div>
         {isOpen ? (
@@ -152,26 +154,26 @@ function InputSummary({ inputData }: { inputData: PlanningWizardFormValues }) {
       {isOpen && (
         <div className="px-4 pb-4 space-y-2 text-sm">
           <div className="grid grid-cols-2 gap-2">
-            <span className="text-gray-500">Location:</span>
+            <span className="text-gray-500">{t('cropAi.planning.location')}:</span>
             <span className="text-gray-700 dark:text-gray-300">
               {inputData.district}, {stateName}
             </span>
             
-            <span className="text-gray-500">Land Size:</span>
+            <span className="text-gray-500">{t('cropAi.planning.landSize')}:</span>
             <span className="text-gray-700 dark:text-gray-300">
               {inputData.landSize} {inputData.landUnit}
             </span>
             
-            <span className="text-gray-500">Season:</span>
+            <span className="text-gray-500">{t('cropAi.planning.season')}:</span>
             <span className="text-gray-700 dark:text-gray-300">{seasonName}</span>
             
-            <span className="text-gray-500">Sowing Month:</span>
+            <span className="text-gray-500">{t('cropAi.planning.sowingMonth')}:</span>
             <span className="text-gray-700 dark:text-gray-300">{monthName}</span>
             
-            <span className="text-gray-500">Soil Type:</span>
+            <span className="text-gray-500">{t('cropAi.planning.soilType')}:</span>
             <span className="text-gray-700 dark:text-gray-300">{soilName}</span>
             
-            <span className="text-gray-500">Irrigation:</span>
+            <span className="text-gray-500">{t('cropAi.planning.irrigationAvailability')}:</span>
             <span className="text-gray-700 dark:text-gray-300">{irrigationName}</span>
           </div>
         </div>
@@ -184,6 +186,7 @@ function InputSummary({ inputData }: { inputData: PlanningWizardFormValues }) {
  * Expandable Crop Card Component
  */
 function CropCard({ crop, index }: { crop: CropRecommendation; index: number }) {
+  const { t } = useTranslation();
   const [isExpanded, setIsExpanded] = useState(index === 0);
   const marketDisplay = getMarketDemandDisplay(crop.marketDemand);
   const investmentDisplay = getInvestmentDisplay(crop.investmentLevel);
@@ -284,7 +287,7 @@ function CropCard({ crop, index }: { crop: CropRecommendation; index: number }) 
           {crop.reasons.length > 0 && (
             <div>
               <h5 className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                Why This Crop?
+                {t('cropAi.planning.whyThisCrop')}
               </h5>
               <ul className="space-y-1">
                 {crop.reasons.map((reason, i) => (
@@ -311,7 +314,7 @@ function CropCard({ crop, index }: { crop: CropRecommendation; index: number }) 
             >
               <h5 className="text-sm font-medium text-yellow-700 dark:text-yellow-400 mb-2 flex items-center gap-2">
                 <IconBulb className="w-4 h-4" />
-                Tips for Growing
+                {t('cropAi.planning.tips')}
               </h5>
               <ul className="space-y-1">
                 {crop.tips.map((tip, i) => (
@@ -348,6 +351,7 @@ export function PlanningResult({
   onNewPlanning,
   className,
 }: PlanningResultProps) {
+  const { t } = useTranslation();
   return (
     <div className={cn('w-full max-w-2xl mx-auto', className)}>
       {/* Header */}
@@ -359,10 +363,10 @@ export function PlanningResult({
             'mb-2'
           )}
         >
-          Crop Recommendations
+          {t('cropAi.planning.resultsTitle')}
         </h2>
         <p className="text-sm sm:text-base text-gray-600 dark:text-gray-300">
-          Based on your location, soil, and conditions
+          {t('cropAi.planning.description')}
         </p>
       </div>
 
@@ -381,7 +385,7 @@ export function PlanningResult({
               'mb-4'
             )}
           >
-            Recommended Crops ({result.recommendedCrops.length})
+            {t('cropAi.planning.recommendedCrops')} ({result.recommendedCrops.length})
           </h3>
           <div className="space-y-4">
             {result.recommendedCrops.map((crop, index) => (
@@ -401,7 +405,7 @@ export function PlanningResult({
               'mb-3'
             )}
           >
-            Soil Analysis
+            {t('cropAi.planning.soilAnalysis')}
           </h3>
           <div
             className={cn(
@@ -428,7 +432,7 @@ export function PlanningResult({
             )}
           >
             <IconCloud className="w-5 h-5 text-blue-500" />
-            Weather Considerations
+            {t('cropAi.planning.weatherConsiderations')}
           </h3>
           <div
             className={cn(
@@ -455,7 +459,7 @@ export function PlanningResult({
             )}
           >
             <IconBulb className="w-5 h-5 text-yellow-500" />
-            General Farming Tips
+            {t('cropAi.planning.generalTips')}
           </h3>
           <div
             className={cn(
@@ -508,7 +512,7 @@ export function PlanningResult({
           className="gap-2"
         >
           <IconRefresh className="w-5 h-5" />
-          Plan for Different Conditions
+          {t('cropAi.planning.planForDifferentConditions')}
         </Button>
       </div>
     </div>

@@ -69,7 +69,7 @@ interface ShareOption {
 /**
  * Available share options
  */
-const SHARE_OPTIONS: ShareOption[] = [
+const _SHARE_OPTIONS: ShareOption[] = [
   {
     id: 'whatsapp',
     type: 'external',

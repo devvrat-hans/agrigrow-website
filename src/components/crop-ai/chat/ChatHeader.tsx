@@ -2,6 +2,7 @@
 
 import { IconX, IconMessageCircle } from '@tabler/icons-react';
 import { cn } from '@/lib/utils';
+import { useTranslation } from '@/hooks/useTranslation';
 
 // TYPES
 
@@ -31,6 +32,8 @@ export function ChatHeader({
   rightAction,
   className,
 }: ChatHeaderProps) {
+  const { t } = useTranslation();
+
   return (
     <div
       className={cn(
@@ -76,7 +79,7 @@ export function ChatHeader({
               'transition-colors duration-150',
               'focus:outline-none focus:ring-2 focus:ring-primary-500/20'
             )}
-            aria-label="Close chat"
+            aria-label={t('cropAi.chat.clearChat')}
           >
             <IconX className="w-5 h-5" />
           </button>

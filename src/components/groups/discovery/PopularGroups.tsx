@@ -113,7 +113,7 @@ export function PopularGroups({
         </div>
         
         {/* Mobile: Horizontal scroll */}
-        <div className="lg:hidden overflow-x-auto scrollbar-hide -mx-4 px-4">
+        <div className="lg:hidden overflow-x-auto scrollbar-hide -mx-2 px-4">
           <div className="flex gap-3">
             {Array.from({ length: 4 }).map((_, i) => (
               <FullCardSkeleton key={i} />
@@ -187,7 +187,7 @@ export function PopularGroups({
       {/* Mobile: Horizontal scroll with full cards */}
       <div
         ref={scrollContainerRef}
-        className="lg:hidden overflow-x-auto scrollbar-hide -mx-4 px-4 snap-x snap-mandatory"
+        className="lg:hidden overflow-x-auto scrollbar-hide -mx-2 px-4 snap-x snap-mandatory"
       >
         <div className="flex gap-3">
           {groups.slice(0, 8).map((group, index) => (

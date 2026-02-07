@@ -3,6 +3,7 @@
 import { useMemo } from 'react';
 import { IconPhoto, IconClock, IconLoader2, IconAlertCircle } from '@tabler/icons-react';
 import { cn } from '@/lib/utils';
+import { useTranslation } from '@/hooks/useTranslation';
 import { Card } from '@/components/ui/card';
 import { HistoryCardImage } from './HistoryCardImage';
 import { AnalysisHistoryItem, CropHealthStatus, AnalysisStatus } from '@/types/crop-ai';
@@ -22,61 +23,61 @@ export interface HistoryCardProps {
 
 // HEALTH STATUS CONFIGURATIONS
 
-interface HealthConfig {
+interface HealthConfigBase {
   color: string;
   bgColor: string;
   borderColor: string;
-  label: string;
+  labelKey: string;
 }
 
-const HEALTH_CONFIG: Record<CropHealthStatus, HealthConfig> = {
+const HEALTH_CONFIG: Record<CropHealthStatus, HealthConfigBase> = {
   healthy: {
     color: 'text-green-600 dark:text-green-400',
     bgColor: 'bg-green-100 dark:bg-green-900/30',
     borderColor: 'border-green-500',
-    label: 'Healthy',
+    labelKey: 'cropAi.history.healthy',
   },
   moderate: {
     color: 'text-amber-600 dark:text-amber-400',
     bgColor: 'bg-amber-100 dark:bg-amber-900/30',
     borderColor: 'border-amber-500',
-    label: 'Moderate',
+    labelKey: 'cropAi.history.moderate',
   },
   critical: {
     color: 'text-red-600 dark:text-red-400',
     bgColor: 'bg-red-100 dark:bg-red-900/30',
     borderColor: 'border-red-500',
-    label: 'Critical',
+    labelKey: 'cropAi.history.critical',
   },
 };
 
 // STATUS CONFIGURATIONS
 
-interface StatusConfig {
+interface StatusConfigBase {
   icon: React.ComponentType<{ className?: string }>;
   color: string;
   bgColor: string;
-  label: string;
+  labelKey: string;
 }
 
-const STATUS_CONFIG: Record<AnalysisStatus, StatusConfig> = {
+const STATUS_CONFIG: Record<AnalysisStatus, StatusConfigBase> = {
   processing: {
     icon: IconLoader2,
     color: 'text-blue-600 dark:text-blue-400',
     bgColor: 'bg-blue-100 dark:bg-blue-900/30',
-    label: 'Processing',
+    labelKey: 'cropAi.history.processingStatus',
   },
   completed: {
     icon: IconClock,
     color: 'text-green-600 dark:text-green-400',
     bgColor: 'bg-green-100 dark:bg-green-900/30',
-    label: 'Completed',
+    labelKey: 'cropAi.history.title',
   },
   failed: {
     icon: IconAlertCircle,
     color: 'text-red-600 dark:text-red-400',
     bgColor: 'bg-red-100 dark:bg-red-900/30',
-    label: 'Failed',
+    labelKey: 'cropAi.history.failedStatus',
   },
 };
 
@@ -119,6 +120,7 @@ interface StatusBadgeProps {
 }
 
 function StatusBadge({ status }: StatusBadgeProps) {
+  const { t } = useTranslation();
   const config = STATUS_CONFIG[status];
   const Icon = config.icon;
 
@@ -137,7 +139,7 @@ function StatusBadge({ status }: StatusBadgeProps) {
     >
       <Icon className={cn('w-3 h-3', config.color, status === 'processing' && 'animate-spin')} />
       <span className={cn('text-xs font-medium', config.color)}>
-        {config.label}
+        {t(config.labelKey)}
       </span>
     </div>
   );
@@ -155,6 +157,8 @@ export function HistoryCard({
   className,
   isSelected = false,
 }: HistoryCardProps) {
+  const { t } = useTranslation();
+
   // Format date
   const formattedDate = useMemo(() => {
     try {
@@ -163,13 +167,13 @@ export function HistoryCard({
       const diffDays = Math.floor((now.getTime() - date.getTime()) / (1000 * 60 * 60 * 24));
 
       if (diffDays === 0) {
-        return 'Today';
+        return t('cropAi.chat.today');
       }
       if (diffDays === 1) {
-        return 'Yesterday';
+        return t('cropAi.chat.yesterday');
       }
       if (diffDays < 7) {
-        return `${diffDays} days ago`;
+        return `${diffDays} ${t('cropAi.chat.daysAgo')}`;
       }
 
       return date.toLocaleDateString('en-IN', {
@@ -179,7 +183,7 @@ export function HistoryCard({
     } catch {
       return analysis.analysisDate;
     }
-  }, [analysis.analysisDate]);
+  }, [analysis.analysisDate, t]);
 
   // Count total issues
   const issueCount = analysis.diseaseCount + analysis.deficiencyCount + analysis.pestCount;
@@ -244,7 +248,7 @@ export function HistoryCard({
 
             {issueCount > 0 && (
               <span className="text-xs text-muted-foreground">
-                {issueCount} issue{issueCount > 1 ? 's' : ''}
+                {issueCount} {t('cropAi.history.issuesDetected')}
               </span>
             )}
           </div>

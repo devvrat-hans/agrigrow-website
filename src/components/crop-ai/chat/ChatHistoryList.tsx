@@ -16,6 +16,7 @@ import { Input } from '@/components/ui/input';
 import { LoadingSpinner } from '@/components/common/LoadingSpinner';
 import { EmptyState } from '@/components/common/EmptyState';
 import { useChatHistory, ConversationListItem } from '@/hooks/useChatHistory';
+import { useTranslation } from '@/hooks/useTranslation';
 
 // ============================================
 // TYPE DEFINITIONS
@@ -44,17 +45,20 @@ export interface ChatHistoryListProps {
 /**
  * Format relative time
  */
-function formatRelativeTime(date: Date): string {
+function formatRelativeTime(date: Date, t: (key: string) => string): string {
   const now = new Date();
   const diffMs = now.getTime() - date.getTime();
   const diffMins = Math.floor(diffMs / 60000);
   const diffHours = Math.floor(diffMs / 3600000);
   const diffDays = Math.floor(diffMs / 86400000);
 
-  if (diffMins < 1) return 'Just now';
+  if (diffMins < 1) return t('cropAi.chat.today');
   if (diffMins < 60) return `${diffMins}m ago`;
   if (diffHours < 24) return `${diffHours}h ago`;
-  if (diffDays < 7) return `${diffDays}d ago`;
+  if (diffDays === 1) return t('cropAi.chat.yesterday');
+  if (diffDays < 7) return `${diffDays} ${t('cropAi.chat.daysAgo')}`;
+  if (diffDays < 30) return `${Math.floor(diffDays / 7)} ${t('cropAi.chat.weeksAgo')}`;
+  if (diffDays < 365) return `${Math.floor(diffDays / 30)} ${t('cropAi.chat.monthsAgo')}`;
 
   return date.toLocaleDateString('en-IN', {
     day: 'numeric',
@@ -71,6 +75,7 @@ interface ConversationCardProps {
   onSelect: () => void;
   onDelete: () => void;
   isDeleting: boolean;
+  t: (key: string) => string;
 }
 
 function ConversationCard({
@@ -78,6 +83,7 @@ function ConversationCard({
   onSelect,
   onDelete,
   isDeleting,
+  t,
 }: ConversationCardProps) {
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
 
@@ -131,9 +137,9 @@ function ConversationCard({
           <div className="flex items-center gap-3 mt-2 text-xs text-gray-400 dark:text-gray-500">
             <span className="flex items-center gap-1">
               <IconClock className="w-3.5 h-3.5" />
-              {formatRelativeTime(conversation.updatedAt)}
+              {formatRelativeTime(conversation.updatedAt, t)}
             </span>
-            <span>{conversation.messageCount} messages</span>
+            <span>{conversation.messageCount} {t('cropAi.chat.messages')}</span>
           </div>
 
           {/* Crops Tags */}
@@ -166,7 +172,7 @@ function ConversationCard({
                 onClick={handleCancelDelete}
                 className="text-gray-500 hover:text-gray-700"
               >
-                Cancel
+                {t('cropAi.chat.cancelButton')}
               </Button>
               <Button
                 variant="ghost"
@@ -178,7 +184,7 @@ function ConversationCard({
                 {isDeleting ? (
                   <LoadingSpinner size="sm" />
                 ) : (
-                  'Delete'
+                  t('cropAi.chat.deleteButton')
                 )}
               </Button>
             </>
@@ -217,6 +223,7 @@ export function ChatHistoryList({
 }: ChatHistoryListProps) {
   const [searchQuery, setSearchQuery] = useState('');
   const [deletingId, setDeletingId] = useState<string | null>(null);
+  const { t } = useTranslation();
 
   // Use chat history hook
   const {
@@ -293,7 +300,7 @@ export function ChatHistoryList({
       {/* Header with New Chat Button */}
       <div className="flex items-center justify-between mb-4">
         <h2 className="text-lg font-semibold text-gray-900 dark:text-gray-100">
-          Chat History
+          {t('cropAi.chat.chatHistory')}
         </h2>
         <Button
           onClick={onNewConversation}
@@ -301,7 +308,7 @@ export function ChatHistoryList({
           className="flex items-center gap-2"
         >
           <IconPlus className="w-4 h-4" />
-          <span className="hidden sm:inline">New Chat</span>
+          <span className="hidden sm:inline">{t('cropAi.chat.newChat')}</span>
         </Button>
       </div>
 
@@ -311,7 +318,7 @@ export function ChatHistoryList({
           <IconSearch className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
           <Input
             type="text"
-            placeholder="Search conversations..."
+            placeholder={t('cropAi.chat.searchConversations')}
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             onKeyDown={handleSearchKeyDown}
@@ -334,12 +341,12 @@ export function ChatHistoryList({
         /* Empty State */
         <EmptyState
           icon={<IconMessageCircle className="w-12 h-12" />}
-          message="No conversations yet"
-          description="Start a new chat to get AI-powered farming advice"
+          message={t('cropAi.chat.noHistory')}
+          description={t('cropAi.chat.noHistoryDesc')}
           action={
             <Button onClick={onNewConversation} className="mt-4">
               <IconPlus className="w-4 h-4 mr-2" />
-              Start New Chat
+              {t('cropAi.chat.startNewChat')}
             </Button>
           }
         />
@@ -354,6 +361,7 @@ export function ChatHistoryList({
                 onSelect={() => handleSelect(conversation._id)}
                 onDelete={() => handleDelete(conversation._id)}
                 isDeleting={deletingId === conversation._id}
+                t={t}
               />
             ))}
 
@@ -368,7 +376,7 @@ export function ChatHistoryList({
                   {loading ? (
                     <LoadingSpinner size="sm" />
                   ) : (
-                    'Load More'
+                    t('cropAi.chat.loadMore')
                   )}
                 </Button>
               </div>
@@ -378,7 +386,7 @@ export function ChatHistoryList({
           {/* Footer Stats */}
           <div className="pt-4 border-t border-gray-200 dark:border-gray-700">
             <p className="text-sm text-gray-500 dark:text-gray-400 text-center">
-              {pagination.total} conversation{pagination.total !== 1 ? 's' : ''}
+              {pagination.total} {t('cropAi.chat.conversations')}
             </p>
           </div>
         </>
