@@ -1,0 +1,876 @@
+================================================================================
+                           FEED API DOCUMENTATION
+                              Agrigrow Platform
+================================================================================
+
+This document provides comprehensive documentation for all feed-related API
+endpoints in the Agrigrow platform.
+
+Table of Contents:
+  1. GET /api/posts - Fetch Posts Feed
+  2. POST /api/posts - Create New Post
+  3. GET /api/posts/[id] - Get Single Post
+  4. DELETE /api/posts/[id] - Delete Post
+  5. POST /api/posts/[id]/like - Toggle Like
+  6. GET /api/posts/[id]/comments - Get Comments
+  7. POST /api/posts/[id]/comments - Add Comment
+  8. POST /api/posts/[id]/share - Create Share
+  9. GET /api/posts/[id]/insights - Get Post Insights
+  10. POST /api/posts/[id]/save - Toggle Save Post
+  11. GET /api/posts/trending - Get Trending Posts
+  12. GET /api/posts/crop/[crop] - Get Posts by Crop
+  13. GET /api/feed/preferences - Get Feed Preferences
+  14. PUT /api/feed/preferences - Update Feed Preferences
+  15. GET /api/feed/new-posts-count - Get New Posts Count
+
+================================================================================
+1. GET /api/posts - Fetch Posts Feed
+================================================================================
+
+Description:
+  Fetches posts with pagination, filtering, and basic personalization for the
+  home feed. Supports both offset-based and cursor-based pagination.
+
+Authentication:
+  Optional - Provides personalized results if user phone is available
+  Header: x-user-phone (optional)
+
+Query Parameters:
+  | Parameter  | Type   | Default   | Description                              |
+  |------------|--------|-----------|------------------------------------------|
+  | page       | number | 1         | Page number (for offset pagination)      |
+  | limit      | number | 10        | Items per page (max 50)                  |
+  | postType   | string | -         | Filter by post type                      |
+  | type       | string | -         | Legacy alias for postType                |
+  | phone      | string | -         | Filter by author's phone number          |
+  | crop       | string | -         | Filter by crop tag                       |
+  | state      | string | -         | Filter by location state                 |
+  | cursor     | string | -         | Last post ID for cursor-based pagination |
+  | sortBy     | string | "newest"  | Sort by: "newest" or "engagement"        |
+
+Post Types: question, update, tip, problem, success_story, news, post, technique, technology
+
+Request Example:
+  GET /api/posts?page=1&limit=10&postType=question&crop=rice&sortBy=newest
+  Headers:
+    x-user-phone: +919876543210
+
+Response Schema (200 OK):
+  {
+    "success": true,
+    "posts": [
+      {
+        "id": string,              // Post ID (same as _id)
+        "_id": string,             // MongoDB ObjectId
+        "content": string,         // Post content text
+        "postType": string,        // Post type
+        "type": string,            // Legacy alias for postType
+        "crops": string[],         // Array of crop tags
+        "tags": string[],          // Legacy alias for crops
+        "images": string[],        // Array of image URLs
+        "visibility": string,      // "public", "followers", or "group"
+        "location": {
+          "state": string?,        // Author's state
+          "district": string?      // Author's district
+        },
+        "author": {
+          "id": string,            // Author ID
+          "_id": string,           // Author ID
+          "fullName": string,      // Author's full name
+          "name": string,          // Legacy alias for fullName
+          "profileImage": string?, // Profile image URL
+          "avatar": string?,       // Legacy alias for profileImage
+          "role": string,          // "farmer", "student", "business"
+          "badges": string[],      // Author's badges
+          "experienceLevel": string?
+        },
+        "likesCount": number,      // Total likes
+        "commentsCount": number,   // Total comments
+        "sharesCount": number,     // Total shares
+        "likes": string[],         // Array of user IDs who liked
+        "savedBy": string[],       // Array of user IDs who saved
+        "isLiked": boolean,        // If current user liked (when authenticated)
+        "isSaved": boolean,        // If current user saved (when authenticated)
+        "isRepost": boolean,       // If this is a repost
+        "originalPost": object?,   // Original post if repost
+        "createdAt": string,       // ISO date string
+        "updatedAt": string        // ISO date string
+      }
+    ],
+    "pagination": {
+      "page": number,              // Current page
+      "limit": number,             // Items per page
+      "total": number,             // Total posts matching filters
+      "totalPages": number,        // Total number of pages
+      "hasMore": boolean           // More pages available
+    },
+    "hasMore": boolean,            // For cursor-based pagination
+    "nextCursor": string?          // Next cursor for pagination
+  }
+
+Error Responses:
+  500 Internal Server Error:
+  {
+    "success": false,
+    "error": "Failed to fetch posts"
+  }
+
+================================================================================
+2. POST /api/posts - Create New Post
+================================================================================
+
+Description:
+  Creates a new post in the feed.
+
+Authentication:
+  Required - x-user-phone header
+
+Request Headers:
+  - Content-Type: application/json
+  - x-user-phone: User's phone number (required)
+
+Request Body Schema:
+  {
+    "content": string,           // Required, max 5000 characters
+    "postType": string,          // Required: question, update, tip, problem,
+                                 // success_story, news, post, technique, technology
+    "images": string[],          // Optional, max 10 images
+    "crops": string[],           // Optional, max 5 crops
+    "visibility": string,        // Optional: "public" (default), "followers", "group"
+    "location": {                // Optional
+      "state": string,
+      "district": string
+    }
+  }
+
+Request Example:
+  POST /api/posts
+  Headers:
+    Content-Type: application/json
+    x-user-phone: +919876543210
+  Body:
+    {
+      "content": "What is the best fertilizer for wheat in winter?",
+      "postType": "question",
+      "crops": ["wheat"],
+      "visibility": "public"
+    }
+
+Response Schema (201 Created):
+  {
+    "success": true,
+    "message": "Post created successfully",
+    "post": {
+      "_id": string,
+      "content": string,
+      "postType": string,
+      "crops": string[],
+      "images": string[],
+      "author": {
+        "_id": string,
+        "fullName": string,
+        "profileImage": string?,
+        "role": string
+      },
+      "likesCount": 0,
+      "commentsCount": 0,
+      "sharesCount": 0,
+      "visibility": string,
+      "createdAt": string,
+      "updatedAt": string
+    }
+  }
+
+Error Responses:
+  400 Bad Request:
+  {
+    "success": false,
+    "error": "Content is required"
+  }
+  {
+    "success": false,
+    "error": "Invalid post type"
+  }
+
+  401 Unauthorized:
+  {
+    "success": false,
+    "error": "Authentication required. Please sign in."
+  }
+
+  404 Not Found:
+  {
+    "success": false,
+    "error": "User not found. Please complete registration first."
+  }
+
+  500 Internal Server Error:
+  {
+    "success": false,
+    "error": "Failed to create post"
+  }
+
+================================================================================
+3. GET /api/posts/[id] - Get Single Post
+================================================================================
+
+Description:
+  Fetches a single post by ID with full details.
+
+Authentication:
+  Optional - Provides isLiked/isSaved status if authenticated
+  Header: x-user-phone (optional)
+
+URL Parameters:
+  - id: Post ID (MongoDB ObjectId)
+
+Request Example:
+  GET /api/posts/64abc123def456789012
+  Headers:
+    x-user-phone: +919876543210
+
+Response Schema (200 OK):
+  {
+    "success": true,
+    "post": {
+      "_id": string,
+      "content": string,
+      "postType": string,
+      "crops": string[],
+      "images": string[],
+      "author": {
+        "_id": string,
+        "fullName": string,
+        "profileImage": string?,
+        "role": string,
+        "badges": string[]
+      },
+      "likesCount": number,
+      "commentsCount": number,
+      "sharesCount": number,
+      "viewsCount": number,
+      "isLiked": boolean,
+      "isSaved": boolean,
+      "visibility": string,
+      "location": object?,
+      "createdAt": string,
+      "updatedAt": string
+    }
+  }
+
+Error Responses:
+  400 Bad Request:
+  {
+    "success": false,
+    "error": "Invalid post ID"
+  }
+
+  404 Not Found:
+  {
+    "success": false,
+    "error": "Post not found"
+  }
+
+================================================================================
+4. DELETE /api/posts/[id] - Delete Post
+================================================================================
+
+Description:
+  Deletes a post. Only the post author can delete their own posts.
+
+Authentication:
+  Required - x-user-phone header
+
+URL Parameters:
+  - id: Post ID (MongoDB ObjectId)
+
+Request Example:
+  DELETE /api/posts/64abc123def456789012
+  Headers:
+    x-user-phone: +919876543210
+
+Response Schema (200 OK):
+  {
+    "success": true,
+    "message": "Post deleted successfully"
+  }
+
+Error Responses:
+  401 Unauthorized:
+  {
+    "success": false,
+    "error": "Authentication required"
+  }
+
+  403 Forbidden:
+  {
+    "success": false,
+    "error": "You can only delete your own posts"
+  }
+
+  404 Not Found:
+  {
+    "success": false,
+    "error": "Post not found"
+  }
+
+================================================================================
+5. POST /api/posts/[id]/like - Toggle Like
+================================================================================
+
+Description:
+  Toggles like status on a post. If already liked, unlikes; if not liked, likes.
+
+Authentication:
+  Required - x-user-phone header
+
+URL Parameters:
+  - id: Post ID (MongoDB ObjectId)
+
+Request Headers:
+  - Content-Type: application/json
+  - x-user-phone: User's phone number (required)
+
+Request Body (optional):
+  {
+    "phone": string  // Deprecated, use x-user-phone header instead
+  }
+
+Request Example:
+  POST /api/posts/64abc123def456789012/like
+  Headers:
+    Content-Type: application/json
+    x-user-phone: +919876543210
+
+Response Schema (200 OK):
+  {
+    "success": true,
+    "message": "Post liked" | "Post unliked",
+    "liked": boolean,          // Current like status
+    "likesCount": number       // Updated likes count
+  }
+
+Error Responses:
+  400 Bad Request:
+  {
+    "success": false,
+    "error": "Invalid post ID"
+  }
+
+  401 Unauthorized:
+  {
+    "success": false,
+    "error": "Authentication required"
+  }
+
+  404 Not Found:
+  {
+    "success": false,
+    "error": "Post not found"
+  }
+
+================================================================================
+6. GET /api/posts/[id]/comments - Get Comments
+================================================================================
+
+Description:
+  Fetches comments for a post with pagination and nested replies support.
+
+Authentication:
+  Optional - Provides isLiked status if authenticated
+  Header: x-user-phone (optional)
+
+URL Parameters:
+  - id: Post ID (MongoDB ObjectId)
+
+Query Parameters:
+  | Parameter  | Type   | Default | Description                    |
+  |------------|--------|---------|--------------------------------|
+  | page       | number | 1       | Page number                    |
+  | limit      | number | 10      | Comments per page (max 50)     |
+  | sortBy     | string | newest  | Sort: newest, oldest, popular  |
+
+Request Example:
+  GET /api/posts/64abc123def456789012/comments?page=1&limit=10&sortBy=newest
+  Headers:
+    x-user-phone: +919876543210
+
+Response Schema (200 OK):
+  {
+    "success": true,
+    "comments": [
+      {
+        "_id": string,
+        "content": string,
+        "author": {
+          "_id": string,
+          "fullName": string,
+          "profileImage": string?,
+          "role": string
+        },
+        "likesCount": number,
+        "isLiked": boolean,
+        "isHelpful": boolean,
+        "helpfulMarkedBy": string?,
+        "isEdited": boolean,
+        "editedAt": string?,
+        "createdAt": string,
+        "replies": [
+          {
+            "_id": string,
+            "content": string,
+            "author": object,
+            "likesCount": number,
+            "isLiked": boolean,
+            "createdAt": string
+          }
+        ],
+        "repliesCount": number
+      }
+    ],
+    "pagination": {
+      "page": number,
+      "limit": number,
+      "total": number,
+      "totalPages": number,
+      "hasMore": boolean
+    }
+  }
+
+================================================================================
+7. POST /api/posts/[id]/comments - Add Comment
+================================================================================
+
+Description:
+  Adds a new comment to a post. Supports replies to existing comments.
+
+Authentication:
+  Required - x-user-phone header
+
+URL Parameters:
+  - id: Post ID (MongoDB ObjectId)
+
+Request Headers:
+  - Content-Type: application/json
+  - x-user-phone: User's phone number (required)
+
+Request Body Schema:
+  {
+    "content": string,           // Required, max 2000 characters
+    "parentCommentId": string?   // Optional, for replies
+  }
+
+Request Example:
+  POST /api/posts/64abc123def456789012/comments
+  Headers:
+    Content-Type: application/json
+    x-user-phone: +919876543210
+  Body:
+    {
+      "content": "I recommend using NPK 10-26-26 for wheat.",
+      "parentCommentId": null
+    }
+
+Response Schema (201 Created):
+  {
+    "success": true,
+    "message": "Comment added successfully",
+    "comment": {
+      "_id": string,
+      "postId": string,
+      "content": string,
+      "author": {
+        "_id": string,
+        "fullName": string,
+        "profileImage": string?,
+        "role": string
+      },
+      "parentComment": string?,
+      "likesCount": 0,
+      "isHelpful": false,
+      "createdAt": string
+    }
+  }
+
+Error Responses:
+  400 Bad Request:
+  {
+    "success": false,
+    "error": "Content is required"
+  }
+
+  401 Unauthorized:
+  {
+    "success": false,
+    "error": "Authentication required"
+  }
+
+  404 Not Found:
+  {
+    "success": false,
+    "error": "Post not found"
+  }
+
+================================================================================
+8. POST /api/posts/[id]/share - Create Share
+================================================================================
+
+Description:
+  Records a share action on a post. Supports different share types.
+
+Authentication:
+  Required - x-user-phone header
+
+URL Parameters:
+  - id: Post ID (MongoDB ObjectId)
+
+Request Headers:
+  - Content-Type: application/json
+  - x-user-phone: User's phone number (required)
+
+Request Body Schema:
+  {
+    "shareType": string,         // Required: "repost", "external", "message"
+    "platform": string?,         // For external: "whatsapp", "facebook", "twitter", "link"
+    "message": string?           // Optional message with share
+  }
+
+Request Example:
+  POST /api/posts/64abc123def456789012/share
+  Headers:
+    Content-Type: application/json
+    x-user-phone: +919876543210
+  Body:
+    {
+      "shareType": "external",
+      "platform": "whatsapp"
+    }
+
+Response Schema (200 OK):
+  {
+    "success": true,
+    "message": "Share recorded successfully",
+    "share": {
+      "_id": string,
+      "postId": string,
+      "sharedBy": string,
+      "shareType": string,
+      "platform": string?,
+      "createdAt": string
+    },
+    "sharesCount": number,
+    "shareLink": string          // Generated share link
+  }
+
+================================================================================
+9. GET /api/posts/[id]/insights - Get Post Insights
+================================================================================
+
+Description:
+  Returns analytics and insights for a post. Only accessible by post author.
+
+Authentication:
+  Required - x-user-phone header (must be post author)
+
+URL Parameters:
+  - id: Post ID (MongoDB ObjectId)
+
+Request Example:
+  GET /api/posts/64abc123def456789012/insights
+  Headers:
+    x-user-phone: +919876543210
+
+Response Schema (200 OK):
+  {
+    "success": true,
+    "insights": {
+      "viewsCount": number,          // Total views
+      "uniqueViewersCount": number,  // Unique viewers
+      "likesCount": number,          // Total likes
+      "commentsCount": number,       // Total comments
+      "sharesCount": number,         // Total shares
+      "savedCount": number,          // Times saved
+      "profileVisits": number,       // Profile visits from post
+      "engagementRate": number,      // Percentage (0-100)
+      "reach": number,               // Estimated reach
+      "helpfulMarksCount": number,   // Helpful marks on comments
+      "daysSinceCreation": number    // Days since posted
+    }
+  }
+
+Error Responses:
+  403 Forbidden:
+  {
+    "success": false,
+    "error": "You can only view insights for your own posts"
+  }
+
+  404 Not Found:
+  {
+    "success": false,
+    "error": "Post not found"
+  }
+
+================================================================================
+10. POST /api/posts/[id]/save - Toggle Save Post
+================================================================================
+
+Description:
+  Toggles save/bookmark status on a post.
+
+Authentication:
+  Required - x-user-phone header
+
+URL Parameters:
+  - id: Post ID (MongoDB ObjectId)
+
+Request Example:
+  POST /api/posts/64abc123def456789012/save
+  Headers:
+    x-user-phone: +919876543210
+
+Response Schema (200 OK):
+  {
+    "success": true,
+    "message": "Post saved" | "Post unsaved",
+    "isSaved": boolean           // Current save status
+  }
+
+================================================================================
+11. GET /api/posts/trending - Get Trending Posts
+================================================================================
+
+Description:
+  Fetches trending posts based on engagement metrics.
+
+Authentication:
+  Optional - Header: x-user-phone
+
+Query Parameters:
+  | Parameter  | Type   | Default | Description                    |
+  |------------|--------|---------|--------------------------------|
+  | limit      | number | 10      | Number of posts (max 50)       |
+  | timeRange  | string | week    | Time range: day, week, month   |
+  | crop       | string | -       | Filter by crop                 |
+
+Request Example:
+  GET /api/posts/trending?limit=10&timeRange=week
+  Headers:
+    x-user-phone: +919876543210
+
+Response Schema (200 OK):
+  {
+    "success": true,
+    "posts": [
+      // Same structure as GET /api/posts
+    ],
+    "timeRange": string
+  }
+
+================================================================================
+12. GET /api/posts/crop/[crop] - Get Posts by Crop
+================================================================================
+
+Description:
+  Fetches posts filtered by a specific crop tag.
+
+Authentication:
+  Optional - Header: x-user-phone
+
+URL Parameters:
+  - crop: Crop name (URL encoded)
+
+Query Parameters:
+  | Parameter  | Type   | Default | Description                    |
+  |------------|--------|---------|--------------------------------|
+  | page       | number | 1       | Page number                    |
+  | limit      | number | 10      | Posts per page (max 50)        |
+  | sortBy     | string | newest  | Sort: newest, engagement       |
+
+Request Example:
+  GET /api/posts/crop/rice?page=1&limit=10&sortBy=newest
+
+Response Schema (200 OK):
+  {
+    "success": true,
+    "posts": [
+      // Same structure as GET /api/posts
+    ],
+    "crop": string,
+    "pagination": {
+      "page": number,
+      "limit": number,
+      "total": number,
+      "hasMore": boolean
+    }
+  }
+
+================================================================================
+13. GET /api/feed/preferences - Get Feed Preferences
+================================================================================
+
+Description:
+  Fetches user's feed personalization preferences.
+
+Authentication:
+  Required - x-user-phone header
+
+Request Example:
+  GET /api/feed/preferences
+  Headers:
+    x-user-phone: +919876543210
+
+Response Schema (200 OK):
+  {
+    "success": true,
+    "data": {
+      "_id": string,
+      "userId": string,
+      "hiddenPosts": string[],           // Array of hidden post IDs
+      "mutedUsers": string[],            // Array of muted user IDs
+      "likedTopics": {                   // Topic engagement scores
+        "question": number,
+        "tip": number,
+        ...
+      },
+      "likedCrops": {                    // Crop engagement scores
+        "rice": number,
+        "wheat": number,
+        ...
+      },
+      "preferredAuthors": {              // Author engagement scores
+        "userId": number,
+        ...
+      },
+      "settings": {
+        "showReposts": boolean,          // Show reposted content
+        "prioritizeFollowing": boolean,  // Prioritize followed users
+        "contentTypes": string[]         // Preferred post types
+      },
+      "viewedPostsCount": number,
+      "lastFeedRefresh": string,
+      "createdAt": string,
+      "updatedAt": string
+    }
+  }
+
+================================================================================
+14. PUT /api/feed/preferences - Update Feed Preferences
+================================================================================
+
+Description:
+  Updates user's feed personalization preferences.
+
+Authentication:
+  Required - x-user-phone header
+
+Request Headers:
+  - Content-Type: application/json
+  - x-user-phone: User's phone number (required)
+
+Request Body Schema:
+  {
+    "hiddenPosts": {                    // Update hidden posts
+      "operation": string,              // "add", "remove", or "set"
+      "ids": string[]                   // Array of post IDs
+    },
+    "mutedUsers": {                     // Update muted users
+      "operation": string,              // "add", "remove", or "set"
+      "ids": string[]                   // Array of user IDs
+    },
+    "likedTopics": {                    // Replace liked topics
+      "question": number,
+      "tip": number
+    },
+    "likedCrops": {                     // Replace liked crops
+      "rice": number,
+      "wheat": number
+    },
+    "settings": {                       // Update individual settings
+      "showReposts": boolean,
+      "prioritizeFollowing": boolean,
+      "contentTypes": string[]
+    }
+  }
+
+Request Example (Mute User):
+  PUT /api/feed/preferences
+  Headers:
+    Content-Type: application/json
+    x-user-phone: +919876543210
+  Body:
+    {
+      "mutedUsers": {
+        "operation": "add",
+        "ids": ["64abc123def456789012"]
+      }
+    }
+
+Request Example (Update Settings):
+  PUT /api/feed/preferences
+  Headers:
+    Content-Type: application/json
+    x-user-phone: +919876543210
+  Body:
+    {
+      "settings": {
+        "showReposts": false,
+        "prioritizeFollowing": true
+      }
+    }
+
+Response Schema (200 OK):
+  {
+    "success": true,
+    "message": "Preferences updated successfully",
+    "data": {
+      // Updated preferences object (same as GET response)
+    }
+  }
+
+Error Responses:
+  400 Bad Request:
+  {
+    "success": false,
+    "error": "No valid fields to update"
+  }
+
+================================================================================
+15. GET /api/feed/new-posts-count - Get New Posts Count
+================================================================================
+
+Description:
+  Returns count of new posts since a given timestamp. Used for real-time updates.
+
+Authentication:
+  Optional - x-user-phone header
+
+Query Parameters:
+  | Parameter  | Type   | Required | Description                    |
+  |------------|--------|----------|--------------------------------|
+  | since      | string | Yes      | ISO timestamp                  |
+  | category   | string | No       | Filter by post type            |
+
+Request Example:
+  GET /api/feed/new-posts-count?since=2024-01-15T10:30:00.000Z&category=question
+  Headers:
+    x-user-phone: +919876543210
+
+Response Schema (200 OK):
+  {
+    "success": true,
+    "count": number,                    // Number of new posts
+    "latestPost": {                     // Most recent post preview
+      "_id": string,
+      "content": string,                // First 100 characters
+      "author": {
+        "fullName": string,
+        "profileImage": string?
+      },
+      "createdAt": string
+    } | null
+  }
+
+================================================================================
+                              END OF DOCUMENTATION
+================================================================================

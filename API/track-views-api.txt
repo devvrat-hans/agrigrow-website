@@ -1,0 +1,142 @@
+# Track Views API Documentation
+
+## Overview
+API endpoint for tracking post views in bulk. This is used when posts become visible in the feed to accurately count views.
+
+---
+
+## POST /api/posts/track-views
+
+**Description:** Tracks views for multiple posts in a single batch request. Called when posts become visible in the feed viewport.
+
+### Authentication
+Required. Uses `x-user-phone` header.
+
+### Headers
+| Name | Type | Required | Description |
+|------|------|----------|-------------|
+| Content-Type | string | Yes | application/json |
+| x-user-phone | string | Yes | Authenticated user's phone number |
+
+### Request Body
+```json
+{
+  "postIds": ["postId1", "postId2", "postId3"]
+}
+```
+
+| Field | Type | Required | Description |
+|-------|------|----------|-------------|
+| postIds | string[] | Yes | Array of post IDs that were viewed (max 20 per request) |
+
+### Response
+
+#### Success Response (200 OK)
+```json
+{
+  "success": true,
+  "data": {
+    "processed": 5,
+    "modifiedCount": 5
+  }
+}
+```
+
+| Field | Type | Description |
+|-------|------|-------------|
+| success | boolean | Indicates if the request was successful |
+| data.processed | number | Number of posts processed |
+| data.modifiedCount | number | Number of posts actually updated in database |
+
+### Error Responses
+
+#### 400 Bad Request - Invalid Input
+```json
+{
+  "success": false,
+  "error": "postIds array is required"
+}
+```
+
+```json
+{
+  "success": false,
+  "error": "No valid post IDs provided"
+}
+```
+
+#### 401 Unauthorized - Missing Authentication
+```json
+{
+  "success": false,
+  "error": "Authentication required"
+}
+```
+
+#### 404 Not Found - User Not Found
+```json
+{
+  "success": false,
+  "error": "User not found"
+}
+```
+
+#### 500 Internal Server Error
+```json
+{
+  "success": false,
+  "error": "Failed to track views"
+}
+```
+
+---
+
+## Behavior Notes
+
+1. **Batch Processing**: Maximum of 20 posts can be tracked per request to prevent abuse.
+
+2. **View Count Increment**: Each call increments the `viewsCount` field for each post by 1.
+
+3. **Unique Viewers**: Users are added to the `uniqueViewers` array (using `$addToSet` to prevent duplicates).
+
+4. **User Feed Preferences**: Viewed posts are tracked in `UserFeedPreference.viewedPosts` for personalization.
+
+5. **Client-Side Deduplication**: The frontend hook (`useViewTracking`) deduplicates views within a session to avoid counting the same post multiple times.
+
+6. **Debouncing**: Views are batched and debounced on the client side (1.5 second delay by default) to minimize API calls.
+
+---
+
+## Usage Example
+
+```typescript
+// Using the useViewTracking hook
+import { useViewTracking } from '@/hooks/useViewTracking';
+
+function FeedComponent() {
+  const { trackView, flush } = useViewTracking();
+  
+  // Called when a post becomes visible in viewport
+  const handlePostVisible = (postId: string) => {
+    trackView(postId);
+  };
+  
+  // Force flush pending views (e.g., on component unmount)
+  useEffect(() => {
+    return () => flush();
+  }, [flush]);
+}
+```
+
+---
+
+## Database Updates
+
+### Post Collection
+- `viewsCount`: Incremented by 1 for each view
+- `uniqueViewers`: User ID added to array (no duplicates)
+
+### UserFeedPreference Collection
+- `viewedPosts`: Array updated with viewing history
+  - Limited to last 500 viewed posts
+  - Includes timestamp and metadata for personalization

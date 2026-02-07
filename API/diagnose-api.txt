@@ -1,0 +1,281 @@
+# Crop Diagnosis API
+
+AI-powered crop disease and health diagnosis from images.
+
+## Base URL
+`/api/crop-ai/diagnose`
+
+---
+
+## POST /api/crop-ai/diagnose
+
+Analyzes a crop image to identify diseases, pests, nutrient deficiencies, and health issues.
+
+### Headers
+
+| Header | Type | Required | Description |
+|--------|------|----------|-------------|
+| `Content-Type` | string | Yes | Must be `application/json` |
+| `x-user-phone` | string | No | User's phone number for saving analysis history |
+
+### Request Body
+
+```json
+{
+  "imageBase64": "data:image/jpeg;base64,/9j/4AAQSkZJRg...",
+  "cropName": "rice",
+  "growthStage": "vegetative",
+  "affectedParts": ["leaves", "stem"],
+  "description": "Yellow spots appearing on leaves with brown edges",
+  "symptoms": ["yellowing", "spots", "wilting"]
+}
+```
+
+### Request Fields
+
+| Field | Type | Required | Description |
+|-------|------|----------|-------------|
+| `imageBase64` | string | Yes | Base64-encoded image (JPEG or PNG, max 5MB) |
+| `cropName` | string | Yes | Name of the crop (see supported crops below) |
+| `growthStage` | string | No | Current growth stage of the crop |
+| `affectedParts` | string[] | No | Parts of the plant affected |
+| `description` | string | No | Additional description of the issue |
+| `symptoms` | string[] | No | Observed symptoms |
+
+### Supported Crops
+
+Rice, Wheat, Maize, Cotton, Soybean, Groundnut, Sugarcane, Potato, Tomato, Onion, Chilli, Brinjal, Cabbage, Cauliflower, Carrot, Peas, Beans, Cucumber, Pumpkin, Watermelon, Muskmelon, Mango, Banana, Papaya, Grapes, Pomegranate, Orange, Lemon, Coconut, Arecanut, Tea, Coffee, Rubber, Pepper, Cardamom, Turmeric, Ginger, Garlic, Cumin, Coriander, Mustard, Sunflower, Castor, Jute, Tobacco
+
+### Growth Stages
+
+- `seedling` - Seedling Stage
+- `vegetative` - Vegetative Growth
+- `flowering` - Flowering Stage
+- `fruiting` - Fruiting/Pod Formation
+- `maturity` - Maturity/Harvest Ready
+
+### Affected Plant Parts
+
+- `leaves` - Leaves
+- `stem` - Stem/Trunk
+- `roots` - Roots
+- `fruits` - Fruits/Pods
+- `flowers` - Flowers
+- `seeds` - Seeds
+- `whole_plant` - Whole Plant
+
+---
+
+### Response
+
+```json
+{
+  "success": true,
+  "data": {
+    "overallHealth": {
+      "score": 65,
+      "status": "moderate",
+      "summary": "Your rice crop shows signs of bacterial leaf blight with moderate severity. Early intervention recommended."
+    },
+    "identifiedIssues": [
+      {
+        "name": "Bacterial Leaf Blight",
+        "type": "disease",
+        "confidence": 85,
+        "severity": "medium",
+        "description": "Caused by Xanthomonas oryzae, this bacterial disease causes yellowing and wilting of leaves with water-soaked lesions.",
+        "symptoms": [
+          "Yellow to white lesions on leaf margins",
+          "Leaves turning brown and drying",
+          "Wilting of leaf tips"
+        ],
+        "causes": [
+          "High humidity and temperature",
+          "Contaminated water or seeds",
+          "Dense planting"
+        ]
+      }
+    ],
+    "treatments": {
+      "immediate": [
+        {
+          "action": "Remove and destroy infected leaves",
+          "priority": "high",
+          "timeframe": "Within 24-48 hours"
+        },
+        {
+          "action": "Apply copper-based bactericide (Copper oxychloride @ 3g/L)",
+          "priority": "high",
+          "timeframe": "Immediately after removal"
+        }
+      ],
+      "preventive": [
+        {
+          "action": "Use resistant varieties for next season",
+          "priority": "medium",
+          "timeframe": "Next planting"
+        },
+        {
+          "action": "Maintain field drainage",
+          "priority": "medium",
+          "timeframe": "Ongoing"
+        }
+      ],
+      "organic": [
+        {
+          "action": "Apply neem oil spray (5ml/L)",
+          "priority": "medium",
+          "timeframe": "Every 7-10 days"
+        },
+        {
+          "action": "Use Pseudomonas fluorescens (10g/L)",
+          "priority": "medium",
+          "timeframe": "Preventive application"
+        }
+      ]
+    },
+    "additionalNotes": [
+      "Common during Kharif season with high humidity",
+      "Can spread rapidly in standing water conditions",
+      "Early detection improves treatment success"
+    ],
+    "seasonalAdvice": "During monsoon, ensure proper drainage and avoid nitrogen fertilizer excess which can increase susceptibility."
+  },
+  "analysisId": "6789abcd1234567890efgh12",
+  "meta": {
+    "processingTime": 2345,
+    "season": "Kharif",
+    "month": "July",
+    "saved": true
+  }
+}
+```
+
+### Response Fields
+
+#### Overall Health
+| Field | Type | Description |
+|-------|------|-------------|
+| `score` | number | Health score from 0-100 |
+| `status` | string | `healthy`, `moderate`, or `critical` |
+| `summary` | string | Brief summary of crop health |
+
+#### Identified Issues
+| Field | Type | Description |
+|-------|------|-------------|
+| `name` | string | Name of the disease/pest/issue |
+| `type` | string | `disease`, `pest`, `deficiency`, `environmental` |
+| `confidence` | number | Confidence level 0-100 |
+| `severity` | string | `low`, `medium`, or `high` |
+| `description` | string | Detailed description of the issue |
+| `symptoms` | string[] | Observable symptoms |
+| `causes` | string[] | Possible causes |
+
+#### Treatments
+| Field | Type | Description |
+|-------|------|-------------|
+| `immediate` | object[] | Actions to take immediately |
+| `preventive` | object[] | Preventive measures for future |
+| `organic` | object[] | Organic/natural treatment options |
+
+Each treatment contains:
+- `action`: What to do
+- `priority`: `high`, `medium`, or `low`
+- `timeframe`: When to apply
+
+---
+
+## Error Responses
+
+### Validation Errors (400)
+
+```json
+{
+  "success": false,
+  "error": "Please upload a clear photo of your crop.",
+  "errorCode": "INVALID_IMAGE",
+  "retryable": false
+}
+```
+
+### Error Codes
+
+| Code | Description | User Message |
+|------|-------------|--------------|
+| `INVALID_IMAGE` | Missing or invalid image | Please upload a clear photo of your crop. |
+| `INVALID_IMAGE_FORMAT` | Unsupported format | Please upload a JPEG or PNG image. |
+| `IMAGE_TOO_LARGE` | Image exceeds 5MB | Image is too large. Please use a smaller image. |
+| `INVALID_CROP` | Invalid crop name | Please select a valid crop from the list. |
+| `INVALID_GROWTH_STAGE` | Invalid growth stage | Please select a valid growth stage. |
+| `AI_BLOCKED` | Safety filter triggered | We couldn't analyze this image. Please try with a different photo. |
+| `AI_TIMEOUT` | Request timeout | Analysis is taking too long. Please try again. |
+| `AI_QUOTA_EXCEEDED` | API quota exceeded | Service is busy. Please try again in a few minutes. |
+
+### Rate Limit Error (429)
+
+```json
+{
+  "success": false,
+  "error": "Rate limit exceeded",
+  "retryAfterSeconds": 3600,
+  "limit": {
+    "hourly": 50,
+    "daily": 200
+  }
+}
+```
+
+Rate limit headers are included in all responses:
+- `X-RateLimit-Limit-Hour`: Hourly limit
+- `X-RateLimit-Remaining-Hour`: Remaining hourly requests
+- `X-RateLimit-Limit-Day`: Daily limit
+- `X-RateLimit-Remaining-Day`: Remaining daily requests
+- `Retry-After`: Seconds until limit resets (when limited)
+
+---
+
+## Example Usage
+
+### cURL
+
+```bash
+curl -X POST https://your-domain.com/api/crop-ai/diagnose \
+  -H "Content-Type: application/json" \
+  -H "x-user-phone: 919876543210" \
+  -d '{
+    "imageBase64": "data:image/jpeg;base64,/9j/4AAQSkZJRg...",
+    "cropName": "rice",
+    "growthStage": "vegetative",
+    "description": "Yellow spots on leaves"
+  }'
+```
+
+### JavaScript/TypeScript
+
+```typescript
+const response = await fetch('/api/crop-ai/diagnose', {
+  method: 'POST',
+  headers: {
+    'Content-Type': 'application/json',
+    'x-user-phone': '919876543210',
+  },
+  body: JSON.stringify({
+    imageBase64: imageData,
+    cropName: 'rice',
+    growthStage: 'vegetative',
+    description: 'Yellow spots on leaves',
+  }),
+});
+
+const data = await response.json();
+```
+
+---
+
+## Notes
+
+- Image analysis uses Google Gemini AI with agricultural expertise
+- Responses are tailored to current season (Kharif/Rabi/Zaid)
+- Analysis history is saved for authenticated users
+- Diagnosis is never cached (each image is unique)
+- Processing time typically 1-3 seconds depending on image complexity

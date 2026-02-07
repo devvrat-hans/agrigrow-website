@@ -1,0 +1,255 @@
+# Analytics API
+
+API endpoint for retrieving AI usage analytics and monitoring data.
+
+## Base URL
+`/api/crop-ai/analytics`
+
+---
+
+## GET /api/crop-ai/analytics
+
+Returns comprehensive analytics data for the admin dashboard including usage stats, trends, and error monitoring.
+
+### Query Parameters
+
+| Parameter | Type | Default | Description |
+|-----------|------|---------|-------------|
+| `days` | number | 7 | Number of days to include in the analysis |
+| `operationType` | string | - | Filter by operation type: `chat`, `diagnosis`, or `planning` |
+
+### Example Request
+
+```bash
+GET /api/crop-ai/analytics?days=7&operationType=chat
+```
+
+### Response
+
+```json
+{
+  "success": true,
+  "data": {
+    "summary": {
+      "totalRequests": 1250,
+      "successRate": "96.45",
+      "errorRate": "3.55",
+      "avgResponseTime": 1234,
+      "p95ResponseTime": 2345,
+      "cacheHitRate": "23.50"
+    },
+    "today": {
+      "totalRequests": 156,
+      "successCount": 150,
+      "errorCount": 6,
+      "avgResponseTime": 1100,
+      "cacheHitRate": "25.00"
+    },
+    "trends": {
+      "requests": {
+        "value": "12.5",
+        "direction": "up",
+        "isPositive": true
+      },
+      "errorRate": {
+        "value": "5.2",
+        "direction": "down",
+        "isPositive": true
+      },
+      "responseTime": {
+        "value": "8.3",
+        "direction": "down",
+        "isPositive": true
+      },
+      "cacheHitRate": {
+        "value": "3.1",
+        "direction": "up",
+        "isPositive": true
+      }
+    },
+    "realtime": {
+      "last5Minutes": {
+        "totalRequests": 12,
+        "successCount": 11,
+        "errorCount": 1,
+        "cachedCount": 3,
+        "avgResponseTime": 980,
+        "minResponseTime": 450,
+        "maxResponseTime": 2100,
+        "p95ResponseTime": 1800,
+        "errorRate": 8.33,
+        "cacheHitRate": 25.0
+      },
+      "lastHour": {
+        "totalRequests": 89,
+        "successCount": 85,
+        "errorCount": 4,
+        "cachedCount": 21,
+        "avgResponseTime": 1050,
+        "minResponseTime": 380,
+        "maxResponseTime": 3200,
+        "p95ResponseTime": 2100,
+        "errorRate": 4.49,
+        "cacheHitRate": 23.6
+      }
+    },
+    "daily": [
+      {
+        "date": "2024-01-15",
+        "totalRequests": 180,
+        "successCount": 175,
+        "errorCount": 5,
+        "avgResponseTime": 1150
+      },
+      {
+        "date": "2024-01-16",
+        "totalRequests": 195,
+        "successCount": 190,
+        "errorCount": 5,
+        "avgResponseTime": 1080
+      }
+    ],
+    "operationBreakdown": {
+      "chat": {
+        "requests": 650,
+        "percentage": "52.00",
+        "avgResponseTime": 890,
+        "errorRate": "2.50",
+        "cacheHitRate": "35.00"
+      },
+      "diagnosis": {
+        "requests": 350,
+        "percentage": "28.00",
+        "avgResponseTime": 1650,
+        "errorRate": "4.50",
+        "cacheHitRate": "0.00"
+      },
+      "planning": {
+        "requests": 250,
+        "percentage": "20.00",
+        "avgResponseTime": 1450,
+        "errorRate": "3.80",
+        "cacheHitRate": "28.00"
+      }
+    },
+    "topErrors": [
+      {
+        "errorCode": "AI_TIMEOUT",
+        "count": 15,
+        "percentage": 33.33
+      },
+      {
+        "errorCode": "AI_BLOCKED",
+        "count": 12,
+        "percentage": 26.67
+      },
+      {
+        "errorCode": "INVALID_IMAGE",
+        "count": 8,
+        "percentage": 17.78
+      }
+    ],
+    "topUsers": [
+      {
+        "userPhone": "919876543210",
+        "totalRequests": 45,
+        "chatRequests": 25,
+        "diagnosisRequests": 15,
+        "planningRequests": 5,
+        "avgResponseTime": 1050
+      }
+    ],
+    "cache": {
+      "size": 125,
+      "maxSize": 500,
+      "hitRate": "23.45",
+      "entriesByType": {
+        "chat": 85,
+        "diagnosis": 0,
+        "planning": 40
+      },
+      "memoryMB": "1.25"
+    },
+    "meta": {
+      "period": {
+        "start": "2024-01-10T00:00:00.000Z",
+        "end": "2024-01-17T12:30:45.000Z",
+        "days": 7
+      },
+      "generatedAt": "2024-01-17T12:30:45.000Z"
+    }
+  }
+}
+```
+
+---
+
+## Response Fields
+
+### Summary
+| Field | Type | Description |
+|-------|------|-------------|
+| `totalRequests` | number | Total requests in the period |
+| `successRate` | string | Success rate percentage |
+| `errorRate` | string | Error rate percentage |
+| `avgResponseTime` | number | Average response time in ms |
+| `p95ResponseTime` | number | 95th percentile response time in ms |
+| `cacheHitRate` | string | Cache hit rate percentage |
+
+### Trends
+Compares today vs yesterday:
+| Field | Type | Description |
+|-------|------|-------------|
+| `value` | string | Percentage change |
+| `direction` | string | `up`, `down`, or `stable` |
+| `isPositive` | boolean | Whether the trend is positive |
+
+### Operation Breakdown
+Per-operation statistics (chat/diagnosis/planning):
+| Field | Type | Description |
+|-------|------|-------------|
+| `requests` | number | Total requests for this operation |
+| `percentage` | string | Percentage of total requests |
+| `avgResponseTime` | number | Average response time in ms |
+| `errorRate` | string | Error rate percentage |
+| `cacheHitRate` | string | Cache hit rate percentage |
+
+### Top Errors
+| Field | Type | Description |
+|-------|------|-------------|
+| `errorCode` | string | Error code identifier |
+| `count` | number | Number of occurrences |
+| `percentage` | number | Percentage of total errors |
+
+### Top Users
+| Field | Type | Description |
+|-------|------|-------------|
+| `userPhone` | string | User phone number |
+| `totalRequests` | number | Total requests by user |
+| `chatRequests` | number | Chat requests |
+| `diagnosisRequests` | number | Diagnosis requests |
+| `planningRequests` | number | Planning requests |
+| `avgResponseTime` | number | Average response time for user |
+
+---
+
+## Data Retention
+
+Analytics data is automatically deleted after 90 days to manage storage costs.
+
+---
+
+## Error Response
+
+```json
+{
+  "success": false,
+  "error": "Failed to fetch analytics"
+}
+```
+
+---
+
+## Environment Variables
+
+The analytics system uses MongoDB for storage. Ensure `MONGODB_URI` is configured.

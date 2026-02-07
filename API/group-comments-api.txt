@@ -1,0 +1,358 @@
+================================================================================
+AGRIGROW GROUP COMMENTS API DOCUMENTATION
+================================================================================
+API documentation for Group Post Comments including CRUD operations,
+likes, and helpful marking.
+
+================================================================================
+1. GET POST COMMENTS
+================================================================================
+Endpoint: GET /api/groups/[groupId]/posts/[postId]/comments
+Description: Get comments for a post with nested replies
+
+Path Parameters:
+  groupId: string (required) - MongoDB ObjectId or group slug
+  postId: string (required) - MongoDB ObjectId of the post
+
+Query Parameters:
+  page: number (default: 1) - Page number
+  limit: number (default: 20, max: 50) - Results per page
+  sortBy: "recent" | "popular" | "oldest" (default: recent)
+  includeReplies: boolean (default: true) - Include nested replies (max depth 2)
+  parentId: string (optional) - Get replies to a specific comment
+
+Headers:
+  x-user-phone: string (optional) - For isLiked status
+
+Response (200 OK):
+{
+  "success": true,
+  "data": {
+    "comments": [
+      {
+        "_id": string,
+        "postId": string,
+        "groupId": string,
+        "author": string,
+        "authorInfo": {
+          "_id": string,
+          "fullName": string,
+          "profileImage": string,
+          "role": string
+        },
+        "content": string,
+        "parentId": string | null,
+        "depth": number (0, 1, or 2),
+        "replyCount": number,
+        "likesCount": number,
+        "isLiked": boolean,
+        "isHelpful": boolean,
+        "mentions": string[],
+        "isEdited": boolean,
+        "editedAt": string | null,
+        "createdAt": string,
+        "replies": [ ... nested comments (if depth < 2) ... ]
+      }
+    ],
+    "pagination": {
+      "page": number,
+      "limit": number,
+      "total": number,
+      "totalPages": number,
+      "hasMore": boolean
+    }
+  }
+}
+
+Error Codes:
+  400 - Invalid post ID
+  404 - Post not found
+  500 - Server error
+
+Example curl:
+curl -X GET "http://localhost:3000/api/groups/cotton-farmers/posts/507f1f77bcf86cd799439011/comments?page=1&sortBy=popular" \
+  -H "x-user-phone: 9876543210"
+
+================================================================================
+2. CREATE COMMENT
+================================================================================
+Endpoint: POST /api/groups/[groupId]/posts/[postId]/comments
+Description: Create a comment or reply on a post
+
+Path Parameters:
+  groupId: string (required) - MongoDB ObjectId or group slug
+  postId: string (required) - MongoDB ObjectId of the post
+
+Headers:
+  x-user-phone: string (required) - Must be a member
+
+Request Body:
+{
+  "content": string (required, 1-5000 chars) - Comment content
+  "parentId": string (optional) - ID of parent comment for replies
+}
+
+Response (201 Created):
+{
+  "success": true,
+  "message": "Comment created successfully",
+  "data": {
+    "_id": string,
+    "postId": string,
+    "groupId": string,
+    "author": string,
+    "authorInfo": { _id, fullName, profileImage, role },
+    "content": string,
+    "parentId": string | null,
+    "depth": number,
+    "replyCount": 0,
+    "likesCount": 0,
+    "isLiked": false,
+    "isHelpful": false,
+    "mentions": string[],
+    "isEdited": false,
+    "createdAt": string
+  }
+}
+
+Notes:
+- Maximum reply depth is 2 (comment -> reply -> reply)
+- @mentions in content trigger notifications to mentioned users
+- Post author gets notified of new comments
+- Parent comment author gets notified of replies
+
+Error Codes:
+  400 - Empty content or exceeds max depth
+  401 - Authentication required
+  403 - Not a member of the group
+  404 - Post or parent comment not found
+  500 - Server error
+
+Example curl (top-level comment):
+curl -X POST "http://localhost:3000/api/groups/cotton-farmers/posts/507f1f77bcf86cd799439011/comments" \
+  -H "Content-Type: application/json" \
+  -H "x-user-phone: 9876543210" \
+  -d '{ "content": "Great question! I recommend using NPK 10-26-26." }'
+
+Example curl (reply to comment):
+curl -X POST "http://localhost:3000/api/groups/cotton-farmers/posts/507f1f77bcf86cd799439011/comments" \
+  -H "Content-Type: application/json" \
+  -H "x-user-phone: 9876543210" \
+  -d '{
+    "content": "@JohnFarmer Thanks for the suggestion!",
+    "parentId": "507f1f77bcf86cd799439022"
+  }'
+
+================================================================================
+3. UPDATE COMMENT
+================================================================================
+Endpoint: PUT /api/groups/[groupId]/posts/[postId]/comments/[commentId]
+Description: Edit a comment (author only, within 1 hour)
+
+Path Parameters:
+  groupId: string (required) - MongoDB ObjectId or group slug
+  postId: string (required) - MongoDB ObjectId of the post
+  commentId: string (required) - MongoDB ObjectId of the comment
+
+Headers:
+  x-user-phone: string (required) - Must be comment author
+
+Request Body:
+{
+  "content": string (required, 1-5000 chars) - Updated content
+}
+
+Response (200 OK):
+{
+  "success": true,
+  "message": "Comment updated successfully",
+  "data": { ... updated comment with isEdited: true, editedAt: string ... }
+}
+
+Error Codes:
+  400 - Empty content
+  401 - Authentication required
+  403 - Not the comment author or edit window expired (1 hour)
+  404 - Comment not found
+  500 - Server error
+
+Example curl:
+curl -X PUT "http://localhost:3000/api/groups/cotton-farmers/posts/507f1f77bcf86cd799439011/comments/507f1f77bcf86cd799439022" \
+  -H "Content-Type: application/json" \
+  -H "x-user-phone: 9876543210" \
+  -d '{ "content": "Updated: I recommend NPK 10-26-26 for better results." }'
+
+================================================================================
+4. DELETE COMMENT
+================================================================================
+Endpoint: DELETE /api/groups/[groupId]/posts/[postId]/comments/[commentId]
+Description: Soft delete a comment (author or mods)
+
+Path Parameters:
+  groupId: string (required) - MongoDB ObjectId or group slug
+  postId: string (required) - MongoDB ObjectId of the post
+  commentId: string (required) - MongoDB ObjectId of the comment
+
+Headers:
+  x-user-phone: string (required) - Comment author or moderator
+
+Response (200 OK):
+{
+  "success": true,
+  "message": "Comment deleted successfully"
+}
+
+Notes:
+- Comment is soft-deleted (content replaced with "[deleted]")
+- Decrements post's commentsCount
+- If has replies, comment shell is preserved
+
+Error Codes:
+  401 - Authentication required
+  403 - Not authorized to delete
+  404 - Comment not found
+  500 - Server error
+
+Example curl:
+curl -X DELETE "http://localhost:3000/api/groups/cotton-farmers/posts/507f1f77bcf86cd799439011/comments/507f1f77bcf86cd799439022" \
+  -H "x-user-phone: 9876543210"
+
+================================================================================
+5. LIKE/UNLIKE COMMENT
+================================================================================
+Endpoint: POST /api/groups/[groupId]/posts/[postId]/comments/[commentId]/like
+Description: Toggle like on a comment
+
+Path Parameters:
+  groupId: string (required) - MongoDB ObjectId or group slug
+  postId: string (required) - MongoDB ObjectId of the post
+  commentId: string (required) - MongoDB ObjectId of the comment
+
+Headers:
+  x-user-phone: string (required) - Must be a member
+
+Response (200 OK):
+{
+  "success": true,
+  "data": {
+    "isLiked": boolean,
+    "likesCount": number
+  }
+}
+
+Note: Creates notification for comment author when liked (not self-like).
+
+Error Codes:
+  401 - Authentication required
+  403 - Not a member of the group
+  404 - Comment not found
+  500 - Server error
+
+Example curl:
+curl -X POST "http://localhost:3000/api/groups/cotton-farmers/posts/507f1f77bcf86cd799439011/comments/507f1f77bcf86cd799439022/like" \
+  -H "x-user-phone: 9876543210"
+
+================================================================================
+6. MARK COMMENT AS HELPFUL
+================================================================================
+Endpoint: POST /api/groups/[groupId]/posts/[postId]/comments/[commentId]/helpful
+Description: Toggle helpful status on a comment (post author only)
+
+Path Parameters:
+  groupId: string (required) - MongoDB ObjectId or group slug
+  postId: string (required) - MongoDB ObjectId of the post
+  commentId: string (required) - MongoDB ObjectId of the comment
+
+Headers:
+  x-user-phone: string (required) - Must be the post author
+
+Response (200 OK):
+{
+  "success": true,
+  "message": "Comment marked as helpful" | "Helpful mark removed",
+  "data": {
+    "isHelpful": boolean
+  }
+}
+
+Notes:
+- Only the original post author can mark comments as helpful
+- Useful for question-type posts to highlight best answers
+- Creates notification for comment author when marked helpful
+
+Error Codes:
+  401 - Authentication required
+  403 - Only post author can mark helpful
+  404 - Comment not found
+  500 - Server error
+
+Example curl:
+curl -X POST "http://localhost:3000/api/groups/cotton-farmers/posts/507f1f77bcf86cd799439011/comments/507f1f77bcf86cd799439022/helpful" \
+  -H "x-user-phone: 9876543210"
+
+================================================================================
+7. GET REPLIES TO A COMMENT
+================================================================================
+Endpoint: GET /api/groups/[groupId]/posts/[postId]/comments?parentId=[commentId]
+Description: Get all replies to a specific comment
+
+Path Parameters:
+  groupId: string (required) - MongoDB ObjectId or group slug
+  postId: string (required) - MongoDB ObjectId of the post
+
+Query Parameters:
+  parentId: string (required) - MongoDB ObjectId of the parent comment
+  page: number (default: 1)
+  limit: number (default: 20, max: 50)
+
+Headers:
+  x-user-phone: string (optional) - For isLiked status
+
+Response (200 OK):
+{
+  "success": true,
+  "data": {
+    "comments": [ ... array of reply comments ... ],
+    "parentId": string,
+    "pagination": { ... }
+  }
+}
+
+Example curl:
+curl -X GET "http://localhost:3000/api/groups/cotton-farmers/posts/507f1f77bcf86cd799439011/comments?parentId=507f1f77bcf86cd799439022" \
+  -H "x-user-phone: 9876543210"
+
+================================================================================
+COMMENT THREADING STRUCTURE
+================================================================================
+Comments support threading with a maximum depth of 2:
+
+Depth 0: Top-level comments on a post
+├── Depth 1: Replies to top-level comments
+│   └── Depth 2: Replies to depth-1 comments (maximum depth)
+
+Reply restrictions:
+- Cannot reply to depth-2 comments (they don't have a reply button)
+- Replying to a depth-2 comment in the UI should create a depth-2 sibling
+
+================================================================================
+MENTION SYSTEM
+================================================================================
+Users can be mentioned in comments using @username syntax:
+- @JohnFarmer
+- @jane_doe
+
+When a mention is detected:
+1. System parses mentions from content
+2. Looks up mentioned users
+3. Creates notification for each mentioned user
+4. Stores mention IDs in comment.mentions array
+
+================================================================================
+COMMON ERROR RESPONSE FORMAT
+================================================================================
+{
+  "success": false,
+  "error": string - Error message,
+  "message": string - Additional details (optional)
+}

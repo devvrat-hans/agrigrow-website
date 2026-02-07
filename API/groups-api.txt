@@ -1,0 +1,3899 @@
+GROUPS API DOCUMENTATION
+========================
+
+Base URL: /api/groups
+
+========================================
+GET /api/groups
+========================================
+Description: List and search groups with filtering, sorting, and pagination.
+
+Authentication: Optional
+- If x-user-phone header is provided, response includes user's membership status
+
+Query Parameters:
+- page (number, default: 1) - Page number for pagination
+- limit (number, default: 20, max: 50) - Number of items per page
+- search (string) - Text search on name, description, and tags
+- groupType (string) - Filter by group type. Values: crop, region, topic, practice
+- crop (string) - Filter by linked crop (case-insensitive)
+- region (string) - Filter by region (partial match)
+- sortBy (string, default: popular) - Sort order. Values: popular, recent, alphabetical
+
+Request Headers:
+- x-user-phone (optional): User's phone number for membership status
+
+Request Example:
+GET /api/groups?page=1&limit=20&groupType=crop&sortBy=popular
+
+Response (200 OK):
+{
+  "success": true,
+  "data": [
+    {
+      "_id": "507f1f77bcf86cd799439011",
+      "name": "Wheat Farmers India",
+      "slug": "wheat-farmers-india",
+      "description": "A community for wheat farmers to share knowledge",
+      "coverImage": "https://example.com/cover.jpg",
+      "icon": "🌾",
+      "groupType": "crop",
+      "privacy": "public",
+      "crops": ["wheat"],
+      "region": "North India",
+      "tags": ["wheat", "farming", "tips"],
+      "createdBy": {
+        "_id": "507f1f77bcf86cd799439012",
+        "fullName": "John Farmer",
+        "profileImage": "https://example.com/profile.jpg",
+        "role": "farmer"
+      },
+      "admins": ["507f1f77bcf86cd799439012"],
+      "moderators": [],
+      "memberCount": 150,
+      "postCount": 45,
+      "rules": [
+        {
+          "title": "Be respectful",
+          "description": "Treat all members with respect"
+        }
+      ],
+      "settings": {
+        "allowMemberPosts": true,
+        "requirePostApproval": false,
+        "allowPolls": true,
+        "allowImages": true
+      },
+      "isVerified": false,
+      "isActive": true,
+      "createdAt": "2024-01-15T10:30:00.000Z",
+      "updatedAt": "2024-01-20T15:45:00.000Z",
+      "isJoined": true,
+      "userRole": "member",
+      "userMembershipStatus": "active"
+    }
+  ],
+  "pagination": {
+    "page": 1,
+    "limit": 20,
+    "total": 45,
+    "totalPages": 3,
+    "hasNextPage": true,
+    "hasPrevPage": false
+  }
+}
+
+Error Response (500):
+{
+  "success": false,
+  "error": "Failed to fetch groups",
+  "message": "Error details"
+}
+
+========================================
+POST /api/groups
+========================================
+Description: Create a new group. The creator becomes the owner automatically.
+
+Authentication: Required
+- x-user-phone header must be provided
+
+Request Headers:
+- x-user-phone (required): User's phone number for authentication
+
+Request Body:
+{
+  "name": "Wheat Farmers India",              // Required, 3-100 chars
+  "groupType": "crop",                        // Required: crop, region, topic, practice
+  "description": "A community for wheat...",  // Optional, max 500 chars
+  "coverImage": "data:image/jpeg;base64,...", // Optional, base64 data URL or URL
+  "icon": "🌾",                               // Optional, emoji or base64 image
+  "privacy": "public",                        // Optional: public, private, invite-only
+  "crops": ["wheat"],                         // Optional, array of crop names
+  "region": "North India",                    // Optional
+  "tags": ["wheat", "farming"],               // Optional, array of tags
+  "rules": [                                  // Optional
+    {
+      "title": "Be respectful",
+      "description": "Treat all members with respect"
+    }
+  ],
+  "settings": {                               // Optional
+    "allowMemberPosts": true,
+    "requirePostApproval": false,
+    "allowPolls": true,
+    "allowImages": true
+  }
+}
+
+Request Body with Base64 Images:
+{
+  "name": "Cotton Farmers Gujarat",
+  "groupType": "crop",
+  "description": "Community for cotton farmers in Gujarat",
+  "coverImage": "data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD...",
+  "icon": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAA...",
+  "crops": ["cotton"],
+  "region": "Gujarat"
+}
+
+Response (201 Created):
+{
+  "success": true,
+  "message": "Group created successfully",
+  "data": {
+    "_id": "507f1f77bcf86cd799439011",
+    "name": "Wheat Farmers India",
+    "slug": "wheat-farmers-india",
+    "description": "A community for wheat farmers to share knowledge",
+    "coverImage": "data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD...",
+    "icon": "🌾",
+    "groupType": "crop",
+    "privacy": "public",
+    "crops": ["wheat"],
+    "region": "North India",
+    "tags": ["wheat", "farming"],
+    "createdBy": {
+      "_id": "507f1f77bcf86cd799439012",
+      "fullName": "John Farmer",
+      "profileImage": "data:image/jpeg;base64,..."
+    },
+    "admins": ["507f1f77bcf86cd799439012"],
+    "moderators": [],
+    "memberCount": 1,
+    "postCount": 0,
+    "rules": [...],
+    "settings": {...},
+    "isVerified": false,
+    "isActive": true,
+    "createdAt": "2024-01-15T10:30:00.000Z",
+    "updatedAt": "2024-01-15T10:30:00.000Z",
+    "isJoined": true,
+    "userRole": "owner",
+    "userMembershipStatus": "active"
+  }
+}
+
+Error Responses:
+
+400 Bad Request - Missing/invalid fields:
+{
+  "success": false,
+  "error": "Group name is required and must be at least 3 characters"
+}
+
+400 Bad Request - Invalid group type:
+{
+  "success": false,
+  "error": "Invalid group type. Must be one of: crop, region, topic, practice"
+}
+
+401 Unauthorized - Missing authentication:
+{
+  "success": false,
+  "error": "Authentication required"
+}
+
+401 Unauthorized - User not found:
+{
+  "success": false,
+  "error": "User not found"
+}
+
+409 Conflict - Duplicate group name:
+{
+  "success": false,
+  "error": "A group with this name already exists for the selected crop(s)"
+}
+
+500 Internal Server Error:
+{
+  "success": false,
+  "error": "Failed to create group",
+  "message": "Error details"
+}
+
+========================================
+NOTES
+========================================
+
+1. Group Types:
+   - crop: Groups focused on specific crops (wheat, rice, cotton, etc.)
+   - region: Groups for farmers in specific geographic regions
+   - topic: Groups discussing specific agricultural topics
+   - practice: Groups about farming practices or techniques
+
+2. Privacy Settings:
+   - public: Anyone can find and join
+   - private: Anyone can find, but must request to join
+   - invite-only: Only invited users can join
+
+3. Slug Generation:
+   - Automatically generated from group name
+   - URL-friendly format (lowercase, hyphens)
+   - Unique per group
+
+4. Membership:
+   - Creator automatically becomes owner
+   - Owner is added to admins array
+   - Initial memberCount is 1
+
+5. Settings Defaults:
+   - allowMemberPosts: true
+   - requirePostApproval: false
+   - allowPolls: true
+   - allowImages: true
+
+
+========================================
+GET /api/groups/[groupId]
+========================================
+Description: Fetch a single group by ID or slug.
+
+Authentication: Optional
+- If x-user-phone header is provided, response includes user's membership status
+
+Path Parameters:
+- groupId (string) - Group ID (MongoDB ObjectId) or URL slug
+
+Request Headers:
+- x-user-phone (optional): User's phone number for membership status
+
+Request Example:
+GET /api/groups/507f1f77bcf86cd799439011
+GET /api/groups/wheat-farmers-india
+
+Response (200 OK):
+{
+  "success": true,
+  "data": {
+    "_id": "507f1f77bcf86cd799439011",
+    "name": "Wheat Farmers India",
+    "slug": "wheat-farmers-india",
+    "description": "A community for wheat farmers",
+    "coverImage": "https://example.com/cover.jpg",
+    "icon": "🌾",
+    "groupType": "crop",
+    "privacy": "public",
+    "crops": ["wheat"],
+    "region": "North India",
+    "tags": ["wheat", "farming"],
+    "createdBy": {
+      "_id": "507f1f77bcf86cd799439012",
+      "fullName": "John Farmer",
+      "profileImage": "https://example.com/profile.jpg",
+      "role": "farmer"
+    },
+    "admins": ["507f1f77bcf86cd799439012"],
+    "moderators": [],
+    "memberCount": 150,
+    "postCount": 45,
+    "rules": [...],
+    "settings": {...},
+    "isVerified": false,
+    "isActive": true,
+    "createdAt": "2024-01-15T10:30:00.000Z",
+    "updatedAt": "2024-01-20T15:45:00.000Z",
+    "isJoined": true,
+    "userRole": "member",
+    "userMembershipStatus": "active"
+  }
+}
+
+Error Responses:
+
+404 Not Found:
+{
+  "success": false,
+  "error": "Group not found"
+}
+
+500 Internal Server Error:
+{
+  "success": false,
+  "error": "Failed to fetch group",
+  "message": "Error details"
+}
+
+
+========================================
+PUT /api/groups/[groupId]
+========================================
+Description: Update group details. Requires admin or owner role.
+
+Authentication: Required
+- x-user-phone header must be provided
+- User must be admin or owner of the group
+
+Path Parameters:
+- groupId (string) - Group ID (MongoDB ObjectId) or URL slug
+
+Request Headers:
+- x-user-phone (required): User's phone number for authentication
+
+Request Body (all fields optional):
+{
+  "name": "Updated Group Name",        // 3-100 chars
+  "description": "Updated description", // max 500 chars
+  "coverImage": "data:image/jpeg;base64,...", // base64 data URL or URL
+  "icon": "🌿",                         // emoji or base64 image
+  "tags": ["wheat", "organic"],
+  "rules": [
+    {
+      "title": "Be respectful",        // max 100 chars
+      "description": "Details..."       // max 500 chars
+    }
+  ],
+  "settings": {
+    "allowMemberPosts": true,
+    "requirePostApproval": true,
+    "allowPolls": true,
+    "allowImages": true
+  }
+}
+
+Request Body with Base64 Images:
+{
+  "name": "Updated Group Name",
+  "coverImage": "data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD...",
+  "icon": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAA..."
+}
+
+Response (200 OK):
+{
+  "success": true,
+  "message": "Group updated successfully",
+  "data": {
+    // Updated GroupData object with base64 coverImage/icon
+  }
+}
+
+Error Responses:
+
+400 Bad Request - Validation error:
+{
+  "success": false,
+  "error": "Group name must be at least 3 characters"
+}
+
+401 Unauthorized:
+{
+  "success": false,
+  "error": "Authentication required"
+}
+
+403 Forbidden:
+{
+  "success": false,
+  "error": "You do not have permission to update this group"
+}
+
+404 Not Found:
+{
+  "success": false,
+  "error": "Group not found"
+}
+
+500 Internal Server Error:
+{
+  "success": false,
+  "error": "Failed to update group",
+  "message": "Error details"
+}
+
+
+========================================
+DELETE /api/groups/[groupId]
+========================================
+Description: Soft delete a group. Requires owner role.
+- Sets isActive to false
+- Updates all memberships to 'left' status
+- Decrements groupsJoined count for all members
+
+Authentication: Required
+- x-user-phone header must be provided
+- User must be the owner of the group
+
+Path Parameters:
+- groupId (string) - Group ID (MongoDB ObjectId) or URL slug
+
+Request Headers:
+- x-user-phone (required): User's phone number for authentication
+
+Request Example:
+DELETE /api/groups/507f1f77bcf86cd799439011
+
+Response (200 OK):
+{
+  "success": true,
+  "message": "Group deleted successfully"
+}
+
+Error Responses:
+
+401 Unauthorized:
+{
+  "success": false,
+  "error": "Authentication required"
+}
+
+403 Forbidden:
+{
+  "success": false,
+  "error": "Only the group owner can delete the group"
+}
+
+404 Not Found:
+{
+  "success": false,
+  "error": "Group not found"
+}
+
+500 Internal Server Error:
+{
+  "success": false,
+  "error": "Failed to delete group",
+  "message": "Error details"
+}
+
+
+========================================
+GET /api/groups/[groupId]/settings
+========================================
+Description: Get current group settings.
+
+Authentication: Optional
+
+Path Parameters:
+- groupId (string) - Group ID (MongoDB ObjectId) or URL slug
+
+Request Example:
+GET /api/groups/507f1f77bcf86cd799439011/settings
+
+Response (200 OK):
+{
+  "success": true,
+  "data": {
+    "allowMemberPosts": true,
+    "requirePostApproval": false,
+    "allowPolls": true,
+    "allowImages": true
+  }
+}
+
+Error Responses:
+
+404 Not Found:
+{
+  "success": false,
+  "error": "Group not found"
+}
+
+
+========================================
+PUT /api/groups/[groupId]/settings
+========================================
+Description: Update group settings. Requires admin or owner role.
+
+Authentication: Required
+- x-user-phone header must be provided
+- User must be admin or owner of the group
+
+Path Parameters:
+- groupId (string) - Group ID (MongoDB ObjectId) or URL slug
+
+Request Headers:
+- x-user-phone (required): User's phone number for authentication
+
+Request Body (all fields optional):
+{
+  "allowMemberPosts": true,      // Whether members can create posts
+  "requirePostApproval": true,   // Whether posts require approval
+  "allowPolls": true,            // Whether polls are allowed
+  "allowImages": true            // Whether images are allowed
+}
+
+Response (200 OK):
+{
+  "success": true,
+  "message": "Group settings updated successfully",
+  "data": {
+    "allowMemberPosts": true,
+    "requirePostApproval": true,
+    "allowPolls": true,
+    "allowImages": true
+  }
+}
+
+Error Responses:
+
+401 Unauthorized:
+{
+  "success": false,
+  "error": "Authentication required"
+}
+
+403 Forbidden:
+{
+  "success": false,
+  "error": "You do not have permission to update group settings"
+}
+
+404 Not Found:
+{
+  "success": false,
+  "error": "Group not found"
+}
+
+
+========================================
+GET /api/groups/[groupId]/rules
+========================================
+Description: Get current group rules.
+
+Authentication: Optional
+
+Path Parameters:
+- groupId (string) - Group ID (MongoDB ObjectId) or URL slug
+
+Request Example:
+GET /api/groups/507f1f77bcf86cd799439011/rules
+
+Response (200 OK):
+{
+  "success": true,
+  "data": [
+    {
+      "title": "Be respectful",
+      "description": "Treat all members with respect and courtesy"
+    },
+    {
+      "title": "Stay on topic",
+      "description": "Keep discussions relevant to agriculture"
+    }
+  ]
+}
+
+Error Responses:
+
+404 Not Found:
+{
+  "success": false,
+  "error": "Group not found"
+}
+
+
+========================================
+PUT /api/groups/[groupId]/rules
+========================================
+Description: Replace entire group rules array. Requires admin or owner role.
+
+Authentication: Required
+- x-user-phone header must be provided
+- User must be admin or owner of the group
+
+Path Parameters:
+- groupId (string) - Group ID (MongoDB ObjectId) or URL slug
+
+Request Headers:
+- x-user-phone (required): User's phone number for authentication
+
+Request Body:
+{
+  "rules": [
+    {
+      "title": "Be respectful",           // Required, max 100 chars
+      "description": "Treat all..."       // Optional, max 500 chars
+    },
+    {
+      "title": "No spam",
+      "description": "Do not post..."
+    }
+  ]
+}
+
+Validation Rules:
+- Maximum 20 rules allowed
+- Title is required and cannot exceed 100 characters
+- Description is optional and cannot exceed 500 characters
+
+Response (200 OK):
+{
+  "success": true,
+  "message": "Group rules updated successfully",
+  "data": [
+    {
+      "title": "Be respectful",
+      "description": "Treat all members with respect and courtesy"
+    }
+  ]
+}
+
+Error Responses:
+
+400 Bad Request - Validation error:
+{
+  "success": false,
+  "error": "Rule 1: Title is required"
+}
+
+401 Unauthorized:
+{
+  "success": false,
+  "error": "Authentication required"
+}
+
+403 Forbidden:
+{
+  "success": false,
+  "error": "You do not have permission to update group rules"
+}
+
+404 Not Found:
+{
+  "success": false,
+  "error": "Group not found"
+}
+
+
+========================================
+GET /api/groups/[groupId]/members
+========================================
+Description: List group members with pagination and filtering.
+
+Authentication: Optional
+
+Path Parameters:
+- groupId (string) - Group ID (MongoDB ObjectId) or URL slug
+
+Query Parameters:
+- page (number, default: 1) - Page number for pagination
+- limit (number, default: 20, max: 50) - Number of items per page
+- role (string) - Filter by role: member, moderator, admin, owner
+- status (string, default: active) - Filter by status: active, pending, banned, left
+
+Request Example:
+GET /api/groups/507f1f77bcf86cd799439011/members?page=1&limit=20&status=active
+
+Response (200 OK):
+{
+  "success": true,
+  "data": [
+    {
+      "_id": "507f1f77bcf86cd799439020",
+      "groupId": "507f1f77bcf86cd799439011",
+      "userId": "507f1f77bcf86cd799439012",
+      "user": {
+        "_id": "507f1f77bcf86cd799439012",
+        "fullName": "John Farmer",
+        "profileImage": "https://example.com/profile.jpg",
+        "role": "farmer",
+        "region": "North India"
+      },
+      "role": "member",
+      "status": "active",
+      "joinedAt": "2024-01-15T10:30:00.000Z",
+      "invitedBy": null,
+      "lastActivityAt": "2024-01-20T15:45:00.000Z",
+      "notificationPreferences": {
+        "newPosts": true,
+        "mentions": true,
+        "announcements": true
+      }
+    }
+  ],
+  "pagination": {
+    "page": 1,
+    "limit": 20,
+    "total": 150,
+    "totalPages": 8,
+    "hasNextPage": true,
+    "hasPrevPage": false
+  }
+}
+
+Error Response (404):
+{
+  "success": false,
+  "error": "Group not found"
+}
+
+
+========================================
+POST /api/groups/[groupId]/members
+========================================
+Description: Join a group. Membership status depends on group privacy:
+- Public: Immediately 'active'
+- Private: 'pending' (requires admin approval)
+- Invite-only: Requires valid invitation
+
+Authentication: Required
+- x-user-phone header must be provided
+
+Path Parameters:
+- groupId (string) - Group ID (MongoDB ObjectId) or URL slug
+
+Request Headers:
+- x-user-phone (required): User's phone number for authentication
+
+Request Example:
+POST /api/groups/507f1f77bcf86cd799439011/members
+
+Response (201 Created):
+{
+  "success": true,
+  "message": "You have joined the group successfully",
+  "data": {
+    "_id": "507f1f77bcf86cd799439020",
+    "groupId": "507f1f77bcf86cd799439011",
+    "userId": "507f1f77bcf86cd799439012",
+    "user": {
+      "_id": "507f1f77bcf86cd799439012",
+      "fullName": "John Farmer",
+      "profileImage": "https://example.com/profile.jpg",
+      "role": "farmer"
+    },
+    "role": "member",
+    "status": "active",
+    "joinedAt": "2024-01-20T10:30:00.000Z",
+    "notificationPreferences": {
+      "newPosts": true,
+      "mentions": true,
+      "announcements": true
+    }
+  }
+}
+
+For private groups (pending approval):
+{
+  "success": true,
+  "message": "Your membership request has been submitted and is pending approval",
+  "data": {
+    ...
+    "status": "pending"
+  }
+}
+
+Error Responses:
+
+400 Bad Request - Already a member:
+{
+  "success": false,
+  "error": "You are already a member of this group"
+}
+
+400 Bad Request - Pending request:
+{
+  "success": false,
+  "error": "Your membership request is pending approval"
+}
+
+400 Bad Request - Banned:
+{
+  "success": false,
+  "error": "You have been banned from this group"
+}
+
+401 Unauthorized:
+{
+  "success": false,
+  "error": "Authentication required"
+}
+
+403 Forbidden - Invite-only:
+{
+  "success": false,
+  "error": "This group is invite-only. You need an invitation to join."
+}
+
+404 Not Found:
+{
+  "success": false,
+  "error": "Group not found"
+}
+
+========================================
+GET /api/groups/[groupId]/members/[userId]
+========================================
+Description: Get member details including membership info and user profile.
+
+Authentication: Optional
+
+Path Parameters:
+- groupId (string) - Group ID (MongoDB ObjectId) or URL slug
+- userId (string) - User ID (MongoDB ObjectId)
+
+Request Example:
+GET /api/groups/507f1f77bcf86cd799439011/members/507f1f77bcf86cd799439012
+
+Response (200 OK):
+{
+  "success": true,
+  "data": {
+    "_id": "507f1f77bcf86cd799439020",
+    "groupId": "507f1f77bcf86cd799439011",
+    "userId": "507f1f77bcf86cd799439012",
+    "user": {
+      "_id": "507f1f77bcf86cd799439012",
+      "fullName": "John Farmer",
+      "profileImage": "https://example.com/profile.jpg",
+      "role": "farmer",
+      "region": "North India"
+    },
+    "role": "member",
+    "status": "active",
+    "joinedAt": "2024-01-15T10:30:00.000Z",
+    "invitedBy": "507f1f77bcf86cd799439013",
+    "inviter": {
+      "_id": "507f1f77bcf86cd799439013",
+      "fullName": "Jane Admin",
+      "profileImage": "https://example.com/admin.jpg"
+    },
+    "lastActivityAt": "2024-01-20T15:45:00.000Z",
+    "notificationPreferences": {
+      "newPosts": true,
+      "mentions": true,
+      "announcements": true
+    },
+    "banReason": null,
+    "bannedBy": null,
+    "bannedAt": null
+  }
+}
+
+Error Responses:
+
+400 Bad Request:
+{
+  "success": false,
+  "error": "Invalid user ID"
+}
+
+404 Not Found - Group:
+{
+  "success": false,
+  "error": "Group not found"
+}
+
+404 Not Found - Member:
+{
+  "success": false,
+  "error": "Member not found in this group"
+}
+
+500 Internal Server Error:
+{
+  "success": false,
+  "error": "Failed to fetch member",
+  "message": "Error details"
+}
+
+
+========================================
+PUT /api/groups/[groupId]/members/[userId]
+========================================
+Description: Update member role. 
+- Requires admin or owner role
+- Cannot change owner's role
+- Cannot change own role
+- Admin cannot change other admin's role or promote to admin
+- Only owner can promote to admin
+
+Authentication: Required
+- x-user-phone header must be provided
+- User must be admin or owner
+
+Path Parameters:
+- groupId (string) - Group ID (MongoDB ObjectId) or URL slug
+- userId (string) - User ID (MongoDB ObjectId)
+
+Request Headers:
+- x-user-phone (required): User's phone number for authentication
+
+Request Body:
+{
+  "role": "moderator"  // Values: member, moderator, admin
+}
+
+Role Hierarchy:
+- member (1) < moderator (2) < admin (3) < owner (4)
+
+Request Example:
+PUT /api/groups/507f1f77bcf86cd799439011/members/507f1f77bcf86cd799439012
+{
+  "role": "moderator"
+}
+
+Response (200 OK):
+{
+  "success": true,
+  "message": "Member role updated to moderator",
+  "data": {
+    "_id": "507f1f77bcf86cd799439020",
+    "groupId": "507f1f77bcf86cd799439011",
+    "userId": "507f1f77bcf86cd799439012",
+    "user": {
+      "_id": "507f1f77bcf86cd799439012",
+      "fullName": "John Farmer",
+      "profileImage": "https://example.com/profile.jpg",
+      "role": "farmer"
+    },
+    "role": "moderator",
+    "status": "active",
+    "joinedAt": "2024-01-15T10:30:00.000Z",
+    "lastActivityAt": "2024-01-20T15:45:00.000Z",
+    "notificationPreferences": {
+      "newPosts": true,
+      "mentions": true,
+      "announcements": true
+    }
+  }
+}
+
+Error Responses:
+
+400 Bad Request - Invalid role:
+{
+  "success": false,
+  "error": "Invalid role. Must be one of: member, moderator, admin"
+}
+
+400 Bad Request - Self role change:
+{
+  "success": false,
+  "error": "You cannot change your own role"
+}
+
+400 Bad Request - Assign owner:
+{
+  "success": false,
+  "error": "Cannot assign owner role. Use ownership transfer instead."
+}
+
+401 Unauthorized:
+{
+  "success": false,
+  "error": "Authentication required"
+}
+
+403 Forbidden - Not a member:
+{
+  "success": false,
+  "error": "You are not a member of this group"
+}
+
+403 Forbidden - Insufficient permissions:
+{
+  "success": false,
+  "error": "Only admins and owners can change member roles"
+}
+
+403 Forbidden - Change owner role:
+{
+  "success": false,
+  "error": "Cannot change the owner's role"
+}
+
+403 Forbidden - Admin changing admin:
+{
+  "success": false,
+  "error": "Admins cannot change other admins' roles"
+}
+
+403 Forbidden - Admin promoting to admin:
+{
+  "success": false,
+  "error": "Only the owner can promote members to admin"
+}
+
+404 Not Found:
+{
+  "success": false,
+  "error": "Member not found in this group"
+}
+
+500 Internal Server Error:
+{
+  "success": false,
+  "error": "Failed to update member role",
+  "message": "Error details"
+}
+
+
+========================================
+DELETE /api/groups/[groupId]/members/[userId]
+========================================
+Description: Leave group or remove member.
+- If userId equals current user: Leave group (update status to 'left')
+- If admin/moderator removing another: Remove member
+- Cannot remove owner
+- Cannot remove member with equal or higher role
+- Owner cannot leave (must transfer ownership first)
+- Decrements memberCount for active members
+
+Authentication: Required
+- x-user-phone header must be provided
+- For removing others, requires at least moderator role
+
+Path Parameters:
+- groupId (string) - Group ID (MongoDB ObjectId) or URL slug
+- userId (string) - User ID (MongoDB ObjectId)
+
+Request Headers:
+- x-user-phone (required): User's phone number for authentication
+
+Request Example (Leave):
+DELETE /api/groups/507f1f77bcf86cd799439011/members/507f1f77bcf86cd799439012
+(where userId matches authenticated user)
+
+Request Example (Remove):
+DELETE /api/groups/507f1f77bcf86cd799439011/members/507f1f77bcf86cd799439015
+(where userId is another member)
+
+Response (200 OK) - Self leaving:
+{
+  "success": true,
+  "message": "You have left the group"
+}
+
+Response (200 OK) - Removing member:
+{
+  "success": true,
+  "message": "Member has been removed from the group"
+}
+
+Error Responses:
+
+400 Bad Request - Invalid user ID:
+{
+  "success": false,
+  "error": "Invalid user ID"
+}
+
+400 Bad Request - Owner leaving:
+{
+  "success": false,
+  "error": "Group owner cannot leave. Transfer ownership first."
+}
+
+400 Bad Request - Already left:
+{
+  "success": false,
+  "error": "Member has already left the group"
+}
+
+401 Unauthorized:
+{
+  "success": false,
+  "error": "Authentication required"
+}
+
+403 Forbidden - Not a member:
+{
+  "success": false,
+  "error": "You are not a member of this group"
+}
+
+403 Forbidden - Insufficient permissions:
+{
+  "success": false,
+  "error": "Only moderators, admins, and owners can remove members"
+}
+
+403 Forbidden - Remove owner:
+{
+  "success": false,
+  "error": "Cannot remove the group owner"
+}
+
+403 Forbidden - Role hierarchy:
+{
+  "success": false,
+  "error": "You cannot remove a member with equal or higher role"
+}
+
+404 Not Found - Group:
+{
+  "success": false,
+  "error": "Group not found"
+}
+
+404 Not Found - Member:
+{
+  "success": false,
+  "error": "Member not found in this group"
+}
+
+500 Internal Server Error:
+{
+  "success": false,
+  "error": "Failed to remove member",
+  "message": "Error details"
+}
+
+
+========================================
+POST /api/groups/[groupId]/members/ban
+========================================
+Description: Ban a member from the group.
+- Requires moderator, admin, or owner role
+- Cannot ban owner
+- Only owner can ban admins
+- Cannot ban self
+- Cannot ban member with equal or higher role
+- Updates status to 'banned', sets bannedBy, bannedAt, banReason
+- Decrements memberCount for active members
+
+Authentication: Required
+- x-user-phone header must be provided
+- Must be moderator, admin, or owner
+
+Path Parameters:
+- groupId (string) - Group ID (MongoDB ObjectId) or URL slug
+
+Request Headers:
+- x-user-phone (required): User's phone number for authentication
+
+Request Body:
+{
+  "userId": "507f1f77bcf86cd799439015",  // Required - User ID to ban
+  "banReason": "Violating community guidelines"  // Optional
+}
+
+Request Example:
+POST /api/groups/507f1f77bcf86cd799439011/members/ban
+{
+  "userId": "507f1f77bcf86cd799439015",
+  "banReason": "Spam posting"
+}
+
+Response (200 OK):
+{
+  "success": true,
+  "message": "Member has been banned from the group",
+  "data": {
+    "_id": "507f1f77bcf86cd799439020",
+    "groupId": "507f1f77bcf86cd799439011",
+    "userId": "507f1f77bcf86cd799439015",
+    "user": {
+      "_id": "507f1f77bcf86cd799439015",
+      "fullName": "Spammer User",
+      "profileImage": "https://example.com/profile.jpg",
+      "role": "farmer"
+    },
+    "role": "member",
+    "status": "banned",
+    "joinedAt": "2024-01-15T10:30:00.000Z",
+    "lastActivityAt": "2024-01-20T15:45:00.000Z",
+    "notificationPreferences": {
+      "newPosts": true,
+      "mentions": true,
+      "announcements": true
+    },
+    "banReason": "Spam posting",
+    "bannedBy": "507f1f77bcf86cd799439012",
+    "bannedByUser": {
+      "_id": "507f1f77bcf86cd799439012",
+      "fullName": "Admin User",
+      "profileImage": "https://example.com/admin.jpg"
+    },
+    "bannedAt": "2024-01-25T14:30:00.000Z"
+  }
+}
+
+Error Responses:
+
+400 Bad Request - Invalid user ID:
+{
+  "success": false,
+  "error": "Valid user ID is required"
+}
+
+400 Bad Request - Self ban:
+{
+  "success": false,
+  "error": "You cannot ban yourself"
+}
+
+400 Bad Request - Already banned:
+{
+  "success": false,
+  "error": "Member is already banned from this group"
+}
+
+401 Unauthorized:
+{
+  "success": false,
+  "error": "Authentication required"
+}
+
+403 Forbidden - Not a member:
+{
+  "success": false,
+  "error": "You are not an active member of this group"
+}
+
+403 Forbidden - Insufficient permissions:
+{
+  "success": false,
+  "error": "Only moderators, admins, and owners can ban members"
+}
+
+403 Forbidden - Ban owner:
+{
+  "success": false,
+  "error": "Cannot ban the group owner"
+}
+
+403 Forbidden - Non-owner banning admin:
+{
+  "success": false,
+  "error": "Only the owner can ban admins"
+}
+
+403 Forbidden - Role hierarchy:
+{
+  "success": false,
+  "error": "You cannot ban a member with equal or higher role"
+}
+
+404 Not Found - Group:
+{
+  "success": false,
+  "error": "Group not found"
+}
+
+404 Not Found - Member:
+{
+  "success": false,
+  "error": "Member not found in this group"
+}
+
+500 Internal Server Error:
+{
+  "success": false,
+  "error": "Failed to ban member",
+  "message": "Error details"
+}
+
+
+========================================
+POST /api/groups/[groupId]/members/[userId]/unban
+========================================
+Description: Unban a member and restore them to 'active' status.
+- Requires moderator, admin, or owner role
+- User must currently be banned
+- Increments memberCount back
+- Clears ban info (banReason, bannedBy, bannedAt)
+
+Authentication: Required
+- x-user-phone header must be provided
+- Must be moderator, admin, or owner
+
+Path Parameters:
+- groupId (string) - Group ID (MongoDB ObjectId) or URL slug
+- userId (string) - User ID (MongoDB ObjectId) to unban
+
+Request Headers:
+- x-user-phone (required): User's phone number for authentication
+
+Request Example:
+POST /api/groups/507f1f77bcf86cd799439011/members/507f1f77bcf86cd799439015/unban
+
+Response (200 OK):
+{
+  "success": true,
+  "message": "Member has been unbanned and restored to active status",
+  "data": {
+    "_id": "507f1f77bcf86cd799439020",
+    "groupId": "507f1f77bcf86cd799439011",
+    "userId": "507f1f77bcf86cd799439015",
+    "user": {
+      "_id": "507f1f77bcf86cd799439015",
+      "fullName": "Restored User",
+      "profileImage": "https://example.com/profile.jpg",
+      "role": "farmer",
+      "region": "North India"
+    },
+    "role": "member",
+    "status": "active",
+    "joinedAt": "2024-01-15T10:30:00.000Z",
+    "lastActivityAt": "2024-01-25T16:00:00.000Z",
+    "notificationPreferences": {
+      "newPosts": true,
+      "mentions": true,
+      "announcements": true
+    }
+  }
+}
+
+Error Responses:
+
+400 Bad Request - Invalid user ID:
+{
+  "success": false,
+  "error": "Invalid user ID"
+}
+
+400 Bad Request - Not banned:
+{
+  "success": false,
+  "error": "This member is not currently banned"
+}
+
+401 Unauthorized:
+{
+  "success": false,
+  "error": "Authentication required"
+}
+
+403 Forbidden - Not a member:
+{
+  "success": false,
+  "error": "You are not an active member of this group"
+}
+
+403 Forbidden - Insufficient permissions:
+{
+  "success": false,
+  "error": "Only moderators, admins, and owners can unban members"
+}
+
+404 Not Found - Group:
+{
+  "success": false,
+  "error": "Group not found"
+}
+
+404 Not Found - Member:
+{
+  "success": false,
+  "error": "Member not found in this group"
+}
+
+500 Internal Server Error:
+{
+  "success": false,
+  "error": "Failed to unban member",
+  "message": "Error details"
+}
+
+========================================
+GET /api/groups/[groupId]/invitations
+========================================
+Description: List invitations for a group. Requires admin role.
+
+Authentication: Required
+- x-user-phone header must be provided
+- Must be admin or owner
+
+Path Parameters:
+- groupId (string) - Group ID (MongoDB ObjectId) or URL slug
+
+Query Parameters:
+- page (number, default: 1) - Page number for pagination
+- limit (number, default: 20, max: 50) - Number of items per page
+- type (string) - Filter by type: direct, code
+- status (string, default: pending) - Filter by status: pending, accepted, rejected, expired, cancelled
+
+Request Headers:
+- x-user-phone (required): User's phone number for authentication
+
+Request Example:
+GET /api/groups/507f1f77bcf86cd799439011/invitations?status=pending&type=code
+
+Response (200 OK):
+{
+  "success": true,
+  "data": [
+    {
+      "_id": "507f1f77bcf86cd799439030",
+      "groupId": "507f1f77bcf86cd799439011",
+      "type": "code",
+      "code": "ABC12DEF",
+      "invitedBy": "507f1f77bcf86cd799439012",
+      "inviter": {
+        "_id": "507f1f77bcf86cd799439012",
+        "fullName": "Admin User",
+        "profileImage": "https://example.com/admin.jpg"
+      },
+      "status": "pending",
+      "maxUses": 10,
+      "usedCount": 3,
+      "expiresAt": "2024-02-01T10:30:00.000Z",
+      "createdAt": "2024-01-25T10:30:00.000Z"
+    },
+    {
+      "_id": "507f1f77bcf86cd799439031",
+      "groupId": "507f1f77bcf86cd799439011",
+      "type": "direct",
+      "code": "XYZ78GHI",
+      "invitedBy": "507f1f77bcf86cd799439012",
+      "inviter": {
+        "_id": "507f1f77bcf86cd799439012",
+        "fullName": "Admin User",
+        "profileImage": "https://example.com/admin.jpg"
+      },
+      "invitedUser": "507f1f77bcf86cd799439015",
+      "invitee": {
+        "_id": "507f1f77bcf86cd799439015",
+        "fullName": "John Farmer",
+        "profileImage": "https://example.com/john.jpg"
+      },
+      "status": "pending",
+      "maxUses": 1,
+      "usedCount": 0,
+      "expiresAt": "2024-02-01T10:30:00.000Z",
+      "createdAt": "2024-01-25T11:00:00.000Z"
+    }
+  ],
+  "pagination": {
+    "page": 1,
+    "limit": 20,
+    "total": 2,
+    "totalPages": 1,
+    "hasNextPage": false,
+    "hasPrevPage": false
+  }
+}
+
+Error Responses:
+
+401 Unauthorized:
+{
+  "success": false,
+  "error": "Authentication required"
+}
+
+403 Forbidden - Not a member:
+{
+  "success": false,
+  "error": "You are not a member of this group"
+}
+
+403 Forbidden - Insufficient permissions:
+{
+  "success": false,
+  "error": "Only admins and owners can view invitations"
+}
+
+404 Not Found:
+{
+  "success": false,
+  "error": "Group not found"
+}
+
+500 Internal Server Error:
+{
+  "success": false,
+  "error": "Failed to fetch invitations",
+  "message": "Error details"
+}
+
+
+========================================
+POST /api/groups/[groupId]/invitations
+========================================
+Description: Create a new invitation.
+- Direct invite: specify invitedUser (user ID)
+- Invite code: specify maxUses and optionally expiresAt
+
+Authentication: Required
+- x-user-phone header must be provided
+- Must be admin or owner
+
+Path Parameters:
+- groupId (string) - Group ID (MongoDB ObjectId) or URL slug
+
+Request Headers:
+- x-user-phone (required): User's phone number for authentication
+
+Request Body - Direct Invite:
+{
+  "invitedUser": "507f1f77bcf86cd799439015"  // User ID to invite
+}
+
+Request Body - Invite Code:
+{
+  "maxUses": 10,                              // Optional, default: 1
+  "expiresAt": "2024-02-01T10:30:00.000Z"    // Optional, default: 7 days
+}
+
+Response (201 Created) - Direct Invite:
+{
+  "success": true,
+  "message": "Invitation sent successfully",
+  "data": {
+    "_id": "507f1f77bcf86cd799439031",
+    "groupId": "507f1f77bcf86cd799439011",
+    "type": "direct",
+    "code": "XYZ78GHI",
+    "invitedBy": "507f1f77bcf86cd799439012",
+    "inviter": {
+      "_id": "507f1f77bcf86cd799439012",
+      "fullName": "Admin User",
+      "profileImage": "https://example.com/admin.jpg"
+    },
+    "invitedUser": "507f1f77bcf86cd799439015",
+    "invitee": {
+      "_id": "507f1f77bcf86cd799439015",
+      "fullName": "John Farmer",
+      "profileImage": "https://example.com/john.jpg"
+    },
+    "status": "pending",
+    "maxUses": 1,
+    "usedCount": 0,
+    "expiresAt": "2024-02-01T10:30:00.000Z",
+    "createdAt": "2024-01-25T10:30:00.000Z"
+  }
+}
+
+Response (201 Created) - Invite Code:
+{
+  "success": true,
+  "message": "Invite code generated successfully",
+  "data": {
+    "_id": "507f1f77bcf86cd799439030",
+    "groupId": "507f1f77bcf86cd799439011",
+    "type": "code",
+    "code": "ABC12DEF",
+    "inviteLink": "/invite/ABC12DEF",
+    "invitedBy": "507f1f77bcf86cd799439012",
+    "inviter": {
+      "_id": "507f1f77bcf86cd799439012",
+      "fullName": "Admin User",
+      "profileImage": "https://example.com/admin.jpg"
+    },
+    "status": "pending",
+    "maxUses": 10,
+    "usedCount": 0,
+    "expiresAt": "2024-02-01T10:30:00.000Z",
+    "createdAt": "2024-01-25T10:30:00.000Z"
+  }
+}
+
+Error Responses:
+
+400 Bad Request - Invalid user ID:
+{
+  "success": false,
+  "error": "Invalid user ID"
+}
+
+400 Bad Request - Self invite:
+{
+  "success": false,
+  "error": "You cannot invite yourself"
+}
+
+400 Bad Request - Already member:
+{
+  "success": false,
+  "error": "User is already a member of this group"
+}
+
+400 Bad Request - Pending invitation:
+{
+  "success": false,
+  "error": "User already has a pending invitation"
+}
+
+400 Bad Request - Invalid expiration:
+{
+  "success": false,
+  "error": "Expiration date must be in the future"
+}
+
+401 Unauthorized:
+{
+  "success": false,
+  "error": "Authentication required"
+}
+
+403 Forbidden:
+{
+  "success": false,
+  "error": "Only admins and owners can create invitations"
+}
+
+404 Not Found - Group:
+{
+  "success": false,
+  "error": "Group not found"
+}
+
+404 Not Found - User:
+{
+  "success": false,
+  "error": "User to invite not found"
+}
+
+500 Internal Server Error:
+{
+  "success": false,
+  "error": "Failed to create invitation",
+  "message": "Error details"
+}
+
+
+========================================
+GET /api/groups/[groupId]/invitations/[invitationId]
+========================================
+Description: Get details of a specific invitation.
+
+Authentication: Required
+- x-user-phone header must be provided
+- Must be admin or owner
+
+Path Parameters:
+- groupId (string) - Group ID (MongoDB ObjectId) or URL slug
+- invitationId (string) - Invitation ID (MongoDB ObjectId)
+
+Request Example:
+GET /api/groups/507f1f77bcf86cd799439011/invitations/507f1f77bcf86cd799439030
+
+Response (200 OK):
+{
+  "success": true,
+  "data": {
+    "_id": "507f1f77bcf86cd799439030",
+    "groupId": "507f1f77bcf86cd799439011",
+    "type": "code",
+    "code": "ABC12DEF",
+    "invitedBy": "507f1f77bcf86cd799439012",
+    "inviter": {
+      "_id": "507f1f77bcf86cd799439012",
+      "fullName": "Admin User",
+      "profileImage": "https://example.com/admin.jpg"
+    },
+    "status": "pending",
+    "maxUses": 10,
+    "usedCount": 3,
+    "expiresAt": "2024-02-01T10:30:00.000Z",
+    "createdAt": "2024-01-25T10:30:00.000Z"
+  }
+}
+
+Error Responses:
+
+400 Bad Request:
+{
+  "success": false,
+  "error": "Invalid invitation ID"
+}
+
+401 Unauthorized:
+{
+  "success": false,
+  "error": "Authentication required"
+}
+
+403 Forbidden:
+{
+  "success": false,
+  "error": "Only admins and owners can view invitation details"
+}
+
+404 Not Found:
+{
+  "success": false,
+  "error": "Invitation not found"
+}
+
+500 Internal Server Error:
+{
+  "success": false,
+  "error": "Failed to fetch invitation",
+  "message": "Error details"
+}
+
+
+========================================
+DELETE /api/groups/[groupId]/invitations/[invitationId]
+========================================
+Description: Cancel a pending invitation.
+
+Authentication: Required
+- x-user-phone header must be provided
+- Must be admin or owner
+
+Path Parameters:
+- groupId (string) - Group ID (MongoDB ObjectId) or URL slug
+- invitationId (string) - Invitation ID (MongoDB ObjectId)
+
+Request Example:
+DELETE /api/groups/507f1f77bcf86cd799439011/invitations/507f1f77bcf86cd799439030
+
+Response (200 OK):
+{
+  "success": true,
+  "message": "Invitation cancelled successfully"
+}
+
+Error Responses:
+
+400 Bad Request - Invalid ID:
+{
+  "success": false,
+  "error": "Invalid invitation ID"
+}
+
+400 Bad Request - Non-pending:
+{
+  "success": false,
+  "error": "Cannot cancel invitation with status 'accepted'"
+}
+
+401 Unauthorized:
+{
+  "success": false,
+  "error": "Authentication required"
+}
+
+403 Forbidden:
+{
+  "success": false,
+  "error": "Only admins and owners can cancel invitations"
+}
+
+404 Not Found:
+{
+  "success": false,
+  "error": "Invitation not found"
+}
+
+500 Internal Server Error:
+{
+  "success": false,
+  "error": "Failed to cancel invitation",
+  "message": "Error details"
+}
+
+
+========================================
+GET /api/groups/invite/[code]
+========================================
+Description: Get information about an invite code without accepting it.
+
+Authentication: Optional
+
+Path Parameters:
+- code (string) - 8-character alphanumeric invite code
+
+Request Example:
+GET /api/groups/invite/ABC12DEF
+
+Response (200 OK):
+{
+  "success": true,
+  "data": {
+    "invitation": {
+      "_id": "507f1f77bcf86cd799439030",
+      "type": "code",
+      "code": "ABC12DEF",
+      "inviter": {
+        "_id": "507f1f77bcf86cd799439012",
+        "fullName": "Admin User",
+        "profileImage": "https://example.com/admin.jpg"
+      },
+      "expiresAt": "2024-02-01T10:30:00.000Z",
+      "isDirectInvite": false,
+      "remainingUses": 7
+    },
+    "group": {
+      "_id": "507f1f77bcf86cd799439011",
+      "name": "Wheat Farmers India",
+      "slug": "wheat-farmers-india",
+      "description": "A community for wheat farmers",
+      "coverImage": "https://example.com/cover.jpg",
+      "icon": "🌾",
+      "groupType": "crop",
+      "privacy": "invite-only",
+      "memberCount": 150,
+      "crops": ["wheat"],
+      "region": "North India"
+    }
+  }
+}
+
+Error Responses:
+
+400 Bad Request - Invalid code:
+{
+  "success": false,
+  "error": "Invalid invite code"
+}
+
+400 Bad Request - Expired:
+{
+  "success": false,
+  "error": "Invitation has expired"
+}
+
+400 Bad Request - Max uses:
+{
+  "success": false,
+  "error": "Invitation has reached maximum uses"
+}
+
+404 Not Found - Code:
+{
+  "success": false,
+  "error": "Invite code not found"
+}
+
+404 Not Found - Group:
+{
+  "success": false,
+  "error": "Group no longer exists"
+}
+
+500 Internal Server Error:
+{
+  "success": false,
+  "error": "Failed to fetch invite information",
+  "message": "Error details"
+}
+
+
+========================================
+POST /api/groups/invite/[code]
+========================================
+Description: Accept an invite code and join the group.
+
+Authentication: Required
+- x-user-phone header must be provided
+
+Path Parameters:
+- code (string) - 8-character alphanumeric invite code
+
+Request Headers:
+- x-user-phone (required): User's phone number for authentication
+
+Request Example:
+POST /api/groups/invite/ABC12DEF
+
+Response (201 Created):
+{
+  "success": true,
+  "message": "You have joined the group successfully",
+  "data": {
+    "membership": {
+      "_id": "507f1f77bcf86cd799439040",
+      "groupId": "507f1f77bcf86cd799439011",
+      "userId": "507f1f77bcf86cd799439015",
+      "user": {
+        "_id": "507f1f77bcf86cd799439015",
+        "fullName": "John Farmer",
+        "profileImage": "https://example.com/john.jpg",
+        "role": "farmer"
+      },
+      "role": "member",
+      "status": "active",
+      "joinedAt": "2024-01-25T14:30:00.000Z",
+      "invitedBy": "507f1f77bcf86cd799439012",
+      "notificationPreferences": {
+        "newPosts": true,
+        "mentions": true,
+        "announcements": true
+      }
+    },
+    "group": {
+      "_id": "507f1f77bcf86cd799439011",
+      "name": "Wheat Farmers India",
+      "slug": "wheat-farmers-india"
+    }
+  }
+}
+
+Error Responses:
+
+400 Bad Request - Invalid code:
+{
+  "success": false,
+  "error": "Invalid invite code"
+}
+
+400 Bad Request - Expired:
+{
+  "success": false,
+  "error": "Invitation has expired"
+}
+
+400 Bad Request - Max uses:
+{
+  "success": false,
+  "error": "Invitation has reached maximum uses"
+}
+
+400 Bad Request - Already member:
+{
+  "success": false,
+  "error": "You are already a member of this group"
+}
+
+400 Bad Request - Pending:
+{
+  "success": false,
+  "error": "You have a pending membership request"
+}
+
+401 Unauthorized:
+{
+  "success": false,
+  "error": "Authentication required"
+}
+
+403 Forbidden - Wrong user:
+{
+  "success": false,
+  "error": "This invitation is for a different user"
+}
+
+403 Forbidden - Banned:
+{
+  "success": false,
+  "error": "You have been banned from this group"
+}
+
+404 Not Found - Code:
+{
+  "success": false,
+  "error": "Invite code not found"
+}
+
+404 Not Found - Group:
+{
+  "success": false,
+  "error": "Group no longer exists"
+}
+
+500 Internal Server Error:
+{
+  "success": false,
+  "error": "Failed to accept invite",
+  "message": "Error details"
+}
+
+
+========================================
+GET /api/groups/[groupId]/join-requests
+========================================
+Description: List pending join requests for a group.
+Requires moderator, admin, or owner role.
+
+Authentication: Required
+- x-user-phone header must be provided
+- Must be moderator, admin, or owner
+
+Path Parameters:
+- groupId (string) - Group ID (MongoDB ObjectId) or URL slug
+
+Query Parameters:
+- page (number, default: 1) - Page number for pagination
+- limit (number, default: 20, max: 50) - Number of items per page
+
+Request Headers:
+- x-user-phone (required): User's phone number for authentication
+
+Request Example:
+GET /api/groups/507f1f77bcf86cd799439011/join-requests?page=1&limit=20
+
+Response (200 OK):
+{
+  "success": true,
+  "data": [
+    {
+      "_id": "507f1f77bcf86cd799439040",
+      "groupId": "507f1f77bcf86cd799439011",
+      "userId": "507f1f77bcf86cd799439015",
+      "user": {
+        "_id": "507f1f77bcf86cd799439015",
+        "fullName": "John Farmer",
+        "profileImage": "https://example.com/john.jpg",
+        "role": "farmer",
+        "region": "North India"
+      },
+      "role": "member",
+      "status": "pending",
+      "joinedAt": "2024-01-25T10:30:00.000Z",
+      "createdAt": "2024-01-25T10:30:00.000Z",
+      "notificationPreferences": {
+        "newPosts": true,
+        "mentions": true,
+        "announcements": true
+      }
+    }
+  ],
+  "pagination": {
+    "page": 1,
+    "limit": 20,
+    "total": 5,
+    "totalPages": 1,
+    "hasNextPage": false,
+    "hasPrevPage": false
+  }
+}
+
+Error Responses:
+
+401 Unauthorized:
+{
+  "success": false,
+  "error": "Authentication required"
+}
+
+403 Forbidden - Not a member:
+{
+  "success": false,
+  "error": "You are not a member of this group"
+}
+
+403 Forbidden - Insufficient permissions:
+{
+  "success": false,
+  "error": "Only moderators, admins, and owners can view join requests"
+}
+
+404 Not Found:
+{
+  "success": false,
+  "error": "Group not found"
+}
+
+500 Internal Server Error:
+{
+  "success": false,
+  "error": "Failed to fetch join requests",
+  "message": "Error details"
+}
+
+
+========================================
+POST /api/groups/[groupId]/join-requests
+========================================
+Description: Approve or reject a join request.
+Requires moderator, admin, or owner role.
+- For approve: updates membership status to 'active', increments memberCount
+- For reject: sets membership status to 'left'
+- Sends notification to the user in both cases
+
+Authentication: Required
+- x-user-phone header must be provided
+- Must be moderator, admin, or owner
+
+Path Parameters:
+- groupId (string) - Group ID (MongoDB ObjectId) or URL slug
+
+Request Headers:
+- x-user-phone (required): User's phone number for authentication
+
+Request Body:
+{
+  "userId": "507f1f77bcf86cd799439015",  // User ID of the requester
+  "action": "approve"                     // "approve" or "reject"
+}
+
+Request Example - Approve:
+POST /api/groups/507f1f77bcf86cd799439011/join-requests
+{
+  "userId": "507f1f77bcf86cd799439015",
+  "action": "approve"
+}
+
+Response (200 OK) - Approved:
+{
+  "success": true,
+  "message": "Join request approved",
+  "data": {
+    "_id": "507f1f77bcf86cd799439040",
+    "groupId": "507f1f77bcf86cd799439011",
+    "userId": "507f1f77bcf86cd799439015",
+    "user": {
+      "_id": "507f1f77bcf86cd799439015",
+      "fullName": "John Farmer",
+      "profileImage": "https://example.com/john.jpg",
+      "role": "farmer",
+      "region": "North India"
+    },
+    "role": "member",
+    "status": "active",
+    "joinedAt": "2024-01-25T14:30:00.000Z",
+    "notificationPreferences": {
+      "newPosts": true,
+      "mentions": true,
+      "announcements": true
+    }
+  }
+}
+
+Request Example - Reject:
+POST /api/groups/507f1f77bcf86cd799439011/join-requests
+{
+  "userId": "507f1f77bcf86cd799439015",
+  "action": "reject"
+}
+
+Response (200 OK) - Rejected:
+{
+  "success": true,
+  "message": "Join request rejected"
+}
+
+Error Responses:
+
+400 Bad Request - Invalid user ID:
+{
+  "success": false,
+  "error": "Valid user ID is required"
+}
+
+400 Bad Request - Invalid action:
+{
+  "success": false,
+  "error": "Action must be either \"approve\" or \"reject\""
+}
+
+401 Unauthorized:
+{
+  "success": false,
+  "error": "Authentication required"
+}
+
+403 Forbidden - Not a member:
+{
+  "success": false,
+  "error": "You are not a member of this group"
+}
+
+403 Forbidden - Insufficient permissions:
+{
+  "success": false,
+  "error": "Only moderators, admins, and owners can manage join requests"
+}
+
+404 Not Found - Group:
+{
+  "success": false,
+  "error": "Group not found"
+}
+
+404 Not Found - Request:
+{
+  "success": false,
+  "error": "No pending join request found for this user"
+}
+
+500 Internal Server Error:
+{
+  "success": false,
+  "error": "Failed to process join request",
+  "message": "Error details"
+}
+
+========================================
+GET /api/groups/[groupId]/posts
+========================================
+Description: List posts in a group with pagination and filtering.
+- Sorted by isPinned descending, then createdAt descending
+- If requirePostApproval is enabled and user is not mod/admin, only shows approved posts
+- Includes isLiked status for authenticated users
+
+Authentication: Optional
+- If x-user-phone provided, includes isLiked status for each post
+
+Path Parameters:
+- groupId (string) - Group ID (MongoDB ObjectId) or URL slug
+
+Query Parameters:
+- page (number, default: 1) - Page number for pagination
+- limit (number, default: 20, max: 50) - Number of items per page
+- postType (string) - Filter by type: discussion, question, announcement, poll, resource
+- pinnedOnly (boolean) - Only show pinned posts
+
+Request Headers:
+- x-user-phone (optional): User's phone number for isLiked status
+
+Request Example:
+GET /api/groups/507f1f77bcf86cd799439011/posts?page=1&limit=20&postType=discussion
+
+Response (200 OK):
+{
+  "success": true,
+  "data": [
+    {
+      "_id": "507f1f77bcf86cd799439050",
+      "groupId": "507f1f77bcf86cd799439011",
+      "authorId": "507f1f77bcf86cd799439012",
+      "author": {
+        "_id": "507f1f77bcf86cd799439012",
+        "fullName": "John Farmer",
+        "profileImage": "https://example.com/john.jpg",
+        "role": "farmer"
+      },
+      "postType": "discussion",
+      "content": "What's the best time to plant wheat in North India?",
+      "images": [],
+      "attachments": [],
+      "likesCount": 15,
+      "commentsCount": 8,
+      "sharesCount": 2,
+      "isLiked": true,
+      "isPinned": false,
+      "isApproved": true,
+      "isEdited": false,
+      "mentions": ["jane_farmer"],
+      "tags": ["wheat", "planting"],
+      "createdAt": "2024-01-25T10:30:00.000Z",
+      "updatedAt": "2024-01-25T10:30:00.000Z"
+    },
+    {
+      "_id": "507f1f77bcf86cd799439051",
+      "groupId": "507f1f77bcf86cd799439011",
+      "authorId": "507f1f77bcf86cd799439013",
+      "author": {
+        "_id": "507f1f77bcf86cd799439013",
+        "fullName": "Admin User",
+        "profileImage": "https://example.com/admin.jpg",
+        "role": "expert"
+      },
+      "postType": "poll",
+      "content": "Which fertilizer do you prefer?",
+      "images": [],
+      "attachments": [],
+      "poll": {
+        "question": "Which fertilizer do you prefer?",
+        "options": [
+          { "text": "Organic only", "votes": 25 },
+          { "text": "Chemical only", "votes": 10 },
+          { "text": "Mixed approach", "votes": 45 }
+        ],
+        "allowMultipleVotes": false,
+        "endsAt": "2024-02-01T10:30:00.000Z",
+        "totalVotes": 80,
+        "hasVoted": true,
+        "userVotedOption": 2
+      },
+      "likesCount": 5,
+      "commentsCount": 12,
+      "sharesCount": 0,
+      "isLiked": false,
+      "isPinned": true,
+      "isApproved": true,
+      "isEdited": false,
+      "mentions": [],
+      "tags": ["fertilizer", "poll"],
+      "createdAt": "2024-01-24T08:00:00.000Z"
+    }
+  ],
+  "pagination": {
+    "page": 1,
+    "limit": 20,
+    "total": 45,
+    "totalPages": 3,
+    "hasNextPage": true,
+    "hasPrevPage": false
+  }
+}
+
+Error Responses:
+
+404 Not Found:
+{
+  "success": false,
+  "error": "Group not found"
+}
+
+500 Internal Server Error:
+{
+  "success": false,
+  "error": "Failed to fetch posts",
+  "message": "Error details"
+}
+
+
+========================================
+POST /api/groups/[groupId]/posts
+========================================
+Description: Create a new post in the group.
+- User must be an active member
+- If allowMemberPosts is false, only mod/admin can post
+- If requirePostApproval is true and user is regular member, post needs approval
+- Supports poll creation if postType is 'poll' and allowPolls is true
+- Parses mentions from content (format: @username)
+- Announcements can only be created by mod/admin
+
+Authentication: Required
+- x-user-phone header must be provided
+
+Path Parameters:
+- groupId (string) - Group ID (MongoDB ObjectId) or URL slug
+
+Request Headers:
+- x-user-phone (required): User's phone number for authentication
+
+Request Body:
+{
+  "content": "What's the best time to plant wheat?",  // Required
+  "postType": "discussion",                           // Optional, default: discussion
+  "images": [                                         // Optional
+    "https://example.com/image1.jpg"
+  ],
+  "attachments": [                                    // Optional
+    {
+      "name": "guide.pdf",
+      "url": "https://example.com/guide.pdf",
+      "type": "application/pdf"
+    }
+  ],
+  "tags": ["wheat", "planting"]                       // Optional
+}
+
+Request Body - Poll:
+{
+  "content": "Help us decide!",
+  "postType": "poll",
+  "poll": {
+    "question": "Which fertilizer do you prefer?",
+    "options": ["Organic only", "Chemical only", "Mixed approach"],
+    "allowMultipleVotes": false,
+    "endsAt": "2024-02-01T10:30:00.000Z"  // Optional
+  }
+}
+
+Response (201 Created):
+{
+  "success": true,
+  "message": "Post created successfully",
+  "data": {
+    "_id": "507f1f77bcf86cd799439050",
+    "groupId": "507f1f77bcf86cd799439011",
+    "authorId": "507f1f77bcf86cd799439012",
+    "author": {
+      "_id": "507f1f77bcf86cd799439012",
+      "fullName": "John Farmer",
+      "profileImage": "https://example.com/john.jpg",
+      "role": "farmer"
+    },
+    "postType": "discussion",
+    "content": "What's the best time to plant wheat?",
+    "images": [],
+    "attachments": [],
+    "likesCount": 0,
+    "commentsCount": 0,
+    "sharesCount": 0,
+    "isLiked": false,
+    "isPinned": false,
+    "isApproved": true,
+    "isEdited": false,
+    "mentions": [],
+    "tags": ["wheat", "planting"],
+    "createdAt": "2024-01-25T10:30:00.000Z"
+  }
+}
+
+Response (201) - Pending Approval:
+{
+  "success": true,
+  "message": "Post created and is pending approval",
+  "data": {
+    ...
+    "isApproved": false
+  }
+}
+
+Error Responses:
+
+400 Bad Request - Missing content:
+{
+  "success": false,
+  "error": "Post content is required"
+}
+
+400 Bad Request - Content too long:
+{
+  "success": false,
+  "error": "Post content cannot exceed 10000 characters"
+}
+
+400 Bad Request - Invalid post type:
+{
+  "success": false,
+  "error": "Invalid post type. Must be one of: discussion, question, announcement, poll, resource"
+}
+
+400 Bad Request - Invalid poll:
+{
+  "success": false,
+  "error": "Poll must have a question and at least 2 options"
+}
+
+401 Unauthorized:
+{
+  "success": false,
+  "error": "Authentication required"
+}
+
+403 Forbidden - Not a member:
+{
+  "success": false,
+  "error": "You must be a member to create posts"
+}
+
+403 Forbidden - Member posts not allowed:
+{
+  "success": false,
+  "error": "Only moderators and admins can create posts in this group"
+}
+
+403 Forbidden - Announcement:
+{
+  "success": false,
+  "error": "Only moderators and admins can create announcements"
+}
+
+403 Forbidden - Polls not allowed:
+{
+  "success": false,
+  "error": "Polls are not allowed in this group"
+}
+
+403 Forbidden - Images not allowed:
+{
+  "success": false,
+  "error": "Images are not allowed in this group"
+}
+
+404 Not Found:
+{
+  "success": false,
+  "error": "Group not found"
+}
+
+500 Internal Server Error:
+{
+  "success": false,
+  "error": "Failed to create post",
+  "message": "Error details"
+}
+
+
+========================================
+GET /api/groups/[groupId]/posts/[postId]
+========================================
+Description: Get details of a specific post.
+- Includes comments count and isLiked status for authenticated users
+- Unapproved posts only visible to author and mods/admins
+
+Authentication: Optional
+- If x-user-phone provided, includes isLiked status
+
+Path Parameters:
+- groupId (string) - Group ID (MongoDB ObjectId) or URL slug
+- postId (string) - Post ID (MongoDB ObjectId)
+
+Request Headers:
+- x-user-phone (optional): User's phone number for isLiked status
+
+Request Example:
+GET /api/groups/507f1f77bcf86cd799439011/posts/507f1f77bcf86cd799439050
+
+Response (200 OK):
+{
+  "success": true,
+  "data": {
+    "_id": "507f1f77bcf86cd799439050",
+    "groupId": "507f1f77bcf86cd799439011",
+    "authorId": "507f1f77bcf86cd799439012",
+    "author": {
+      "_id": "507f1f77bcf86cd799439012",
+      "fullName": "John Farmer",
+      "profileImage": "https://example.com/john.jpg",
+      "role": "farmer",
+      "region": "North India"
+    },
+    "postType": "discussion",
+    "content": "What's the best time to plant wheat in North India?",
+    "images": [],
+    "attachments": [],
+    "likesCount": 15,
+    "commentsCount": 8,
+    "sharesCount": 2,
+    "isLiked": true,
+    "isPinned": false,
+    "isApproved": true,
+    "isEdited": false,
+    "mentions": [],
+    "tags": ["wheat", "planting"],
+    "createdAt": "2024-01-25T10:30:00.000Z",
+    "updatedAt": "2024-01-25T10:30:00.000Z"
+  }
+}
+
+Error Responses:
+
+400 Bad Request:
+{
+  "success": false,
+  "error": "Invalid post ID"
+}
+
+404 Not Found - Group:
+{
+  "success": false,
+  "error": "Group not found"
+}
+
+404 Not Found - Post:
+{
+  "success": false,
+  "error": "Post not found"
+}
+
+500 Internal Server Error:
+{
+  "success": false,
+  "error": "Failed to fetch post",
+  "message": "Error details"
+}
+
+
+========================================
+PUT /api/groups/[groupId]/posts/[postId]
+========================================
+Description: Update a post.
+- Author can edit within 24 hours of creation
+- Mods/admins can edit anytime
+- Cannot change postType after creation
+- Sets isEdited=true and editedAt timestamp
+
+Authentication: Required
+- x-user-phone header must be provided
+
+Path Parameters:
+- groupId (string) - Group ID (MongoDB ObjectId) or URL slug
+- postId (string) - Post ID (MongoDB ObjectId)
+
+Request Headers:
+- x-user-phone (required): User's phone number for authentication
+
+Request Body (all fields optional):
+{
+  "content": "Updated content for the post",
+  "images": ["https://example.com/new-image.jpg"],
+  "attachments": [],
+  "tags": ["updated", "tags"]
+}
+
+Response (200 OK):
+{
+  "success": true,
+  "message": "Post updated successfully",
+  "data": {
+    "_id": "507f1f77bcf86cd799439050",
+    "groupId": "507f1f77bcf86cd799439011",
+    "authorId": "507f1f77bcf86cd799439012",
+    "author": {
+      "_id": "507f1f77bcf86cd799439012",
+      "fullName": "John Farmer",
+      "profileImage": "https://example.com/john.jpg",
+      "role": "farmer"
+    },
+    "postType": "discussion",
+    "content": "Updated content for the post",
+    "images": ["https://example.com/new-image.jpg"],
+    "attachments": [],
+    "likesCount": 15,
+    "commentsCount": 8,
+    "sharesCount": 2,
+    "isLiked": true,
+    "isPinned": false,
+    "isApproved": true,
+    "isEdited": true,
+    "editedAt": "2024-01-25T14:30:00.000Z",
+    "mentions": [],
+    "tags": ["updated", "tags"],
+    "createdAt": "2024-01-25T10:30:00.000Z",
+    "updatedAt": "2024-01-25T14:30:00.000Z"
+  }
+}
+
+Error Responses:
+
+400 Bad Request - Invalid ID:
+{
+  "success": false,
+  "error": "Invalid post ID"
+}
+
+400 Bad Request - Empty content:
+{
+  "success": false,
+  "error": "Post content cannot be empty"
+}
+
+400 Bad Request - Content too long:
+{
+  "success": false,
+  "error": "Post content cannot exceed 10000 characters"
+}
+
+400 Bad Request - Change postType:
+{
+  "success": false,
+  "error": "Cannot change post type after creation"
+}
+
+401 Unauthorized:
+{
+  "success": false,
+  "error": "Authentication required"
+}
+
+403 Forbidden - Not member:
+{
+  "success": false,
+  "error": "You are not a member of this group"
+}
+
+403 Forbidden - No permission:
+{
+  "success": false,
+  "error": "You do not have permission to edit this post"
+}
+
+403 Forbidden - Edit window expired:
+{
+  "success": false,
+  "error": "Post can only be edited within 24 hours of creation"
+}
+
+403 Forbidden - Images not allowed:
+{
+  "success": false,
+  "error": "Images are not allowed in this group"
+}
+
+404 Not Found:
+{
+  "success": false,
+  "error": "Post not found"
+}
+
+500 Internal Server Error:
+{
+  "success": false,
+  "error": "Failed to update post",
+  "message": "Error details"
+}
+
+
+========================================
+DELETE /api/groups/[groupId]/posts/[postId]
+========================================
+Description: Soft delete a post.
+- Author can delete own post anytime
+- Mods/admins can delete any post
+- Sets isDeleted=true and tracks deletedBy
+- Decrements group postCount if post was approved
+
+Authentication: Required
+- x-user-phone header must be provided
+
+Path Parameters:
+- groupId (string) - Group ID (MongoDB ObjectId) or URL slug
+- postId (string) - Post ID (MongoDB ObjectId)
+
+Request Headers:
+- x-user-phone (required): User's phone number for authentication
+
+Request Example:
+DELETE /api/groups/507f1f77bcf86cd799439011/posts/507f1f77bcf86cd799439050
+
+Response (200 OK):
+{
+  "success": true,
+  "message": "Post deleted successfully"
+}
+
+Error Responses:
+
+400 Bad Request:
+{
+  "success": false,
+  "error": "Invalid post ID"
+}
+
+401 Unauthorized:
+{
+  "success": false,
+  "error": "Authentication required"
+}
+
+403 Forbidden - Not member:
+{
+  "success": false,
+  "error": "You are not a member of this group"
+}
+
+403 Forbidden - No permission:
+{
+  "success": false,
+  "error": "You do not have permission to delete this post"
+}
+
+404 Not Found - Group:
+{
+  "success": false,
+  "error": "Group not found"
+}
+
+404 Not Found - Post:
+{
+  "success": false,
+  "error": "Post not found"
+}
+
+500 Internal Server Error:
+{
+  "success": false,
+  "error": "Failed to delete post",
+  "message": "Error details"
+}
+
+
+========================================
+POST /api/groups/[groupId]/posts/[postId]/like
+========================================
+Description: Toggle like on a group post.
+- Check user is active group member
+- If liked: remove from likes array, decrement likesCount
+- If not liked: add to likes array, increment likesCount
+- Create notification for post author (unless liking own post)
+
+Authentication: Required
+- x-user-phone header must be provided
+
+Path Parameters:
+- groupId (string) - Group ID (MongoDB ObjectId) or URL slug
+- postId (string) - Post ID (MongoDB ObjectId)
+
+Request Headers:
+- x-user-phone (required): User's phone number for authentication
+
+Request Example:
+POST /api/groups/507f1f77bcf86cd799439011/posts/507f1f77bcf86cd799439050/like
+
+Request Body: None required
+
+Response (200 OK) - Post Liked:
+{
+  "success": true,
+  "data": {
+    "isLiked": true,
+    "likesCount": 16
+  }
+}
+
+Response (200 OK) - Post Unliked:
+{
+  "success": true,
+  "data": {
+    "isLiked": false,
+    "likesCount": 15
+  }
+}
+
+Notification Created (when liking another user's post):
+{
+  "userId": "507f1f77bcf86cd799439012",
+  "type": "group_post_like",
+  "title": "Post Liked",
+  "message": "John Farmer liked your post in the group",
+  "data": {
+    "groupId": "507f1f77bcf86cd799439011",
+    "groupName": "Wheat Farmers India",
+    "groupSlug": "wheat-farmers-india",
+    "postId": "507f1f77bcf86cd799439050",
+    "postContent": "First 100 characters of the post...",
+    "likerId": "507f1f77bcf86cd799439099",
+    "likerName": "John Farmer",
+    "likerImage": "https://example.com/john.jpg"
+  },
+  "isRead": false
+}
+
+Error Responses:
+
+400 Bad Request:
+{
+  "success": false,
+  "error": "Invalid post ID"
+}
+
+401 Unauthorized:
+{
+  "success": false,
+  "error": "Authentication required"
+}
+
+403 Forbidden - Not active member:
+{
+  "success": false,
+  "error": "You are not an active member of this group"
+}
+
+404 Not Found - User:
+{
+  "success": false,
+  "error": "User not found"
+}
+
+404 Not Found - Group:
+{
+  "success": false,
+  "error": "Group not found"
+}
+
+404 Not Found - Post:
+{
+  "success": false,
+  "error": "Post not found"
+}
+
+500 Internal Server Error:
+{
+  "success": false,
+  "error": "Failed to toggle like",
+  "message": "Error details"
+}
+
+
+========================================
+POST /api/groups/[groupId]/posts/[postId]/pin
+========================================
+Description: Toggle pin status on a group post.
+- Require moderator/admin/owner role
+- Toggle isPinned boolean
+- If pinning, check max 3 pinned posts per group - if exceeded, unpin oldest pinned post
+- Returns updated post
+
+Authentication: Required
+- x-user-phone header must be provided
+
+Path Parameters:
+- groupId (string) - Group ID (MongoDB ObjectId) or URL slug
+- postId (string) - Post ID (MongoDB ObjectId)
+
+Request Headers:
+- x-user-phone (required): User's phone number for authentication
+
+Request Example:
+POST /api/groups/507f1f77bcf86cd799439011/posts/507f1f77bcf86cd799439050/pin
+
+Request Body: None required
+
+Response (200 OK) - Post Pinned:
+{
+  "success": true,
+  "message": "Post pinned successfully",
+  "data": {
+    "_id": "507f1f77bcf86cd799439050",
+    "groupId": "507f1f77bcf86cd799439011",
+    "authorId": "507f1f77bcf86cd799439012",
+    "author": {
+      "_id": "507f1f77bcf86cd799439012",
+      "fullName": "John Farmer",
+      "profileImage": "https://example.com/john.jpg",
+      "role": "farmer",
+      "region": "North India"
+    },
+    "postType": "announcement",
+    "content": "Important: Group meeting tomorrow at 5 PM",
+    "isPinned": true,
+    "pinnedAt": "2024-01-25T14:30:00.000Z",
+    "pinnedBy": "507f1f77bcf86cd799439099",
+    "isApproved": true,
+    "createdAt": "2024-01-25T10:30:00.000Z",
+    "updatedAt": "2024-01-25T14:30:00.000Z"
+  }
+}
+
+Response (200 OK) - Post Unpinned:
+{
+  "success": true,
+  "message": "Post unpinned successfully",
+  "data": {
+    "_id": "507f1f77bcf86cd799439050",
+    "groupId": "507f1f77bcf86cd799439011",
+    "authorId": "507f1f77bcf86cd799439012",
+    "author": {
+      "_id": "507f1f77bcf86cd799439012",
+      "fullName": "John Farmer",
+      "profileImage": "https://example.com/john.jpg",
+      "role": "farmer",
+      "region": "North India"
+    },
+    "postType": "announcement",
+    "content": "Important: Group meeting tomorrow at 5 PM",
+    "isPinned": false,
+    "pinnedAt": null,
+    "pinnedBy": null,
+    "isApproved": true,
+    "createdAt": "2024-01-25T10:30:00.000Z",
+    "updatedAt": "2024-01-25T14:30:00.000Z"
+  }
+}
+
+Note: If pinning a 4th post, the oldest pinned post will be automatically unpinned.
+
+Error Responses:
+
+400 Bad Request:
+{
+  "success": false,
+  "error": "Invalid post ID"
+}
+
+401 Unauthorized:
+{
+  "success": false,
+  "error": "Authentication required"
+}
+
+403 Forbidden - Not member:
+{
+  "success": false,
+  "error": "You are not a member of this group"
+}
+
+403 Forbidden - Insufficient role:
+{
+  "success": false,
+  "error": "Only moderators, admins, and owners can pin posts"
+}
+
+404 Not Found - User:
+{
+  "success": false,
+  "error": "User not found"
+}
+
+404 Not Found - Group:
+{
+  "success": false,
+  "error": "Group not found"
+}
+
+404 Not Found - Post:
+{
+  "success": false,
+  "error": "Post not found"
+}
+
+500 Internal Server Error:
+{
+  "success": false,
+  "error": "Failed to toggle pin",
+  "message": "Error details"
+}
+
+
+========================================
+POST /api/groups/[groupId]/posts/[postId]/approve
+========================================
+Description: Approve a pending post in a group.
+- Require moderator/admin/owner role
+- Set isApproved=true, approvedBy=currentUserId, approvedAt=now
+- Increment group postCount since post is now visible
+- Send notification to post author that their post was approved
+
+Authentication: Required
+- x-user-phone header must be provided
+
+Path Parameters:
+- groupId (string) - Group ID (MongoDB ObjectId) or URL slug
+- postId (string) - Post ID (MongoDB ObjectId)
+
+Request Headers:
+- x-user-phone (required): User's phone number for authentication
+
+Request Example:
+POST /api/groups/507f1f77bcf86cd799439011/posts/507f1f77bcf86cd799439050/approve
+
+Request Body: None required
+
+Response (200 OK):
+{
+  "success": true,
+  "message": "Post approved successfully",
+  "data": {
+    "_id": "507f1f77bcf86cd799439050",
+    "groupId": "507f1f77bcf86cd799439011",
+    "authorId": "507f1f77bcf86cd799439012",
+    "author": {
+      "_id": "507f1f77bcf86cd799439012",
+      "fullName": "John Farmer",
+      "profileImage": "https://example.com/john.jpg",
+      "role": "farmer",
+      "region": "North India"
+    },
+    "postType": "discussion",
+    "content": "What's the best time to plant wheat?",
+    "isApproved": true,
+    "approvedBy": {
+      "_id": "507f1f77bcf86cd799439099",
+      "fullName": "Admin User",
+      "profileImage": "https://example.com/admin.jpg"
+    },
+    "approvedAt": "2024-01-25T14:30:00.000Z",
+    "isPinned": false,
+    "createdAt": "2024-01-25T10:30:00.000Z",
+    "updatedAt": "2024-01-25T14:30:00.000Z"
+  }
+}
+
+Notification Created for post author:
+{
+  "userId": "507f1f77bcf86cd799439012",
+  "type": "group_post_approved",
+  "title": "Post Approved",
+  "message": "Your post in \"Wheat Farmers India\" has been approved and is now visible to all members",
+  "data": {
+    "groupId": "507f1f77bcf86cd799439011",
+    "groupName": "Wheat Farmers India",
+    "groupSlug": "wheat-farmers-india",
+    "postId": "507f1f77bcf86cd799439050",
+    "postContent": "First 100 characters of the post...",
+    "approvedBy": "507f1f77bcf86cd799439099",
+    "approvedByName": "Admin User"
+  },
+  "isRead": false
+}
+
+Error Responses:
+
+400 Bad Request - Invalid ID:
+{
+  "success": false,
+  "error": "Invalid post ID"
+}
+
+400 Bad Request - Already approved:
+{
+  "success": false,
+  "error": "Post is already approved"
+}
+
+401 Unauthorized:
+{
+  "success": false,
+  "error": "Authentication required"
+}
+
+403 Forbidden - Not member:
+{
+  "success": false,
+  "error": "You are not a member of this group"
+}
+
+403 Forbidden - Insufficient role:
+{
+  "success": false,
+  "error": "Only moderators, admins, and owners can approve posts"
+}
+
+404 Not Found - User:
+{
+  "success": false,
+  "error": "User not found"
+}
+
+404 Not Found - Group:
+{
+  "success": false,
+  "error": "Group not found"
+}
+
+404 Not Found - Post:
+{
+  "success": false,
+  "error": "Post not found"
+}
+
+500 Internal Server Error:
+{
+  "success": false,
+  "error": "Failed to approve post",
+  "message": "Error details"
+}
+
+========================================
+GET /api/groups/[groupId]/posts/[postId]/comments
+========================================
+Description: Fetch comments for a post with pagination.
+- Support sort by 'oldest' or 'newest'
+- Fetch top-level comments (parentId=null) with replies nested (depth 1 and 2)
+- Populate author info for each comment
+- Include isLiked status for current user if authenticated
+
+Authentication: Optional
+- If x-user-phone provided, includes isLiked status
+
+Path Parameters:
+- groupId (string) - Group ID (MongoDB ObjectId) or URL slug
+- postId (string) - Post ID (MongoDB ObjectId)
+
+Query Parameters:
+- page (number, default: 1) - Page number for top-level comments
+- limit (number, default: 20, max: 50) - Number of top-level comments per page
+- sort (string, default: 'oldest') - Sort order: 'oldest' or 'newest'
+
+Request Headers:
+- x-user-phone (optional): User's phone number for isLiked status
+
+Request Example:
+GET /api/groups/507f1f77bcf86cd799439011/posts/507f1f77bcf86cd799439050/comments?page=1&limit=10&sort=oldest
+
+Response (200 OK):
+{
+  "success": true,
+  "data": {
+    "comments": [
+      {
+        "_id": "507f1f77bcf86cd799439060",
+        "postId": "507f1f77bcf86cd799439050",
+        "groupId": "507f1f77bcf86cd799439011",
+        "author": {
+          "_id": "507f1f77bcf86cd799439012",
+          "fullName": "John Farmer",
+          "profileImage": "https://example.com/john.jpg",
+          "role": "farmer",
+          "region": "North India"
+        },
+        "content": "Great question! I usually plant wheat in November.",
+        "parentId": null,
+        "depth": 0,
+        "replyCount": 2,
+        "likesCount": 5,
+        "isHelpful": true,
+        "isLiked": true,
+        "mentions": [],
+        "isEdited": false,
+        "isDeleted": false,
+        "createdAt": "2024-01-25T11:00:00.000Z",
+        "updatedAt": "2024-01-25T11:00:00.000Z",
+        "replies": [
+          {
+            "_id": "507f1f77bcf86cd799439061",
+            "postId": "507f1f77bcf86cd799439050",
+            "groupId": "507f1f77bcf86cd799439011",
+            "author": {
+              "_id": "507f1f77bcf86cd799439013",
+              "fullName": "Jane Farmer",
+              "profileImage": "https://example.com/jane.jpg",
+              "role": "farmer"
+            },
+            "content": "Thanks @John! That's helpful.",
+            "parentId": "507f1f77bcf86cd799439060",
+            "depth": 1,
+            "replyCount": 1,
+            "likesCount": 2,
+            "isLiked": false,
+            "isHelpful": false,
+            "mentions": ["507f1f77bcf86cd799439012"],
+            "createdAt": "2024-01-25T11:15:00.000Z",
+            "replies": [
+              {
+                "_id": "507f1f77bcf86cd799439062",
+                "content": "You're welcome!",
+                "author": {...},
+                "parentId": "507f1f77bcf86cd799439061",
+                "depth": 2,
+                "isLiked": false,
+                "replies": []
+              }
+            ]
+          }
+        ]
+      }
+    ],
+    "pagination": {
+      "currentPage": 1,
+      "totalPages": 3,
+      "totalComments": 25,
+      "hasNextPage": true,
+      "hasPreviousPage": false,
+      "limit": 10
+    }
+  }
+}
+
+Error Responses:
+
+400 Bad Request - Invalid pagination:
+{
+  "success": false,
+  "error": "Invalid pagination parameters"
+}
+
+400 Bad Request - Invalid post ID:
+{
+  "success": false,
+  "error": "Invalid post ID"
+}
+
+404 Not Found - Group:
+{
+  "success": false,
+  "error": "Group not found"
+}
+
+404 Not Found - Post:
+{
+  "success": false,
+  "error": "Post not found"
+}
+
+500 Internal Server Error:
+{
+  "success": false,
+  "error": "Failed to fetch comments",
+  "message": "Error details"
+}
+
+
+========================================
+POST /api/groups/[groupId]/posts/[postId]/comments
+========================================
+Description: Create a new comment on a post.
+- Validate user is active member
+- If replying (parentId provided), validate parent comment exists and belongs to this post
+- Enforce max depth of 2 (top-level = 0, reply = 1, reply to reply = 2)
+- Parse mentions from content (format @username)
+- Increment post commentsCount
+- Increment parent replyCount if this is a reply
+- Create notifications for mentioned users and post author/parent comment author
+
+Authentication: Required
+- x-user-phone header must be provided
+
+Path Parameters:
+- groupId (string) - Group ID (MongoDB ObjectId) or URL slug
+- postId (string) - Post ID (MongoDB ObjectId)
+
+Request Headers:
+- x-user-phone (required): User's phone number for authentication
+
+Request Body:
+{
+  "content": "Great question! I usually plant wheat in November. @Jane what do you think?",
+  "parentId": null  // Optional - ID of parent comment if replying
+}
+
+Response (201 Created):
+{
+  "success": true,
+  "message": "Comment created successfully",
+  "data": {
+    "_id": "507f1f77bcf86cd799439060",
+    "postId": "507f1f77bcf86cd799439050",
+    "groupId": "507f1f77bcf86cd799439011",
+    "author": {
+      "_id": "507f1f77bcf86cd799439012",
+      "fullName": "John Farmer",
+      "profileImage": "https://example.com/john.jpg",
+      "role": "farmer",
+      "region": "North India"
+    },
+    "content": "Great question! I usually plant wheat in November. @Jane what do you think?",
+    "parentId": null,
+    "depth": 0,
+    "replyCount": 0,
+    "likesCount": 0,
+    "isHelpful": false,
+    "isLiked": false,
+    "mentions": ["507f1f77bcf86cd799439013"],
+    "isEdited": false,
+    "isDeleted": false,
+    "createdAt": "2024-01-25T11:00:00.000Z",
+    "updatedAt": "2024-01-25T11:00:00.000Z",
+    "replies": []
+  }
+}
+
+Response for Reply (201 Created):
+{
+  "success": true,
+  "message": "Comment created successfully",
+  "data": {
+    "_id": "507f1f77bcf86cd799439061",
+    "postId": "507f1f77bcf86cd799439050",
+    "groupId": "507f1f77bcf86cd799439011",
+    "author": {...},
+    "content": "Thanks for the tip!",
+    "parentId": "507f1f77bcf86cd799439060",
+    "depth": 1,
+    "replyCount": 0,
+    "likesCount": 0,
+    "isLiked": false,
+    "isHelpful": false,
+    "replies": []
+  }
+}
+
+Notifications Created:
+
+1. For post author (if not own post and not a reply):
+{
+  "userId": "507f1f77bcf86cd799439099",
+  "type": "group_post_comment",
+  "title": "New Comment",
+  "message": "John Farmer commented on your post in \"Wheat Farmers India\"",
+  "data": {...}
+}
+
+2. For parent comment author (if replying):
+{
+  "userId": "507f1f77bcf86cd799439012",
+  "type": "group_comment_reply",
+  "title": "New Reply",
+  "message": "Jane Farmer replied to your comment in \"Wheat Farmers India\"",
+  "data": {...}
+}
+
+3. For mentioned users:
+{
+  "userId": "507f1f77bcf86cd799439013",
+  "type": "group_mention",
+  "title": "You were mentioned",
+  "message": "John Farmer mentioned you in a comment in \"Wheat Farmers India\"",
+  "data": {...}
+}
+
+Error Responses:
+
+400 Bad Request - Missing content:
+{
+  "success": false,
+  "error": "Comment content is required"
+}
+
+400 Bad Request - Content too long:
+{
+  "success": false,
+  "error": "Comment content cannot exceed 2000 characters"
+}
+
+400 Bad Request - Invalid post ID:
+{
+  "success": false,
+  "error": "Invalid post ID"
+}
+
+400 Bad Request - Invalid parent ID:
+{
+  "success": false,
+  "error": "Invalid parent comment ID"
+}
+
+400 Bad Request - Max depth exceeded:
+{
+  "success": false,
+  "error": "Cannot reply to this comment (maximum nesting depth reached)"
+}
+
+401 Unauthorized:
+{
+  "success": false,
+  "error": "Authentication required"
+}
+
+403 Forbidden:
+{
+  "success": false,
+  "error": "You are not an active member of this group"
+}
+
+404 Not Found - User:
+{
+  "success": false,
+  "error": "User not found"
+}
+
+404 Not Found - Group:
+{
+  "success": false,
+  "error": "Group not found"
+}
+
+404 Not Found - Post:
+{
+  "success": false,
+  "error": "Post not found"
+}
+
+404 Not Found - Parent comment:
+{
+  "success": false,
+  "error": "Parent comment not found"
+}
+
+500 Internal Server Error:
+{
+  "success": false,
+  "error": "Failed to create comment",
+  "message": "Error details"
+}
+
+
+========================================
+PUT /api/groups/[groupId]/posts/[postId]/comments/[commentId]
+========================================
+Description: Edit a comment.
+- Only author can edit within 1 hour of creation
+- Mods/admins can edit anytime
+- Set isEdited=true and editedAt timestamp
+- Parse mentions from updated content
+
+Authentication: Required
+- x-user-phone header must be provided
+
+Path Parameters:
+- groupId (string) - Group ID (MongoDB ObjectId) or URL slug
+- postId (string) - Post ID (MongoDB ObjectId)
+- commentId (string) - Comment ID (MongoDB ObjectId)
+
+Request Headers:
+- x-user-phone (required): User's phone number for authentication
+
+Request Body:
+{
+  "content": "Updated comment content with @mention"
+}
+
+Response (200 OK):
+{
+  "success": true,
+  "message": "Comment updated successfully",
+  "data": {
+    "_id": "507f1f77bcf86cd799439060",
+    "postId": "507f1f77bcf86cd799439050",
+    "groupId": "507f1f77bcf86cd799439011",
+    "author": {
+      "_id": "507f1f77bcf86cd799439012",
+      "fullName": "John Farmer",
+      "profileImage": "https://example.com/john.jpg",
+      "role": "farmer",
+      "region": "North India"
+    },
+    "content": "Updated comment content with @mention",
+    "parentId": null,
+    "depth": 0,
+    "replyCount": 2,
+    "likesCount": 5,
+    "isHelpful": false,
+    "isLiked": true,
+    "mentions": ["507f1f77bcf86cd799439013"],
+    "isEdited": true,
+    "editedAt": "2024-01-25T12:30:00.000Z",
+    "isDeleted": false,
+    "createdAt": "2024-01-25T11:00:00.000Z",
+    "updatedAt": "2024-01-25T12:30:00.000Z"
+  }
+}
+
+Error Responses:
+
+400 Bad Request - Missing content:
+{
+  "success": false,
+  "error": "Comment content is required"
+}
+
+400 Bad Request - Content too long:
+{
+  "success": false,
+  "error": "Comment content cannot exceed 2000 characters"
+}
+
+400 Bad Request - Invalid ID:
+{
+  "success": false,
+  "error": "Invalid comment ID"
+}
+
+401 Unauthorized:
+{
+  "success": false,
+  "error": "Authentication required"
+}
+
+403 Forbidden - Not member:
+{
+  "success": false,
+  "error": "You are not a member of this group"
+}
+
+403 Forbidden - No permission:
+{
+  "success": false,
+  "error": "You do not have permission to edit this comment"
+}
+
+403 Forbidden - Edit window expired:
+{
+  "success": false,
+  "error": "Comment can only be edited within 1 hour of creation"
+}
+
+404 Not Found:
+{
+  "success": false,
+  "error": "Comment not found"
+}
+
+500 Internal Server Error:
+{
+  "success": false,
+  "error": "Failed to update comment",
+  "message": "Error details"
+}
+
+
+========================================
+DELETE /api/groups/[groupId]/posts/[postId]/comments/[commentId]
+========================================
+Description: Soft delete a comment.
+- Author can delete own comment anytime
+- Mods/admins can delete any comment
+- Sets isDeleted=true, tracks deletedBy and deletedAt
+- Decrements post commentsCount
+- Decrements parent replyCount if this is a reply
+
+Authentication: Required
+- x-user-phone header must be provided
+
+Path Parameters:
+- groupId (string) - Group ID (MongoDB ObjectId) or URL slug
+- postId (string) - Post ID (MongoDB ObjectId)
+- commentId (string) - Comment ID (MongoDB ObjectId)
+
+Request Headers:
+- x-user-phone (required): User's phone number for authentication
+
+Request Example:
+DELETE /api/groups/507f1f77bcf86cd799439011/posts/507f1f77bcf86cd799439050/comments/507f1f77bcf86cd799439060
+
+Response (200 OK):
+{
+  "success": true,
+  "message": "Comment deleted successfully"
+}
+
+Error Responses:
+
+400 Bad Request:
+{
+  "success": false,
+  "error": "Invalid comment ID"
+}
+
+401 Unauthorized:
+{
+  "success": false,
+  "error": "Authentication required"
+}
+
+403 Forbidden - Not member:
+{
+  "success": false,
+  "error": "You are not a member of this group"
+}
+
+403 Forbidden - No permission:
+{
+  "success": false,
+  "error": "You do not have permission to delete this comment"
+}
+
+404 Not Found:
+{
+  "success": false,
+  "error": "Comment not found"
+}
+
+500 Internal Server Error:
+{
+  "success": false,
+  "error": "Failed to delete comment",
+  "message": "Error details"
+}
+
+
+========================================
+POST /api/groups/[groupId]/posts/[postId]/comments/[commentId]/like
+========================================
+Description: Toggle like on a comment.
+- Check user is active group member
+- If liked: remove from likes array, decrement likesCount
+- If not liked: add to likes array, increment likesCount
+- Create notification for comment author (unless liking own comment)
+
+Authentication: Required
+- x-user-phone header must be provided
+
+Path Parameters:
+- groupId (string) - Group ID (MongoDB ObjectId) or URL slug
+- postId (string) - Post ID (MongoDB ObjectId)
+- commentId (string) - Comment ID (MongoDB ObjectId)
+
+Request Headers:
+- x-user-phone (required): User's phone number for authentication
+
+Request Example:
+POST /api/groups/507f1f77bcf86cd799439011/posts/507f1f77bcf86cd799439050/comments/507f1f77bcf86cd799439060/like
+
+Request Body: None required
+
+Response (200 OK) - Comment Liked:
+{
+  "success": true,
+  "data": {
+    "isLiked": true,
+    "likesCount": 6
+  }
+}
+
+Response (200 OK) - Comment Unliked:
+{
+  "success": true,
+  "data": {
+    "isLiked": false,
+    "likesCount": 5
+  }
+}
+
+Notification Created (when liking another user's comment):
+{
+  "userId": "507f1f77bcf86cd799439012",
+  "type": "group_comment_like",
+  "title": "Comment Liked",
+  "message": "Jane Farmer liked your comment in \"Wheat Farmers India\"",
+  "data": {
+    "groupId": "507f1f77bcf86cd799439011",
+    "groupName": "Wheat Farmers India",
+    "groupSlug": "wheat-farmers-india",
+    "postId": "507f1f77bcf86cd799439050",
+    "commentId": "507f1f77bcf86cd799439060",
+    "commentContent": "First 100 characters...",
+    "likerId": "507f1f77bcf86cd799439013",
+    "likerName": "Jane Farmer",
+    "likerImage": "https://example.com/jane.jpg"
+  }
+}
+
+Error Responses:
+
+400 Bad Request:
+{
+  "success": false,
+  "error": "Invalid comment ID"
+}
+
+401 Unauthorized:
+{
+  "success": false,
+  "error": "Authentication required"
+}
+
+403 Forbidden:
+{
+  "success": false,
+  "error": "You are not an active member of this group"
+}
+
+404 Not Found:
+{
+  "success": false,
+  "error": "Comment not found"
+}
+
+500 Internal Server Error:
+{
+  "success": false,
+  "error": "Failed to toggle like",
+  "message": "Error details"
+}
+
+
+========================================
+POST /api/groups/[groupId]/posts/[postId]/comments/[commentId]/helpful
+========================================
+Description: Toggle helpful status on a comment.
+- Only post author can mark a comment as helpful
+- Toggle isHelpful boolean
+- Creates notification for comment author when marked helpful
+
+Authentication: Required
+- x-user-phone header must be provided
+
+Path Parameters:
+- groupId (string) - Group ID (MongoDB ObjectId) or URL slug
+- postId (string) - Post ID (MongoDB ObjectId)
+- commentId (string) - Comment ID (MongoDB ObjectId)
+
+Request Headers:
+- x-user-phone (required): User's phone number for authentication
+
+Request Example:
+POST /api/groups/507f1f77bcf86cd799439011/posts/507f1f77bcf86cd799439050/comments/507f1f77bcf86cd799439060/helpful
+
+Request Body: None required
+
+Response (200 OK) - Marked Helpful:
+{
+  "success": true,
+  "message": "Comment marked as helpful",
+  "data": {
+    "isHelpful": true
+  }
+}
+
+Response (200 OK) - Helpful Removed:
+{
+  "success": true,
+  "message": "Helpful mark removed",
+  "data": {
+    "isHelpful": false
+  }
+}
+
+Notification Created (when marking as helpful):
+{
+  "userId": "507f1f77bcf86cd799439012",
+  "type": "group_comment_helpful",
+  "title": "Comment Marked Helpful",
+  "message": "Your comment was marked as helpful by the post author in \"Wheat Farmers India\"",
+  "data": {
+    "groupId": "507f1f77bcf86cd799439011",
+    "groupName": "Wheat Farmers India",
+    "groupSlug": "wheat-farmers-india",
+    "postId": "507f1f77bcf86cd799439050",
+    "commentId": "507f1f77bcf86cd799439060",
+    "commentContent": "First 100 characters...",
+    "markedById": "507f1f77bcf86cd799439099",
+    "markedByName": "Post Author",
+    "markedByImage": "https://example.com/author.jpg"
+  }
+}
+
+Error Responses:
+
+400 Bad Request:
+{
+  "success": false,
+  "error": "Invalid comment ID"
+}
+
+401 Unauthorized:
+{
+  "success": false,
+  "error": "Authentication required"
+}
+
+403 Forbidden - Not post author:
+{
+  "success": false,
+  "error": "Only the post author can mark comments as helpful"
+}
+
+403 Forbidden - Not member:
+{
+  "success": false,
+  "error": "You are not an active member of this group"
+}
+
+404 Not Found:
+{
+  "success": false,
+  "error": "Comment not found"
+}
+
+500 Internal Server Error:
+{
+  "success": false,
+  "error": "Failed to toggle helpful status",
+  "message": "Error details"
+}
+
+
+========================================
+BASE64 IMAGE FORMAT FOR GROUPS (NEW)
+========================================
+
+OVERVIEW:
+  Group images (coverImage and icon) are now stored as base64 data URLs
+  directly in MongoDB. This eliminates the need for external image storage.
+
+SUPPORTED FIELDS:
+  - coverImage: Group banner/cover image
+  - icon: Group avatar/icon (alternative to emoji)
+
+IMAGE FORMAT:
+  Images must be sent as base64 data URLs:
+    data:image/<type>;base64,<base64-encoded-data>
+
+  Supported MIME types:
+    - image/jpeg
+    - image/png
+    - image/webp
+
+  The icon field accepts both formats:
+    - Emoji: "🌾" (single character or emoji)
+    - Base64 image: "data:image/png;base64,..."
+
+CONSTRAINTS:
+  - Cover image max size: 500KB (after compression)
+  - Icon image max size: 200KB (after compression)
+  - Recommended cover dimensions: 1200x400 pixels
+  - Recommended icon dimensions: 200x200 pixels
+
+REQUEST EXAMPLES:
+
+Create Group with Base64 Cover Image:
+{
+  "name": "Cotton Farmers Gujarat",
+  "groupType": "crop",
+  "coverImage": "data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD...",
+  "icon": "🌿",
+  "crops": ["cotton"]
+}
+
+Update Group with Base64 Icon:
+{
+  "icon": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAA..."
+}
+
+CLIENT-SIDE PROCESSING:
+  Use the useImageUpload hook to:
+    1. Select and preview image
+    2. Compress to appropriate size
+    3. Convert to base64 format
+
+BACKWARD COMPATIBILITY:
+  Both coverImage and icon support:
+    - New: base64 data URLs (starts with "data:image/")
+    - Legacy: Full URLs (starts with "http://" or "https://")
+    - Emoji: For icon field only (single emoji character)
+
+FRONTEND RENDERING:
+  Use isBase64Image() utility to detect format:
+    - Base64: Render with native <img> element
+    - URL: Render with Next.js Image component
+    - Emoji: Render as text
+
+
+========================================
+END OF DOCUMENT
+========================================

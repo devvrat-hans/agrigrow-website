@@ -1,0 +1,419 @@
+================================================================================
+AGRIGROW GROUP POSTS API DOCUMENTATION
+================================================================================
+API documentation for Group Post operations including CRUD, likes, pins, 
+and approval workflow.
+
+================================================================================
+1. CREATE GROUP POST
+================================================================================
+Endpoint: POST /api/groups/[groupId]/posts
+Description: Create a new post in a group
+
+Path Parameters:
+  groupId: string (required) - MongoDB ObjectId or group slug
+
+Headers:
+  x-user-phone: string (required) - Must be a member of the group
+
+Request Body:
+{
+  "content": string (required, 1-10000 chars) - Post content
+  "postType": "discussion" | "question" | "announcement" | "poll" | "resource" 
+              (default: "discussion") - Type of post
+  "images": string[] (optional, max 4) - Array of image URLs
+  "tags": string[] (optional, max 10) - Post tags
+  "poll": { (required if postType is "poll")
+    "question": string (required, max 500 chars),
+    "options": string[] (required, 2-10 options, each max 200 chars),
+    "endDate": string (optional, ISO 8601 date)
+  }
+}
+
+Response (201 Created):
+{
+  "success": true,
+  "message": "Post created successfully",
+  "data": {
+    "_id": string,
+    "groupId": string,
+    "author": string,
+    "authorInfo": {
+      "_id": string,
+      "fullName": string,
+      "profileImage": string,
+      "role": string
+    },
+    "content": string,
+    "postType": string,
+    "images": string[],
+    "poll": {
+      "question": string,
+      "options": [{ "text": string, "votes": number }],
+      "endDate": string,
+      "voterCount": number,
+      "hasVoted": boolean
+    },
+    "tags": string[],
+    "likesCount": number,
+    "commentsCount": number,
+    "isLiked": boolean,
+    "isPinned": boolean,
+    "isApproved": boolean,
+    "isEdited": boolean,
+    "mentions": string[],
+    "createdAt": string,
+    "updatedAt": string
+  }
+}
+
+Note: If group has requirePostApproval setting enabled and user is not a 
+moderator/admin, the post will be created with isApproved: false.
+
+Error Codes:
+  400 - Validation errors (empty content, invalid poll, etc.)
+  401 - Authentication required
+  403 - Not a member or posting not allowed
+  404 - Group not found
+  500 - Server error
+
+Example curl:
+curl -X POST "http://localhost:3000/api/groups/cotton-farmers/posts" \
+  -H "Content-Type: application/json" \
+  -H "x-user-phone: 9876543210" \
+  -d '{
+    "content": "What is the best fertilizer for cotton?",
+    "postType": "question",
+    "tags": ["fertilizer", "cotton"]
+  }'
+
+================================================================================
+2. GET GROUP POSTS
+================================================================================
+Endpoint: GET /api/groups/[groupId]/posts
+Description: Get paginated list of posts in a group
+
+Path Parameters:
+  groupId: string (required) - MongoDB ObjectId or group slug
+
+Query Parameters:
+  page: number (default: 1) - Page number
+  limit: number (default: 20, max: 50) - Results per page
+  postType: string (optional) - Filter by post type
+  sortBy: "recent" | "popular" | "trending" (default: recent)
+  includePinned: boolean (default: true) - Include pinned posts at top
+
+Headers:
+  x-user-phone: string (optional) - For isLiked status
+
+Response (200 OK):
+{
+  "success": true,
+  "data": {
+    "pinnedPosts": [ ... array of pinned posts ... ],
+    "posts": [ ... array of post objects ... ],
+    "pagination": {
+      "page": number,
+      "limit": number,
+      "total": number,
+      "totalPages": number,
+      "hasMore": boolean
+    }
+  }
+}
+
+Example curl:
+curl -X GET "http://localhost:3000/api/groups/cotton-farmers/posts?page=1&postType=question" \
+  -H "x-user-phone: 9876543210"
+
+================================================================================
+3. GET SINGLE POST
+================================================================================
+Endpoint: GET /api/groups/[groupId]/posts/[postId]
+Description: Get details of a specific post
+
+Path Parameters:
+  groupId: string (required) - MongoDB ObjectId or group slug
+  postId: string (required) - MongoDB ObjectId of the post
+
+Headers:
+  x-user-phone: string (optional) - For isLiked status
+
+Response (200 OK):
+{
+  "success": true,
+  "data": { ... post object ... }
+}
+
+Error Codes:
+  400 - Invalid post ID
+  404 - Post not found or unapproved (for non-author/non-mods)
+  500 - Server error
+
+Example curl:
+curl -X GET "http://localhost:3000/api/groups/cotton-farmers/posts/507f1f77bcf86cd799439011" \
+  -H "x-user-phone: 9876543210"
+
+================================================================================
+4. UPDATE POST
+================================================================================
+Endpoint: PUT /api/groups/[groupId]/posts/[postId]
+Description: Update a post (author within 24h, or mods anytime)
+
+Path Parameters:
+  groupId: string (required) - MongoDB ObjectId or group slug
+  postId: string (required) - MongoDB ObjectId of the post
+
+Headers:
+  x-user-phone: string (required) - Post author or moderator
+
+Request Body (all fields optional):
+{
+  "content": string,
+  "images": string[],
+  "tags": string[]
+}
+
+Note: Post type cannot be changed after creation.
+
+Response (200 OK):
+{
+  "success": true,
+  "message": "Post updated successfully",
+  "data": { ... updated post object with isEdited: true ... }
+}
+
+Error Codes:
+  400 - Validation errors
+  401 - Authentication required
+  403 - Not authorized or edit window expired (24h for authors)
+  404 - Post not found
+  500 - Server error
+
+Example curl:
+curl -X PUT "http://localhost:3000/api/groups/cotton-farmers/posts/507f1f77bcf86cd799439011" \
+  -H "Content-Type: application/json" \
+  -H "x-user-phone: 9876543210" \
+  -d '{ "content": "Updated question: What is the best organic fertilizer?" }'
+
+================================================================================
+5. DELETE POST
+================================================================================
+Endpoint: DELETE /api/groups/[groupId]/posts/[postId]
+Description: Soft delete a post (author or mods)
+
+Path Parameters:
+  groupId: string (required) - MongoDB ObjectId or group slug
+  postId: string (required) - MongoDB ObjectId of the post
+
+Headers:
+  x-user-phone: string (required) - Post author or moderator
+
+Response (200 OK):
+{
+  "success": true,
+  "message": "Post deleted successfully"
+}
+
+Error Codes:
+  401 - Authentication required
+  403 - Not authorized to delete
+  404 - Post not found
+  500 - Server error
+
+Example curl:
+curl -X DELETE "http://localhost:3000/api/groups/cotton-farmers/posts/507f1f77bcf86cd799439011" \
+  -H "x-user-phone: 9876543210"
+
+================================================================================
+6. LIKE/UNLIKE POST
+================================================================================
+Endpoint: POST /api/groups/[groupId]/posts/[postId]/like
+Description: Toggle like on a post
+
+Path Parameters:
+  groupId: string (required) - MongoDB ObjectId or group slug
+  postId: string (required) - MongoDB ObjectId of the post
+
+Headers:
+  x-user-phone: string (required) - Must be a member
+
+Response (200 OK):
+{
+  "success": true,
+  "data": {
+    "isLiked": boolean,
+    "likesCount": number
+  }
+}
+
+Note: Creates notification for post author when liked (not self-like).
+
+Error Codes:
+  401 - Authentication required
+  403 - Not a member of the group
+  404 - Post not found
+  500 - Server error
+
+Example curl:
+curl -X POST "http://localhost:3000/api/groups/cotton-farmers/posts/507f1f77bcf86cd799439011/like" \
+  -H "x-user-phone: 9876543210"
+
+================================================================================
+7. PIN/UNPIN POST
+================================================================================
+Endpoint: POST /api/groups/[groupId]/posts/[postId]/pin
+Description: Toggle pin status on a post (moderator or higher)
+
+Path Parameters:
+  groupId: string (required) - MongoDB ObjectId or group slug
+  postId: string (required) - MongoDB ObjectId of the post
+
+Headers:
+  x-user-phone: string (required) - Must be moderator or higher
+
+Response (200 OK):
+{
+  "success": true,
+  "message": "Post pinned successfully" | "Post unpinned successfully",
+  "data": { ... post object with updated isPinned status ... }
+}
+
+Notes:
+- Maximum 3 pinned posts per group
+- If pinning when 3 posts already pinned, oldest pinned post is unpinned
+
+Error Codes:
+  401 - Authentication required
+  403 - Must be moderator or higher
+  404 - Post not found
+  500 - Server error
+
+Example curl:
+curl -X POST "http://localhost:3000/api/groups/cotton-farmers/posts/507f1f77bcf86cd799439011/pin" \
+  -H "x-user-phone: 9876543210"
+
+================================================================================
+8. APPROVE POST
+================================================================================
+Endpoint: POST /api/groups/[groupId]/posts/[postId]/approve
+Description: Approve a pending post (moderator or higher)
+
+Path Parameters:
+  groupId: string (required) - MongoDB ObjectId or group slug
+  postId: string (required) - MongoDB ObjectId of the post
+
+Headers:
+  x-user-phone: string (required) - Must be moderator or higher
+
+Response (200 OK):
+{
+  "success": true,
+  "message": "Post approved successfully",
+  "data": { ... post object with isApproved: true ... }
+}
+
+Note: Creates notification for post author.
+
+Error Codes:
+  400 - Post is already approved
+  401 - Authentication required
+  403 - Must be moderator or higher
+  404 - Post not found
+  500 - Server error
+
+Example curl:
+curl -X POST "http://localhost:3000/api/groups/cotton-farmers/posts/507f1f77bcf86cd799439011/approve" \
+  -H "x-user-phone: 9876543210"
+
+================================================================================
+9. VOTE ON POLL
+================================================================================
+Endpoint: POST /api/groups/[groupId]/posts/[postId]/vote
+Description: Vote on a poll post
+
+Path Parameters:
+  groupId: string (required) - MongoDB ObjectId or group slug
+  postId: string (required) - MongoDB ObjectId of the poll post
+
+Headers:
+  x-user-phone: string (required) - Must be a member
+
+Request Body:
+{
+  "optionIndex": number (required) - Index of the option (0-based)
+}
+
+Response (200 OK):
+{
+  "success": true,
+  "message": "Vote recorded successfully",
+  "data": {
+    "poll": {
+      "question": string,
+      "options": [{ "text": string, "votes": number }],
+      "voterCount": number,
+      "hasVoted": true,
+      "userVoteIndex": number
+    }
+  }
+}
+
+Error Codes:
+  400 - Not a poll post, already voted, poll ended, or invalid option
+  401 - Authentication required
+  403 - Not a member
+  404 - Post not found
+  500 - Server error
+
+Example curl:
+curl -X POST "http://localhost:3000/api/groups/cotton-farmers/posts/507f1f77bcf86cd799439011/vote" \
+  -H "Content-Type: application/json" \
+  -H "x-user-phone: 9876543210" \
+  -d '{ "optionIndex": 0 }'
+
+================================================================================
+10. GET TRENDING POSTS
+================================================================================
+Endpoint: GET /api/groups/[groupId]/posts/trending
+Description: Get trending posts based on engagement
+
+Path Parameters:
+  groupId: string (required) - MongoDB ObjectId or group slug
+
+Query Parameters:
+  limit: number (default: 10, max: 20) - Number of posts
+  timeframe: "day" | "week" | "month" (default: week) - Timeframe for trending
+
+Headers:
+  x-user-phone: string (optional) - For isLiked status
+
+Response (200 OK):
+{
+  "success": true,
+  "data": {
+    "posts": [ ... array of trending posts ... ],
+    "timeframe": string
+  }
+}
+
+Example curl:
+curl -X GET "http://localhost:3000/api/groups/cotton-farmers/posts/trending?timeframe=week"
+
+================================================================================
+POST TYPE DESCRIPTIONS
+================================================================================
+- discussion: General discussion or update
+- question: Ask the community a question
+- announcement: Important announcements (often admin-only)
+- poll: Multiple choice poll with voting
+- resource: Share a resource, link, or document
+
+================================================================================
+COMMON ERROR RESPONSE FORMAT
+================================================================================
+{
+  "success": false,
+  "error": string - Error message,
+  "message": string - Additional details (optional)
+}

@@ -1,0 +1,188 @@
+================================================================================
+                          REPORTS API DOCUMENTATION
+                              Agrigrow Platform
+================================================================================
+
+This document provides comprehensive documentation for the content reporting
+API endpoint in the Agrigrow platform.
+
+Table of Contents:
+  1. POST /api/reports - Submit Report
+
+================================================================================
+1. POST /api/reports - Submit Report
+================================================================================
+
+Description:
+  Submits a report for a post or comment that violates community guidelines.
+  Reports are queued for moderation review.
+
+Authentication:
+  Required - x-user-phone header
+
+Request Headers:
+  - Content-Type: application/json
+  - x-user-phone: User's phone number (required)
+
+Request Body Schema:
+  {
+    "itemType": string,           // Required: "post" or "comment"
+    "itemId": string,             // Required: MongoDB ObjectId of the item
+    "reason": string,             // Required: Reason category
+    "description": string?        // Optional: Additional details (max 500 chars)
+  }
+
+Reason Categories:
+  - "spam": Spam or misleading content
+  - "inappropriate": Inappropriate or offensive content
+  - "misinformation": False or misleading agricultural information
+  - "harassment": Harassment or bullying behavior
+  - "other": Other violations (requires description)
+
+Validation Rules:
+  - itemType: Required, must be "post" or "comment"
+  - itemId: Required, must be valid MongoDB ObjectId
+  - reason: Required, must be one of the valid reason categories
+  - description: Optional, max 500 characters, recommended for "other"
+
+Request Example (Report Post for Spam):
+  POST /api/reports
+  Headers:
+    Content-Type: application/json
+    x-user-phone: +919876543210
+  Body:
+    {
+      "itemType": "post",
+      "itemId": "64abc123def456789012",
+      "reason": "spam",
+      "description": "This post is promoting fake agricultural products."
+    }
+
+Request Example (Report Comment for Harassment):
+  POST /api/reports
+  Headers:
+    Content-Type: application/json
+    x-user-phone: +919876543210
+  Body:
+    {
+      "itemType": "comment",
+      "itemId": "64def456abc789012345",
+      "reason": "harassment"
+    }
+
+Response Schema (201 Created):
+  {
+    "success": true,
+    "message": "Report submitted successfully. Our team will review it shortly.",
+    "reportId": string             // MongoDB ObjectId of the report
+  }
+
+Error Responses:
+
+  400 Bad Request - Missing Fields:
+  {
+    "success": false,
+    "error": "Item type, item ID, and reason are required"
+  }
+
+  400 Bad Request - Invalid Item Type:
+  {
+    "success": false,
+    "error": "Invalid item type. Must be 'post' or 'comment'"
+  }
+
+  400 Bad Request - Invalid Reason:
+  {
+    "success": false,
+    "error": "Invalid reason. Valid reasons: spam, inappropriate, misinformation, harassment, other"
+  }
+
+  400 Bad Request - Invalid Item ID:
+  {
+    "success": false,
+    "error": "Invalid item ID format"
+  }
+
+  400 Bad Request - Self Report:
+  {
+    "success": false,
+    "error": "You cannot report your own content"
+  }
+
+  400 Bad Request - Duplicate Report:
+  {
+    "success": false,
+    "error": "You have already reported this content"
+  }
+
+  401 Unauthorized:
+  {
+    "success": false,
+    "error": "Authentication required. Please sign in."
+  }
+
+  404 Not Found - User Not Found:
+  {
+    "success": false,
+    "error": "User not found. Please complete registration first."
+  }
+
+  404 Not Found - Item Not Found:
+  {
+    "success": false,
+    "error": "The post/comment you are trying to report was not found"
+  }
+
+  500 Internal Server Error:
+  {
+    "success": false,
+    "error": "Failed to submit report"
+  }
+
+================================================================================
+                            REPORT MODEL SCHEMA
+================================================================================
+
+The Report model stores all submitted reports:
+
+  {
+    "_id": ObjectId,              // Report ID
+    "reportedItemType": string,   // "post" or "comment"
+    "itemId": ObjectId,           // Reference to Post or Comment
+    "reportedBy": ObjectId,       // Reference to User who submitted
+    "reason": string,             // Reason category
+    "description": string?,       // Optional description
+    "status": string,             // Report status
+    "createdAt": Date,
+    "updatedAt": Date
+  }
+
+Report Status Values:
+  - "pending": Awaiting moderator review (default)
+  - "reviewed": Under investigation
+  - "resolved": Action taken, case closed
+  - "dismissed": Report deemed invalid
+
+================================================================================
+                            MODERATION WORKFLOW
+================================================================================
+
+1. User submits report via POST /api/reports
+2. Report created with status "pending"
+3. Moderators review pending reports in admin dashboard
+4. Moderator takes action (warn user, remove content, etc.)
+5. Report status updated to "resolved" or "dismissed"
+6. (Optional) Reporter notified of outcome
+
+================================================================================
+                              RATE LIMITING
+================================================================================
+
+To prevent abuse:
+  - Users can submit max 10 reports per hour
+  - Users can report the same item only once
+  - Duplicate reports are rejected with 400 error
+
+================================================================================
+                              END OF DOCUMENTATION
+================================================================================

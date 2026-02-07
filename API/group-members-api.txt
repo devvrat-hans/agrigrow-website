@@ -1,0 +1,409 @@
+================================================================================
+AGRIGROW GROUP MEMBERS API DOCUMENTATION
+================================================================================
+API documentation for Group Membership operations including join, leave, 
+role changes, and bans.
+
+================================================================================
+1. GET GROUP MEMBERS
+================================================================================
+Endpoint: GET /api/groups/[groupId]/members
+Description: Get list of group members with pagination
+
+Path Parameters:
+  groupId: string (required) - MongoDB ObjectId or group slug
+
+Query Parameters:
+  page: number (default: 1) - Page number
+  limit: number (default: 20, max: 50) - Results per page
+  role: "member" | "moderator" | "admin" | "owner" (optional) - Filter by role
+  search: string (optional) - Search by member name
+
+Headers:
+  x-user-phone: string (required) - Must be a member of the group
+
+Response (200 OK):
+{
+  "success": true,
+  "data": {
+    "members": [
+      {
+        "_id": string,
+        "groupId": string,
+        "userId": string,
+        "user": {
+          "_id": string,
+          "fullName": string,
+          "profileImage": string,
+          "role": string
+        },
+        "role": "member" | "moderator" | "admin" | "owner",
+        "status": "active" | "pending" | "banned" | "left",
+        "joinedAt": string (ISO 8601),
+        "invitedBy": string,
+        "inviter": { _id, fullName, profileImage },
+        "lastActivityAt": string,
+        "notificationPreferences": {
+          "newPosts": boolean,
+          "mentions": boolean,
+          "announcements": boolean
+        }
+      }
+    ],
+    "pagination": {
+      "page": number,
+      "limit": number,
+      "total": number,
+      "totalPages": number,
+      "hasMore": boolean
+    }
+  }
+}
+
+Error Codes:
+  401 - Authentication required
+  403 - Not a member of the group
+  404 - Group not found
+  500 - Server error
+
+Example curl:
+curl -X GET "http://localhost:3000/api/groups/cotton-farmers/members?page=1&role=admin" \
+  -H "x-user-phone: 9876543210"
+
+================================================================================
+2. JOIN GROUP
+================================================================================
+Endpoint: POST /api/groups/[groupId]/members
+Description: Join a group or request to join (for private groups)
+
+Path Parameters:
+  groupId: string (required) - MongoDB ObjectId or group slug
+
+Headers:
+  x-user-phone: string (required) - Authentication
+
+Request Body (optional):
+{
+  "message": string (optional) - Message for join request (private groups)
+}
+
+Response (201 Created - Public Groups):
+{
+  "success": true,
+  "message": "You have joined the group successfully",
+  "data": {
+    "_id": string,
+    "groupId": string,
+    "userId": string,
+    "role": "member",
+    "status": "active",
+    "joinedAt": string
+  }
+}
+
+Response (201 Created - Private Groups):
+{
+  "success": true,
+  "message": "Join request submitted. Waiting for approval.",
+  "data": {
+    "_id": string,
+    "groupId": string,
+    "userId": string,
+    "role": "member",
+    "status": "pending",
+    "requestedAt": string
+  }
+}
+
+Error Codes:
+  400 - Already a member or banned
+  401 - Authentication required
+  403 - Cannot join invite-only group
+  404 - Group not found
+  500 - Server error
+
+Example curl:
+curl -X POST "http://localhost:3000/api/groups/cotton-farmers/members" \
+  -H "Content-Type: application/json" \
+  -H "x-user-phone: 9876543210" \
+  -d '{ "message": "I grow cotton in Maharashtra" }'
+
+================================================================================
+3. LEAVE GROUP
+================================================================================
+Endpoint: DELETE /api/groups/[groupId]/members
+Description: Leave a group
+
+Path Parameters:
+  groupId: string (required) - MongoDB ObjectId or group slug
+
+Headers:
+  x-user-phone: string (required) - Authentication
+
+Response (200 OK):
+{
+  "success": true,
+  "message": "You have left the group"
+}
+
+Error Codes:
+  400 - Not a member of the group
+  400 - Owner cannot leave (must transfer ownership first)
+  401 - Authentication required
+  404 - Group not found
+  500 - Server error
+
+Example curl:
+curl -X DELETE "http://localhost:3000/api/groups/cotton-farmers/members" \
+  -H "x-user-phone: 9876543210"
+
+================================================================================
+4. CHANGE MEMBER ROLE
+================================================================================
+Endpoint: PUT /api/groups/[groupId]/members/[userId]/role
+Description: Change a member's role (admin/owner only)
+
+Path Parameters:
+  groupId: string (required) - MongoDB ObjectId or group slug
+  userId: string (required) - MongoDB ObjectId of the member
+
+Headers:
+  x-user-phone: string (required) - Must be admin or owner
+
+Request Body:
+{
+  "role": "member" | "moderator" | "admin" (required) - New role
+}
+
+Role Hierarchy:
+- member (1) < moderator (2) < admin (3) < owner (4)
+- Can only assign roles lower than your own
+- Cannot change owner's role
+- Only owner can promote to admin
+
+Response (200 OK):
+{
+  "success": true,
+  "message": "Member role updated successfully",
+  "data": {
+    "_id": string,
+    "userId": string,
+    "role": string,
+    "previousRole": string,
+    "updatedAt": string
+  }
+}
+
+Error Codes:
+  400 - Invalid role or same as current role
+  401 - Authentication required
+  403 - Insufficient permissions
+  404 - Group or member not found
+  500 - Server error
+
+Example curl:
+curl -X PUT "http://localhost:3000/api/groups/cotton-farmers/members/507f1f77bcf86cd799439011/role" \
+  -H "Content-Type: application/json" \
+  -H "x-user-phone: 9876543210" \
+  -d '{ "role": "moderator" }'
+
+================================================================================
+5. BAN MEMBER
+================================================================================
+Endpoint: POST /api/groups/[groupId]/members/ban
+Description: Ban a member from the group
+
+Path Parameters:
+  groupId: string (required) - MongoDB ObjectId or group slug
+
+Headers:
+  x-user-phone: string (required) - Must be moderator or higher
+
+Request Body:
+{
+  "userId": string (required) - MongoDB ObjectId of member to ban
+  "reason": string (optional, max 500 chars) - Reason for ban
+}
+
+Response (200 OK):
+{
+  "success": true,
+  "message": "Member has been banned from the group",
+  "data": {
+    "_id": string,
+    "userId": string,
+    "status": "banned",
+    "banReason": string,
+    "bannedAt": string
+  }
+}
+
+Error Codes:
+  400 - Cannot ban yourself or user is not a member
+  401 - Authentication required
+  403 - Cannot ban users with equal or higher role
+  404 - Group or user not found
+  500 - Server error
+
+Example curl:
+curl -X POST "http://localhost:3000/api/groups/cotton-farmers/members/ban" \
+  -H "Content-Type: application/json" \
+  -H "x-user-phone: 9876543210" \
+  -d '{ "userId": "507f1f77bcf86cd799439011", "reason": "Spamming" }'
+
+================================================================================
+6. UNBAN MEMBER
+================================================================================
+Endpoint: POST /api/groups/[groupId]/members/unban
+Description: Remove ban from a member
+
+Path Parameters:
+  groupId: string (required) - MongoDB ObjectId or group slug
+
+Headers:
+  x-user-phone: string (required) - Must be moderator or higher
+
+Request Body:
+{
+  "userId": string (required) - MongoDB ObjectId of member to unban
+}
+
+Response (200 OK):
+{
+  "success": true,
+  "message": "Member has been unbanned",
+  "data": {
+    "_id": string,
+    "userId": string,
+    "status": "active"
+  }
+}
+
+Error Codes:
+  400 - User is not banned
+  401 - Authentication required
+  403 - Insufficient permissions
+  404 - Group or user not found
+  500 - Server error
+
+Example curl:
+curl -X POST "http://localhost:3000/api/groups/cotton-farmers/members/unban" \
+  -H "Content-Type: application/json" \
+  -H "x-user-phone: 9876543210" \
+  -d '{ "userId": "507f1f77bcf86cd799439011" }'
+
+================================================================================
+7. APPROVE JOIN REQUEST
+================================================================================
+Endpoint: POST /api/groups/[groupId]/members/[userId]/approve
+Description: Approve a pending join request (moderator or higher)
+
+Path Parameters:
+  groupId: string (required) - MongoDB ObjectId or group slug
+  userId: string (required) - MongoDB ObjectId of the pending member
+
+Headers:
+  x-user-phone: string (required) - Must be moderator or higher
+
+Response (200 OK):
+{
+  "success": true,
+  "message": "Join request approved",
+  "data": {
+    "_id": string,
+    "userId": string,
+    "status": "active",
+    "approvedAt": string,
+    "approvedBy": string
+  }
+}
+
+Error Codes:
+  400 - User does not have a pending request
+  401 - Authentication required
+  403 - Insufficient permissions
+  404 - Group not found
+  500 - Server error
+
+Example curl:
+curl -X POST "http://localhost:3000/api/groups/cotton-farmers/members/507f1f77bcf86cd799439011/approve" \
+  -H "x-user-phone: 9876543210"
+
+================================================================================
+8. REJECT JOIN REQUEST
+================================================================================
+Endpoint: POST /api/groups/[groupId]/members/[userId]/reject
+Description: Reject a pending join request
+
+Path Parameters:
+  groupId: string (required) - MongoDB ObjectId or group slug
+  userId: string (required) - MongoDB ObjectId of the pending member
+
+Headers:
+  x-user-phone: string (required) - Must be moderator or higher
+
+Response (200 OK):
+{
+  "success": true,
+  "message": "Join request rejected"
+}
+
+Error Codes:
+  400 - User does not have a pending request
+  401 - Authentication required
+  403 - Insufficient permissions
+  404 - Group not found
+  500 - Server error
+
+Example curl:
+curl -X POST "http://localhost:3000/api/groups/cotton-farmers/members/507f1f77bcf86cd799439011/reject" \
+  -H "x-user-phone: 9876543210"
+
+================================================================================
+9. TRANSFER OWNERSHIP
+================================================================================
+Endpoint: POST /api/groups/[groupId]/members/transfer-ownership
+Description: Transfer group ownership to another admin
+
+Path Parameters:
+  groupId: string (required) - MongoDB ObjectId or group slug
+
+Headers:
+  x-user-phone: string (required) - Must be current owner
+
+Request Body:
+{
+  "userId": string (required) - MongoDB ObjectId of new owner (must be admin)
+}
+
+Response (200 OK):
+{
+  "success": true,
+  "message": "Ownership transferred successfully",
+  "data": {
+    "newOwner": { _id, fullName },
+    "previousOwner": { _id, fullName }
+  }
+}
+
+Error Codes:
+  400 - Target user is not an admin
+  401 - Authentication required
+  403 - Only owner can transfer ownership
+  404 - Group or user not found
+  500 - Server error
+
+Example curl:
+curl -X POST "http://localhost:3000/api/groups/cotton-farmers/members/transfer-ownership" \
+  -H "Content-Type: application/json" \
+  -H "x-user-phone: 9876543210" \
+  -d '{ "userId": "507f1f77bcf86cd799439011" }'
+
+================================================================================
+COMMON ERROR RESPONSE FORMAT
+================================================================================
+{
+  "success": false,
+  "error": string - Error message,
+  "message": string - Additional details (optional)
+}

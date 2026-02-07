@@ -1,0 +1,738 @@
+================================================================================
+                           POSTS API DOCUMENTATION
+                              Agrigrow Platform
+================================================================================
+
+================================================================================
+1. GET /api/posts - Fetch Posts Feed
+================================================================================
+
+DESCRIPTION:
+  Fetches posts with pagination, filtering, and basic personalization for the
+  home feed. Supports both offset-based and cursor-based pagination.
+
+AUTHENTICATION:
+  Optional - Provides personalized results if user phone is available
+
+QUERY PARAMETERS:
+  | Parameter  | Type   | Default | Description                                    |
+  |------------|--------|---------|------------------------------------------------|
+  | page       | number | 1       | Page number (for offset pagination)            |
+  | limit      | number | 10      | Items per page (max 50)                        |
+  | postType   | string | -       | Filter: question, update, tip, problem,        |
+  |            |        |         | success_story                                   |
+  | type       | string | -       | Legacy alias for postType                      |
+  | phone      | string | -       | Filter by author's phone number                |
+  | crop       | string | -       | Filter by crop tag                             |
+  | state      | string | -       | Filter by location state                       |
+  | cursor     | string | -       | Last post ID for cursor-based pagination       |
+  | sortBy     | string | newest  | Sort: newest, engagement                       |
+
+REQUEST EXAMPLE:
+  GET /api/posts?page=1&limit=10&postType=question&crop=rice&sortBy=engagement
+
+RESPONSE SUCCESS (200):
+  {
+    "success": true,
+    "posts": [
+      {
+        "id": "64abc123...",
+        "content": "How to treat rice blast disease?",
+        "postType": "question",
+        "type": "question",
+        "crops": ["rice"],
+        "tags": ["rice"],
+        "images": ["https://..."],
+        "visibility": "public",
+        "location": {
+          "state": "Maharashtra",
+          "district": "Pune"
+        },
+        "likesCount": 15,
+        "commentsCount": 8,
+        "sharesCount": 3,
+        "isVerified": false,
+        "engagementScore": 42.5,
+        "author": {
+          "id": "64user123...",
+          "name": "Ramesh Kumar",
+          "role": "farmer",
+          "avatar": "https://...",
+          "badges": []
+        },
+        "createdAt": "2024-01-15T10:30:00.000Z"
+      }
+    ],
+    "hasMore": true,
+    "pagination": {
+      "page": 1,
+      "limit": 10,
+      "total": 150,
+      "totalPages": 15,
+      "hasMore": true
+    }
+  }
+
+RESPONSE WITH CURSOR PAGINATION:
+  {
+    "success": true,
+    "posts": [...],
+    "hasMore": true,
+    "nextCursor": "64abc456..."
+  }
+
+ERROR RESPONSES:
+  500 - { "success": false, "error": "Failed to fetch posts" }
+
+
+================================================================================
+2. POST /api/posts - Create New Post
+================================================================================
+
+DESCRIPTION:
+  Creates a new post with enhanced fields including post type, category, crops, 
+  location, and visibility settings.
+
+AUTHENTICATION:
+  Required - User phone number must be valid and registered
+
+REQUEST HEADERS:
+  Content-Type: application/json
+  x-user-phone: User's phone number (preferred method)
+
+REQUEST BODY:
+  | Field      | Type     | Required | Description                              |
+  |------------|----------|----------|------------------------------------------|
+  | phone      | string   | No       | Author's phone (deprecated, use header)  |
+  | content    | string   | Yes      | Post content (1-2000 characters)         |
+  | postType   | string   | No       | question, update, tip, problem,          |
+  |            |          |          | success_story (default: update)          |
+  | category   | string   | No       | Post category (default: general)         |
+  |            |          |          | Options: organic_farming,                |
+  |            |          |          | equipment_machinery, fertilizer_pesticides,|
+  |            |          |          | animal_husbandry, agri_business_news,    |
+  |            |          |          | agriculture_practices, market_prices,    |
+  |            |          |          | food_processing, general                 |
+  | crops      | string[] | No       | Array of crop tags (legacy support)      |
+  | tags       | string[] | No       | Legacy alias for crops                   |
+  | images     | string[] | No       | Array of image URLs/base64 (max 5)       |
+  | visibility | string   | No       | public, followers, group (default: public)|
+  | location   | object   | No       | { state, district } - auto-filled from   |
+  |            |          |          | user profile if not provided             |
+
+REQUEST EXAMPLE:
+  POST /api/posts
+  Headers: x-user-phone: 9876543210
+  {
+    "content": "My wheat crop is showing yellow leaves. What could be the cause?",
+    "postType": "question",
+    "category": "agriculture_practices",
+    "images": ["base64..."],
+    "visibility": "public"
+  }
+
+RESPONSE SUCCESS (201):
+  {
+    "success": true,
+    "message": "Post created successfully",
+    "data": {
+      "_id": "64abc789...",
+      "content": "My wheat crop is showing yellow leaves...",
+      "postType": "question",
+      "category": "agriculture_practices",
+      "type": "question",
+      "crops": [],
+      "tags": [],
+      "images": ["base64..."],
+      "visibility": "public",
+      "location": {
+        "state": "Punjab",
+        "district": "Ludhiana"
+      },
+      "likesCount": 0,
+      "commentsCount": 0,
+      "sharesCount": 0,
+      "isVerified": false,
+      "engagementScore": 0,
+      "viewsCount": 0,
+      "helpfulMarksCount": 0,
+      "isLiked": false,
+      "isSaved": false,
+      "isRepost": false,
+      "author": {
+        "_id": "64user456...",
+        "fullName": "Gurpreet Singh",
+        "role": "farmer",
+        "profileImage": "https://...",
+        "badges": [],
+        "experienceLevel": "intermediate"
+      },
+      "createdAt": "2024-01-15T12:00:00.000Z",
+      "updatedAt": "2024-01-15T12:00:00.000Z"
+    }
+  }
+
+ERROR RESPONSES:
+  400 - { "success": false, "error": "Content is required" }
+  400 - { "success": false, "error": "Content cannot be empty" }
+  400 - { "success": false, "error": "Content exceeds maximum length of 2000 characters" }
+  400 - { "success": false, "error": "Maximum 5 images allowed per post" }
+  400 - { "success": false, "error": "Invalid post type. Must be one of: ..." }
+  400 - { "success": false, "error": "Invalid visibility. Must be one of: ..." }
+  400 - { "success": false, "error": "Invalid category. Must be one of: ..." }
+  401 - { "success": false, "error": "Authentication required. Please sign in." }
+  404 - { "success": false, "error": "User not found. Please complete registration first." }
+  500 - { "success": false, "error": "Failed to create post" }
+
+
+================================================================================
+3. GET /api/posts/[id] - Fetch Single Post
+================================================================================
+
+DESCRIPTION:
+  Fetches a single post by ID with full details including recent comments
+  and view tracking.
+
+AUTHENTICATION:
+  Optional - If phone provided, tracks view for the user
+
+URL PARAMETERS:
+  | Parameter | Type   | Description           |
+  |-----------|--------|-----------------------|
+  | id        | string | Post ID (MongoDB ObjectId) |
+
+QUERY PARAMETERS:
+  | Parameter       | Type    | Default | Description                        |
+  |-----------------|---------|---------|-------------------------------------|
+  | includeComments | boolean | true    | Include recent comments             |
+  | commentsLimit   | number  | 3       | Number of comments to include (max 10)|
+  | phone           | string  | -       | Viewer's phone for tracking views   |
+
+REQUEST EXAMPLE:
+  GET /api/posts/64abc123?includeComments=true&commentsLimit=5&phone=9876543210
+
+RESPONSE SUCCESS (200):
+  {
+    "success": true,
+    "post": {
+      "id": "64abc123...",
+      "content": "How to treat rice blast disease?",
+      "postType": "question",
+      "type": "question",
+      "crops": ["rice"],
+      "tags": ["rice"],
+      "images": ["https://..."],
+      "visibility": "public",
+      "location": {
+        "state": "Maharashtra",
+        "district": "Pune"
+      },
+      "likesCount": 15,
+      "commentsCount": 8,
+      "sharesCount": 3,
+      "viewsCount": 245,
+      "isVerified": false,
+      "engagementScore": 42.5,
+      "isRepost": false,
+      "originalPost": null,
+      "createdAt": "2024-01-15T10:30:00.000Z",
+      "updatedAt": "2024-01-15T14:00:00.000Z",
+      "author": {
+        "id": "64user123...",
+        "name": "Ramesh Kumar",
+        "role": "farmer",
+        "avatar": "https://...",
+        "badges": ["trusted_farmer"]
+      },
+      "recentComments": [
+        {
+          "id": "64comment123...",
+          "content": "Apply fungicide immediately...",
+          "likesCount": 5,
+          "repliesCount": 2,
+          "isHelpful": true,
+          "isEdited": false,
+          "createdAt": "2024-01-15T11:00:00.000Z",
+          "author": {
+            "id": "64user456...",
+            "name": "Agricultural Expert",
+            "role": "business",
+            "avatar": "https://..."
+          }
+        }
+      ],
+      "totalComments": 8
+    }
+  }
+
+ERROR RESPONSES:
+  400 - { "success": false, "error": "Invalid post ID" }
+  404 - { "success": false, "error": "Post not found" }
+  500 - { "success": false, "error": "Failed to fetch post" }
+
+
+================================================================================
+4. PUT /api/posts/[id] - Update Post
+================================================================================
+
+DESCRIPTION:
+  Updates a post. Only the post author can update their own posts.
+
+AUTHENTICATION:
+  Required - Phone number must match the post author
+
+URL PARAMETERS:
+  | Parameter | Type   | Description           |
+  |-----------|--------|-----------------------|
+  | id        | string | Post ID (MongoDB ObjectId) |
+
+REQUEST BODY:
+  | Field      | Type     | Required | Description                            |
+  |------------|----------|----------|----------------------------------------|
+  | phone      | string   | Yes      | Author's phone for authorization       |
+  | content    | string   | No       | Updated content (1-2000 characters)    |
+  | postType   | string   | No       | Updated post type                      |
+  | crops      | string[] | No       | Updated crop tags                      |
+  | images     | string[] | No       | Updated images (max 5)                 |
+  | visibility | string   | No       | Updated visibility                     |
+
+REQUEST EXAMPLE:
+  PUT /api/posts/64abc123
+  {
+    "phone": "9876543210",
+    "content": "Updated: My wheat crop is showing yellow leaves...",
+    "crops": ["wheat", "farming"]
+  }
+
+RESPONSE SUCCESS (200):
+  {
+    "success": true,
+    "message": "Post updated successfully",
+    "post": {
+      "id": "64abc123...",
+      "content": "Updated: My wheat crop is showing yellow leaves...",
+      "postType": "question",
+      "type": "question",
+      "crops": ["wheat", "farming"],
+      "images": [],
+      "visibility": "public",
+      "likesCount": 5,
+      "commentsCount": 2,
+      "sharesCount": 1,
+      "updatedAt": "2024-01-15T15:00:00.000Z",
+      "author": {...}
+    }
+  }
+
+ERROR RESPONSES:
+  400 - { "success": false, "error": "Invalid post ID" }
+  400 - { "success": false, "error": "Cannot update a deleted post" }
+  400 - { "success": false, "error": "No valid fields to update" }
+  400 - { "success": false, "error": "Content cannot be empty" }
+  400 - { "success": false, "error": "Content exceeds maximum length..." }
+  400 - { "success": false, "error": "Maximum 5 images allowed per post" }
+  400 - { "success": false, "error": "Invalid post type..." }
+  400 - { "success": false, "error": "Invalid visibility..." }
+  401 - { "success": false, "error": "Phone number is required for authorization" }
+  403 - { "success": false, "error": "You are not authorized to update this post" }
+  404 - { "success": false, "error": "Post not found" }
+  500 - { "success": false, "error": "Failed to update post" }
+
+
+================================================================================
+5. DELETE /api/posts/[id] - Delete Post
+================================================================================
+
+DESCRIPTION:
+  Soft deletes a post and all associated comments. Only the post author can
+  delete their own posts.
+
+AUTHENTICATION:
+  Required - Phone number must match the post author
+
+URL PARAMETERS:
+  | Parameter | Type   | Description           |
+  |-----------|--------|-----------------------|
+  | id        | string | Post ID (MongoDB ObjectId) |
+
+QUERY PARAMETERS:
+  | Parameter | Type   | Required | Description                      |
+  |-----------|--------|----------|----------------------------------|
+  | phone     | string | Yes      | Author's phone for authorization |
+
+REQUEST EXAMPLE:
+  DELETE /api/posts/64abc123?phone=9876543210
+
+RESPONSE SUCCESS (200):
+  {
+    "success": true,
+    "message": "Post and associated comments deleted successfully"
+  }
+
+ERROR RESPONSES:
+  400 - { "success": false, "error": "Invalid post ID" }
+  400 - { "success": false, "error": "Post is already deleted" }
+  401 - { "success": false, "error": "Phone number is required for authorization" }
+  403 - { "success": false, "error": "You are not authorized to delete this post" }
+  404 - { "success": false, "error": "Post not found" }
+  500 - { "success": false, "error": "Failed to delete post" }
+
+
+================================================================================
+6. POST /api/posts/[id]/like - Toggle Like on Post
+================================================================================
+
+DESCRIPTION:
+  Toggles like status on a post. If already liked, unlikes the post.
+  If not liked, likes the post. Updates engagement score automatically.
+
+AUTHENTICATION:
+  Required - User phone number must be valid and registered
+
+URL PARAMETERS:
+  | Parameter | Type   | Description           |
+  |-----------|--------|-----------------------|
+  | id        | string | Post ID (MongoDB ObjectId) |
+
+REQUEST BODY:
+  | Field | Type   | Required | Description           |
+  |-------|--------|----------|-----------------------|
+  | phone | string | Yes      | User's phone number   |
+
+REQUEST EXAMPLE:
+  POST /api/posts/64abc123/like
+  {
+    "phone": "9876543210"
+  }
+
+RESPONSE SUCCESS (200):
+  {
+    "success": true,
+    "isLiked": true,
+    "likesCount": 16,
+    "engagementScore": 45.2,
+    "message": "Post liked"
+  }
+
+  OR (when unliking):
+
+  {
+    "success": true,
+    "isLiked": false,
+    "likesCount": 15,
+    "engagementScore": 42.5,
+    "message": "Post unliked"
+  }
+
+ERROR RESPONSES:
+  400 - { "success": false, "error": "Phone number is required" }
+  400 - { "success": false, "error": "Invalid post ID" }
+  404 - { "success": false, "error": "User not found" }
+  404 - { "success": false, "error": "Post not found" }
+  500 - { "success": false, "error": "Failed to like/unlike post" }
+
+
+================================================================================
+7. GET /api/posts/[id]/comments - Fetch Comments
+================================================================================
+
+DESCRIPTION:
+  Fetches comments for a post with enhanced sorting, pagination, and nested
+  replies support.
+
+AUTHENTICATION:
+  Optional
+
+URL PARAMETERS:
+  | Parameter | Type   | Description           |
+  |-----------|--------|-----------------------|
+  | id        | string | Post ID (MongoDB ObjectId) |
+
+QUERY PARAMETERS:
+  | Parameter      | Type    | Default | Description                          |
+  |----------------|---------|---------|--------------------------------------|
+  | page           | number  | 1       | Page number (for offset pagination)  |
+  | limit          | number  | 20      | Items per page (max 50)              |
+  | sortBy         | string  | newest  | Sort: newest, oldest, helpful        |
+  | includeReplies | boolean | true    | Include nested replies               |
+  | repliesLimit   | number  | 2       | Replies per comment (max 5)          |
+  | cursor         | string  | -       | Last comment ID for cursor pagination|
+
+REQUEST EXAMPLE:
+  GET /api/posts/64abc123/comments?page=1&limit=10&sortBy=helpful&includeReplies=true
+
+RESPONSE SUCCESS (200):
+  {
+    "success": true,
+    "comments": [
+      {
+        "id": "64comment123...",
+        "content": "Apply fungicide immediately...",
+        "likesCount": 5,
+        "repliesCount": 2,
+        "isHelpful": true,
+        "isEdited": false,
+        "createdAt": "2024-01-15T11:00:00.000Z",
+        "author": {
+          "id": "64user456...",
+          "name": "Agricultural Expert",
+          "role": "business",
+          "avatar": "https://..."
+        },
+        "replies": [
+          {
+            "id": "64reply123...",
+            "content": "Which fungicide do you recommend?",
+            "likesCount": 1,
+            "isHelpful": false,
+            "isEdited": false,
+            "createdAt": "2024-01-15T11:30:00.000Z",
+            "author": {...}
+          }
+        ],
+        "hasMoreReplies": false
+      }
+    ],
+    "hasMore": true,
+    "pagination": {
+      "page": 1,
+      "limit": 10,
+      "total": 25,
+      "totalPages": 3,
+      "hasMore": true
+    }
+  }
+
+ERROR RESPONSES:
+  400 - { "success": false, "error": "Invalid post ID" }
+  404 - { "success": false, "error": "Post not found" }
+  500 - { "success": false, "error": "Failed to fetch comments" }
+
+
+================================================================================
+8. POST /api/posts/[id]/comments - Create Comment
+================================================================================
+
+DESCRIPTION:
+  Creates a new comment on a post. Supports nested replies (max 2 levels).
+  Only allows replies to top-level comments.
+
+AUTHENTICATION:
+  Required - User phone number must be valid and registered
+
+URL PARAMETERS:
+  | Parameter | Type   | Description           |
+  |-----------|--------|-----------------------|
+  | id        | string | Post ID (MongoDB ObjectId) |
+
+REQUEST BODY:
+  | Field           | Type   | Required | Description                        |
+  |-----------------|--------|----------|------------------------------------|
+  | phone           | string | Yes      | Author's phone number              |
+  | content         | string | Yes      | Comment content (1-1000 chars)     |
+  | parentCommentId | string | No       | Parent comment ID for replies      |
+
+REQUEST EXAMPLE (New Comment):
+  POST /api/posts/64abc123/comments
+  {
+    "phone": "9876543210",
+    "content": "This is a great question! I had the same issue."
+  }
+
+REQUEST EXAMPLE (Reply):
+  POST /api/posts/64abc123/comments
+  {
+    "phone": "9876543210",
+    "content": "Thank you for the detailed explanation!",
+    "parentCommentId": "64comment123"
+  }
+
+RESPONSE SUCCESS (201):
+  {
+    "success": true,
+    "message": "Comment added successfully",
+    "comment": {
+      "id": "64comment789...",
+      "content": "This is a great question! I had the same issue.",
+      "likesCount": 0,
+      "repliesCount": 0,
+      "isHelpful": false,
+      "isEdited": false,
+      "isReply": false,
+      "parentCommentId": null,
+      "author": {
+        "id": "64user789...",
+        "name": "Suresh Patel",
+        "role": "farmer",
+        "avatar": "https://..."
+      },
+      "createdAt": "2024-01-15T12:00:00.000Z"
+    }
+  }
+
+ERROR RESPONSES:
+  400 - { "success": false, "error": "Phone and content are required" }
+  400 - { "success": false, "error": "Invalid post ID" }
+  400 - { "success": false, "error": "Invalid parent comment ID" }
+  400 - { "success": false, "error": "Comment content cannot be empty" }
+  400 - { "success": false, "error": "Comment exceeds maximum length of 1000 characters" }
+  400 - { "success": false, "error": "Cannot reply to a reply. Please reply to the original comment." }
+  404 - { "success": false, "error": "User not found" }
+  404 - { "success": false, "error": "Post not found" }
+  404 - { "success": false, "error": "Parent comment not found" }
+  500 - { "success": false, "error": "Failed to create comment" }
+
+
+================================================================================
+                             DATA MODELS REFERENCE
+================================================================================
+
+POST MODEL:
+  - id: string (MongoDB ObjectId)
+  - author: ObjectId (ref: User)
+  - authorPhone: string
+  - content: string (1-2000 chars)
+  - images: string[] (max 5)
+  - voiceNote: string (optional)
+  - postType: enum (question, update, tip, problem, success_story)
+  - crops: string[] (lowercase, trimmed)
+  - tags: string[] (legacy, synced with crops)
+  - location: { state: string, district: string }
+  - likes: ObjectId[] (ref: User)
+  - likesCount: number
+  - commentsCount: number
+  - sharesCount: number
+  - savedBy: ObjectId[] (ref: User)
+  - visibility: enum (public, followers, group)
+  - isVerified: boolean
+  - engagementScore: number
+  - viewsCount: number
+  - uniqueViewers: ObjectId[]
+  - helpfulMarksCount: number
+  - originalPost: ObjectId (for reposts)
+  - isRepost: boolean
+  - isDeleted: boolean
+  - createdAt: Date
+  - updatedAt: Date
+
+COMMENT MODEL:
+  - id: string (MongoDB ObjectId)
+  - post: ObjectId (ref: Post)
+  - author: ObjectId (ref: User)
+  - authorPhone: string
+  - content: string (1-1000 chars)
+  - parentComment: ObjectId (ref: Comment, for replies)
+  - likes: ObjectId[] (ref: User)
+  - likesCount: number
+  - repliesCount: number
+  - isHelpful: boolean
+  - helpfulMarkedBy: ObjectId (ref: User)
+  - helpfulMarkedAt: Date
+  - mentions: ObjectId[] (ref: User)
+  - isEdited: boolean
+  - editedAt: Date
+  - isDeleted: boolean
+  - createdAt: Date
+  - updatedAt: Date
+
+
+================================================================================
+                              ENGAGEMENT SCORE FORMULA
+================================================================================
+
+Formula: (likes x 1) + (comments x 3) + (shares x 5) + (helpful x 10) / time_decay
+
+Time Decay Factor:
+  - Posts < 1 hour: Factor = 1
+  - Older posts: Factor = log10(age_in_hours + 1) + 1
+
+This ensures newer posts with engagement are ranked higher, while older posts
+need significantly more engagement to maintain high scores.
+
+
+================================================================================
+                           BASE64 IMAGE FORMAT (NEW)
+================================================================================
+
+OVERVIEW:
+  Images are now stored as base64 data URLs directly in MongoDB instead of
+  using external cloud storage (e.g., Cloudinary). This simplifies deployment
+  and ensures images are always available.
+
+IMAGE FORMAT:
+  Images must be sent as base64 data URLs in the following format:
+    data:image/<type>;base64,<base64-encoded-data>
+
+  Supported MIME types:
+    - image/jpeg
+    - image/png
+    - image/webp
+    - image/heic
+    - image/heif
+
+CONSTRAINTS:
+  - Maximum file size: 5MB per image
+  - Maximum compressed size: 500KB per image (after client compression)
+  - Maximum images per post: 5
+  - Maximum total base64 size: 16MB per request (MongoDB BSON limit)
+
+CLIENT-SIDE PROCESSING:
+  Before sending images to the API, use the useImageUpload hook to:
+    1. Validate image files (type, size)
+    2. Compress images to reduce storage size
+    3. Convert to base64 format
+    4. Generate thumbnails for list views
+
+REQUEST EXAMPLE WITH BASE64 IMAGES:
+  POST /api/posts
+  Headers:
+    Content-Type: application/json
+    x-user-phone: 9876543210
+  Body:
+  {
+    "content": "Look at my healthy wheat crop!",
+    "postType": "success_story",
+    "images": [
+      "data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD...",
+      "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAA..."
+    ],
+    "imagesMeta": [
+      { "size": 245000, "type": "image/jpeg", "isBase64": true },
+      { "size": 180000, "type": "image/png", "isBase64": true }
+    ]
+  }
+
+RESPONSE WITH BASE64 IMAGES:
+  {
+    "success": true,
+    "data": {
+      "_id": "64abc789...",
+      "content": "Look at my healthy wheat crop!",
+      "images": [
+        "data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD...",
+        "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAA..."
+      ],
+      "imagesMeta": [
+        { "size": 245000, "type": "image/jpeg", "isBase64": true },
+        { "size": 180000, "type": "image/png", "isBase64": true }
+      ],
+      ...
+    }
+  }
+
+BACKWARD COMPATIBILITY:
+  The system supports both base64 and legacy URL-based images:
+    - New posts use base64 data URLs stored directly in images array
+    - Existing posts with Cloudinary URLs continue to work
+    - The imagesMeta.isBase64 field distinguishes between formats
+
+FRONTEND RENDERING:
+  Use the ResponsiveImage component or isBase64Image() utility to detect
+  and render images appropriately:
+    - Base64 images: Use native <img> element directly
+    - URL images: Use Next.js Image component with optimization
+
+
+================================================================================
+                                  END OF DOCUMENT
+================================================================================

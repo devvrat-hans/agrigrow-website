@@ -1,0 +1,384 @@
+================================================================================
+AGRIGROW GROUP INVITATIONS API DOCUMENTATION
+================================================================================
+API documentation for Group Invitation creation and acceptance.
+
+================================================================================
+1. GET GROUP INVITATIONS (Admin View)
+================================================================================
+Endpoint: GET /api/groups/[groupId]/invitations
+Description: List all invitations for a group (admins/owners only)
+
+Path Parameters:
+  groupId: string (required) - MongoDB ObjectId or group slug
+
+Query Parameters:
+  page: number (default: 1) - Page number
+  limit: number (default: 20, max: 50) - Results per page
+  type: "direct" | "code" (optional) - Filter by invitation type
+       - direct: Invitations sent to specific users
+       - code: Shareable invite codes
+  status: "pending" | "accepted" | "declined" | "expired" (default: pending)
+
+Headers:
+  x-user-phone: string (required) - Must be admin or owner
+
+Response (200 OK):
+{
+  "success": true,
+  "data": {
+    "invitations": [
+      {
+        "_id": string,
+        "groupId": string,
+        "inviteCode": string,
+        "invitedBy": string,
+        "inviter": {
+          "_id": string,
+          "fullName": string,
+          "profileImage": string
+        },
+        "invitedUser": string | null (for direct invites),
+        "invitee": {
+          "_id": string,
+          "fullName": string,
+          "profileImage": string
+        } | null,
+        "status": "pending" | "accepted" | "declined" | "expired",
+        "maxUses": number | null,
+        "usedCount": number,
+        "expiresAt": string,
+        "role": "member" | "moderator" | "admin",
+        "createdAt": string
+      }
+    ],
+    "pagination": {
+      "page": number,
+      "limit": number,
+      "total": number,
+      "totalPages": number,
+      "hasMore": boolean
+    }
+  }
+}
+
+Error Codes:
+  401 - Authentication required
+  403 - Only admins/owners can view invitations
+  404 - Group not found
+  500 - Server error
+
+Example curl:
+curl -X GET "http://localhost:3000/api/groups/cotton-farmers/invitations?status=pending&type=code" \
+  -H "x-user-phone: 9876543210"
+
+================================================================================
+2. CREATE INVITATION
+================================================================================
+Endpoint: POST /api/groups/[groupId]/invitations
+Description: Create a new invitation (direct invite or shareable code)
+
+Path Parameters:
+  groupId: string (required) - MongoDB ObjectId or group slug
+
+Headers:
+  x-user-phone: string (required) - Must be moderator or higher
+
+Request Body:
+{
+  "invitedUserId": string (optional) - User ID for direct invite
+  "invitedPhone": string (optional) - Phone number for direct invite
+  "maxUses": number (optional, 1-100) - Max uses for invite code
+  "expiresAt": string (optional, ISO 8601) - Expiration date (default: 7 days)
+  "role": "member" | "moderator" | "admin" (default: "member") - Role for invitee
+  "message": string (optional, max 500 chars) - Personal message
+}
+
+Notes:
+- Provide invitedUserId OR invitedPhone for direct invite
+- Omit both for a shareable invite code
+- Only admins/owners can invite as moderator/admin
+- Direct invites have maxUses: 1 automatically
+
+Response (201 Created - Direct Invite):
+{
+  "success": true,
+  "message": "Invitation sent successfully",
+  "data": {
+    "_id": string,
+    "groupId": string,
+    "inviteCode": string,
+    "invitedBy": string,
+    "invitedUser": string,
+    "status": "pending",
+    "maxUses": 1,
+    "usedCount": 0,
+    "expiresAt": string,
+    "role": string,
+    "createdAt": string
+  }
+}
+
+Response (201 Created - Shareable Code):
+{
+  "success": true,
+  "message": "Invite code created successfully",
+  "data": {
+    "_id": string,
+    "groupId": string,
+    "inviteCode": string (6-char alphanumeric, e.g., "ABC123"),
+    "invitedBy": string,
+    "invitedUser": null,
+    "status": "pending",
+    "maxUses": number | null,
+    "usedCount": 0,
+    "expiresAt": string,
+    "role": string,
+    "shareLink": string (full URL to join),
+    "createdAt": string
+  }
+}
+
+Error Codes:
+  400 - User is already a member or banned
+  400 - Invalid expiration date or maxUses
+  401 - Authentication required
+  403 - Insufficient permissions to invite at specified role
+  404 - Group or invited user not found
+  500 - Server error
+
+Example curl (Direct Invite):
+curl -X POST "http://localhost:3000/api/groups/cotton-farmers/invitations" \
+  -H "Content-Type: application/json" \
+  -H "x-user-phone: 9876543210" \
+  -d '{
+    "invitedPhone": "9876543211",
+    "message": "Join our cotton farmers community!",
+    "role": "member"
+  }'
+
+Example curl (Shareable Code):
+curl -X POST "http://localhost:3000/api/groups/cotton-farmers/invitations" \
+  -H "Content-Type: application/json" \
+  -H "x-user-phone: 9876543210" \
+  -d '{
+    "maxUses": 50,
+    "expiresAt": "2024-12-31T23:59:59Z"
+  }'
+
+================================================================================
+3. CANCEL/REVOKE INVITATION
+================================================================================
+Endpoint: DELETE /api/groups/[groupId]/invitations/[invitationId]
+Description: Cancel an invitation (admin/owner or inviter)
+
+Path Parameters:
+  groupId: string (required) - MongoDB ObjectId or group slug
+  invitationId: string (required) - MongoDB ObjectId of the invitation
+
+Headers:
+  x-user-phone: string (required) - Admin, owner, or original inviter
+
+Response (200 OK):
+{
+  "success": true,
+  "message": "Invitation cancelled"
+}
+
+Error Codes:
+  400 - Invitation already accepted or expired
+  401 - Authentication required
+  403 - Not authorized to cancel
+  404 - Invitation not found
+  500 - Server error
+
+Example curl:
+curl -X DELETE "http://localhost:3000/api/groups/cotton-farmers/invitations/507f1f77bcf86cd799439033" \
+  -H "x-user-phone: 9876543210"
+
+================================================================================
+4. GET INVITATION BY CODE (PUBLIC)
+================================================================================
+Endpoint: GET /api/groups/invite/[code]
+Description: Get invitation details by code (for preview before joining)
+
+Path Parameters:
+  code: string (required) - 6-character invite code
+
+Headers:
+  x-user-phone: string (optional) - For membership status check
+
+Response (200 OK):
+{
+  "success": true,
+  "data": {
+    "invitation": {
+      "_id": string,
+      "inviteCode": string,
+      "expiresAt": string,
+      "isExpired": boolean,
+      "remainingUses": number | "unlimited"
+    },
+    "group": {
+      "_id": string,
+      "name": string,
+      "slug": string,
+      "description": string,
+      "coverImage": string,
+      "icon": string,
+      "memberCount": number,
+      "groupType": string,
+      "privacy": string,
+      "isVerified": boolean
+    },
+    "inviter": {
+      "_id": string,
+      "fullName": string,
+      "profileImage": string
+    },
+    "isAlreadyMember": boolean (if authenticated)
+  }
+}
+
+Error Codes:
+  400 - Invalid invite code format
+  404 - Invite code not found or expired
+  500 - Server error
+
+Example curl:
+curl -X GET "http://localhost:3000/api/groups/invite/ABC123" \
+  -H "x-user-phone: 9876543210"
+
+================================================================================
+5. ACCEPT INVITATION (JOIN VIA CODE)
+================================================================================
+Endpoint: POST /api/groups/invite/[code]
+Description: Accept an invitation and join the group
+
+Path Parameters:
+  code: string (required) - 6-character invite code
+
+Headers:
+  x-user-phone: string (required) - Authentication
+
+Response (201 Created):
+{
+  "success": true,
+  "message": "You have joined the group successfully",
+  "data": {
+    "membership": {
+      "_id": string,
+      "groupId": string,
+      "userId": string,
+      "role": string,
+      "status": "active",
+      "joinedAt": string,
+      "invitedBy": string
+    },
+    "group": {
+      "_id": string,
+      "name": string,
+      "slug": string
+    }
+  }
+}
+
+Error Codes:
+  400 - Already a member, code expired, or max uses reached
+  401 - Authentication required
+  403 - Direct invite for different user
+  404 - Invite code not found
+  500 - Server error
+
+Example curl:
+curl -X POST "http://localhost:3000/api/groups/invite/ABC123" \
+  -H "x-user-phone: 9876543210"
+
+================================================================================
+6. RESPOND TO DIRECT INVITATION
+================================================================================
+Endpoint: PUT /api/groups/[groupId]/invitations/[invitationId]
+Description: Accept or decline a direct invitation
+
+Path Parameters:
+  groupId: string (required) - MongoDB ObjectId or group slug
+  invitationId: string (required) - MongoDB ObjectId of the invitation
+
+Headers:
+  x-user-phone: string (required) - Must be the invited user
+
+Request Body:
+{
+  "action": "accept" | "decline" (required)
+}
+
+Response (200 OK - Accept):
+{
+  "success": true,
+  "message": "Invitation accepted. You are now a member!",
+  "data": {
+    "membership": { ... membership object ... },
+    "group": { _id, name, slug }
+  }
+}
+
+Response (200 OK - Decline):
+{
+  "success": true,
+  "message": "Invitation declined"
+}
+
+Error Codes:
+  400 - Invalid action or invitation already processed
+  401 - Authentication required
+  403 - Not the invited user
+  404 - Invitation not found
+  500 - Server error
+
+Example curl:
+curl -X PUT "http://localhost:3000/api/groups/cotton-farmers/invitations/507f1f77bcf86cd799439033" \
+  -H "Content-Type: application/json" \
+  -H "x-user-phone: 9876543211" \
+  -d '{ "action": "accept" }'
+
+================================================================================
+INVITATION TYPES
+================================================================================
+
+1. DIRECT INVITATION
+   - Sent to a specific user (by ID or phone)
+   - maxUses is always 1
+   - Can only be accepted by the invited user
+   - Status flow: pending -> accepted/declined
+
+2. SHAREABLE INVITE CODE
+   - 6-character alphanumeric code (e.g., "ABC123")
+   - Can have maxUses limit or be unlimited
+   - Anyone with the code can use it
+   - Status remains "pending" until maxUses reached or expired
+   - Status flow: pending -> accepted (when fully used/expired)
+
+================================================================================
+INVITATION STATUS VALUES
+================================================================================
+- pending: Invitation is active and can be used
+- accepted: Invitation has been accepted (direct) or fully used (code)
+- declined: User declined the direct invitation
+- expired: Invitation has passed its expiresAt date
+
+================================================================================
+ROLE ASSIGNMENT VIA INVITATION
+================================================================================
+- member: Default role, anyone can invite as member
+- moderator: Only admins/owners can invite as moderator
+- admin: Only owners can invite as admin
+- owner: Cannot invite as owner (ownership transfer is separate)
+
+================================================================================
+COMMON ERROR RESPONSE FORMAT
+================================================================================
+{
+  "success": false,
+  "error": string - Error message,
+  "message": string - Additional details (optional)
+}

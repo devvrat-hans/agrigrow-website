@@ -1,0 +1,493 @@
+================================================================================
+                         COMMENTS API DOCUMENTATION
+                              Agrigrow Platform
+================================================================================
+
+This document provides comprehensive documentation for all comment-related API
+endpoints in the Agrigrow platform.
+
+Table of Contents:
+  1. GET /api/posts/[id]/comments - Get Comments for Post
+  2. POST /api/posts/[id]/comments - Add Comment
+  3. GET /api/posts/[id]/comments/[commentId] - Get Single Comment
+  4. PUT /api/posts/[id]/comments/[commentId] - Edit Comment
+  5. DELETE /api/posts/[id]/comments/[commentId] - Delete Comment
+  6. POST /api/posts/[id]/comments/[commentId]/like - Toggle Comment Like
+  7. POST /api/posts/[id]/comments/[commentId]/helpful - Mark Comment Helpful
+  8. POST /api/posts/[id]/comments/[commentId]/reply - Reply to Comment
+
+================================================================================
+1. GET /api/posts/[id]/comments - Get Comments for Post
+================================================================================
+
+Description:
+  Fetches all comments for a specific post with pagination, sorting, and 
+  nested replies support.
+
+Authentication:
+  Optional - Provides isLiked status for comments if authenticated
+  Header: x-user-phone (optional)
+
+URL Parameters:
+  - id: Post ID (MongoDB ObjectId) - Required
+
+Query Parameters:
+  | Parameter  | Type   | Default  | Description                       |
+  |------------|--------|----------|-----------------------------------|
+  | page       | number | 1        | Page number for pagination        |
+  | limit      | number | 10       | Comments per page (max 50)        |
+  | sortBy     | string | "newest" | Sort: "newest", "oldest", "popular"|
+
+Request Example:
+  GET /api/posts/64abc123def456789012/comments?page=1&limit=10&sortBy=newest
+  Headers:
+    x-user-phone: +919876543210
+
+Response Schema (200 OK):
+  {
+    "success": true,
+    "comments": [
+      {
+        "_id": string,                    // Comment ID
+        "postId": string,                 // Parent post ID
+        "content": string,                // Comment text content
+        "author": {
+          "_id": string,                  // Author user ID
+          "fullName": string,             // Author's display name
+          "profileImage": string | null,  // Author's avatar URL
+          "role": string,                 // "farmer", "student", "business"
+          "badges": string[]              // Author's badges
+        },
+        "parentComment": string | null,   // Parent comment ID if reply
+        "likesCount": number,             // Number of likes
+        "likes": string[],                // Array of user IDs who liked
+        "isLiked": boolean,               // If current user liked (authenticated)
+        "isHelpful": boolean,             // Marked as helpful answer
+        "helpfulMarkedBy": string | null, // User who marked helpful
+        "mentions": string[],             // Mentioned user IDs
+        "isEdited": boolean,              // Whether comment was edited
+        "editedAt": string | null,        // Edit timestamp (ISO)
+        "createdAt": string,              // Creation timestamp (ISO)
+        "updatedAt": string,              // Last update timestamp (ISO)
+        "replies": [                      // Nested replies (first level only)
+          {
+            "_id": string,
+            "content": string,
+            "author": object,             // Same structure as parent
+            "likesCount": number,
+            "isLiked": boolean,
+            "isHelpful": boolean,
+            "isEdited": boolean,
+            "createdAt": string
+          }
+        ],
+        "repliesCount": number            // Total number of replies
+      }
+    ],
+    "pagination": {
+      "page": number,                     // Current page
+      "limit": number,                    // Items per page
+      "total": number,                    // Total comments count
+      "totalPages": number,               // Total pages available
+      "hasMore": boolean                  // More pages available
+    }
+  }
+
+Error Responses:
+  400 Bad Request:
+  {
+    "success": false,
+    "error": "Invalid post ID"
+  }
+
+  404 Not Found:
+  {
+    "success": false,
+    "error": "Post not found"
+  }
+
+  500 Internal Server Error:
+  {
+    "success": false,
+    "error": "Failed to fetch comments"
+  }
+
+================================================================================
+2. POST /api/posts/[id]/comments - Add Comment
+================================================================================
+
+Description:
+  Adds a new comment to a post. Supports replies to existing comments via
+  parentCommentId. Creates notification for post author.
+
+Authentication:
+  Required - x-user-phone header
+
+URL Parameters:
+  - id: Post ID (MongoDB ObjectId) - Required
+
+Request Headers:
+  - Content-Type: application/json
+  - x-user-phone: User's phone number (required)
+
+Request Body Schema:
+  {
+    "content": string,            // Required, 1-2000 characters
+    "parentCommentId": string?    // Optional, for replies to existing comments
+  }
+
+Validation Rules:
+  - content: Required, min 1 char, max 2000 chars
+  - parentCommentId: Optional, must be valid comment ID if provided
+
+Request Example (New Comment):
+  POST /api/posts/64abc123def456789012/comments
+  Headers:
+    Content-Type: application/json
+    x-user-phone: +919876543210
+  Body:
+    {
+      "content": "Try using neem oil spray for pest control. Works great!"
+    }
+
+Request Example (Reply):
+  POST /api/posts/64abc123def456789012/comments
+  Headers:
+    Content-Type: application/json
+    x-user-phone: +919876543210
+  Body:
+    {
+      "content": "How often should I apply the neem oil?",
+      "parentCommentId": "64def456abc789012345"
+    }
+
+Response Schema (201 Created):
+  {
+    "success": true,
+    "message": "Comment added successfully",
+    "comment": {
+      "_id": string,
+      "postId": string,
+      "content": string,
+      "author": {
+        "_id": string,
+        "fullName": string,
+        "profileImage": string | null,
+        "role": string
+      },
+      "parentComment": string | null,
+      "likesCount": 0,
+      "likes": [],
+      "isHelpful": false,
+      "helpfulMarkedBy": null,
+      "mentions": [],
+      "isEdited": false,
+      "editedAt": null,
+      "createdAt": string,
+      "updatedAt": string
+    },
+    "commentsCount": number        // Updated total comments on post
+  }
+
+Error Responses:
+  400 Bad Request:
+  {
+    "success": false,
+    "error": "Content is required"
+  }
+  {
+    "success": false,
+    "error": "Comment too long. Maximum 2000 characters."
+  }
+  {
+    "success": false,
+    "error": "Parent comment not found"
+  }
+
+  401 Unauthorized:
+  {
+    "success": false,
+    "error": "Authentication required. Please sign in."
+  }
+
+  404 Not Found:
+  {
+    "success": false,
+    "error": "Post not found"
+  }
+
+  500 Internal Server Error:
+  {
+    "success": false,
+    "error": "Failed to add comment"
+  }
+
+================================================================================
+3. GET /api/posts/[id]/comments/[commentId] - Get Single Comment
+================================================================================
+
+Description:
+  Fetches a single comment by ID with its replies.
+
+Authentication:
+  Optional - Provides isLiked status if authenticated
+
+URL Parameters:
+  - id: Post ID (MongoDB ObjectId) - Required
+  - commentId: Comment ID (MongoDB ObjectId) - Required
+
+Request Example:
+  GET /api/posts/64abc123/comments/64def456
+  Headers:
+    x-user-phone: +919876543210
+
+Response Schema (200 OK):
+  {
+    "success": true,
+    "comment": {
+      "_id": string,
+      "postId": string,
+      "content": string,
+      "author": {
+        "_id": string,
+        "fullName": string,
+        "profileImage": string | null,
+        "role": string
+      },
+      "likesCount": number,
+      "isLiked": boolean,
+      "isHelpful": boolean,
+      "isEdited": boolean,
+      "createdAt": string,
+      "replies": [],
+      "repliesCount": number
+    }
+  }
+
+================================================================================
+4. PUT /api/posts/[id]/comments/[commentId] - Edit Comment
+================================================================================
+
+Description:
+  Edits an existing comment. Only the comment author can edit.
+  Sets isEdited flag and editedAt timestamp.
+
+Authentication:
+  Required - x-user-phone header (must be comment author)
+
+URL Parameters:
+  - id: Post ID (MongoDB ObjectId) - Required
+  - commentId: Comment ID (MongoDB ObjectId) - Required
+
+Request Headers:
+  - Content-Type: application/json
+  - x-user-phone: User's phone number (required)
+
+Request Body Schema:
+  {
+    "content": string             // Required, 1-2000 characters
+  }
+
+Request Example:
+  PUT /api/posts/64abc123/comments/64def456
+  Headers:
+    Content-Type: application/json
+    x-user-phone: +919876543210
+  Body:
+    {
+      "content": "Updated: Try using neem oil spray for pest control. Apply weekly."
+    }
+
+Response Schema (200 OK):
+  {
+    "success": true,
+    "message": "Comment updated successfully",
+    "comment": {
+      "_id": string,
+      "content": string,
+      "isEdited": true,
+      "editedAt": string,
+      "updatedAt": string
+    }
+  }
+
+Error Responses:
+  403 Forbidden:
+  {
+    "success": false,
+    "error": "You can only edit your own comments"
+  }
+
+================================================================================
+5. DELETE /api/posts/[id]/comments/[commentId] - Delete Comment
+================================================================================
+
+Description:
+  Deletes a comment. Only the comment author or post author can delete.
+  Also deletes all replies to this comment.
+
+Authentication:
+  Required - x-user-phone header
+
+URL Parameters:
+  - id: Post ID (MongoDB ObjectId) - Required
+  - commentId: Comment ID (MongoDB ObjectId) - Required
+
+Request Example:
+  DELETE /api/posts/64abc123/comments/64def456
+  Headers:
+    x-user-phone: +919876543210
+
+Response Schema (200 OK):
+  {
+    "success": true,
+    "message": "Comment deleted successfully",
+    "commentsCount": number        // Updated total comments on post
+  }
+
+Error Responses:
+  403 Forbidden:
+  {
+    "success": false,
+    "error": "You can only delete your own comments"
+  }
+
+================================================================================
+6. POST /api/posts/[id]/comments/[commentId]/like - Toggle Comment Like
+================================================================================
+
+Description:
+  Toggles like status on a comment. Creates notification for comment author.
+
+Authentication:
+  Required - x-user-phone header
+
+URL Parameters:
+  - id: Post ID (MongoDB ObjectId) - Required
+  - commentId: Comment ID (MongoDB ObjectId) - Required
+
+Request Example:
+  POST /api/posts/64abc123/comments/64def456/like
+  Headers:
+    x-user-phone: +919876543210
+
+Response Schema (200 OK):
+  {
+    "success": true,
+    "message": "Comment liked" | "Comment unliked",
+    "liked": boolean,              // Current like status
+    "likesCount": number           // Updated likes count
+  }
+
+================================================================================
+7. POST /api/posts/[id]/comments/[commentId]/helpful - Mark Comment Helpful
+================================================================================
+
+Description:
+  Marks a comment as the helpful/accepted answer. Only the post author can
+  mark comments as helpful. Only one comment per post can be marked helpful.
+
+Authentication:
+  Required - x-user-phone header (must be post author)
+
+URL Parameters:
+  - id: Post ID (MongoDB ObjectId) - Required
+  - commentId: Comment ID (MongoDB ObjectId) - Required
+
+Request Example:
+  POST /api/posts/64abc123/comments/64def456/helpful
+  Headers:
+    x-user-phone: +919876543210
+
+Response Schema (200 OK):
+  {
+    "success": true,
+    "message": "Comment marked as helpful" | "Helpful mark removed",
+    "isHelpful": boolean,          // Current helpful status
+    "helpfulMarkedBy": string | null
+  }
+
+Error Responses:
+  403 Forbidden:
+  {
+    "success": false,
+    "error": "Only the post author can mark comments as helpful"
+  }
+
+================================================================================
+8. POST /api/posts/[id]/comments/[commentId]/reply - Reply to Comment
+================================================================================
+
+Description:
+  Adds a reply to an existing comment. Shortcut for POST /comments with
+  parentCommentId. Creates notification for parent comment author.
+
+Authentication:
+  Required - x-user-phone header
+
+URL Parameters:
+  - id: Post ID (MongoDB ObjectId) - Required
+  - commentId: Parent Comment ID (MongoDB ObjectId) - Required
+
+Request Headers:
+  - Content-Type: application/json
+  - x-user-phone: User's phone number (required)
+
+Request Body Schema:
+  {
+    "content": string             // Required, 1-2000 characters
+  }
+
+Request Example:
+  POST /api/posts/64abc123/comments/64def456/reply
+  Headers:
+    Content-Type: application/json
+    x-user-phone: +919876543210
+  Body:
+    {
+      "content": "Thanks for the tip! I'll try this method."
+    }
+
+Response Schema (201 Created):
+  {
+    "success": true,
+    "message": "Reply added successfully",
+    "reply": {
+      "_id": string,
+      "postId": string,
+      "parentComment": string,
+      "content": string,
+      "author": {
+        "_id": string,
+        "fullName": string,
+        "profileImage": string | null,
+        "role": string
+      },
+      "likesCount": 0,
+      "isHelpful": false,
+      "createdAt": string
+    }
+  }
+
+================================================================================
+                              ERROR CODE REFERENCE
+================================================================================
+
+HTTP Status Codes:
+  200 - OK: Request successful
+  201 - Created: Resource created successfully
+  400 - Bad Request: Invalid input or validation failed
+  401 - Unauthorized: Authentication required
+  403 - Forbidden: Not authorized for this action
+  404 - Not Found: Resource not found
+  500 - Internal Server Error: Server-side error
+
+Common Error Response Format:
+  {
+    "success": false,
+    "error": string              // Human-readable error message
+  }
+
+================================================================================
+                              END OF DOCUMENTATION
+================================================================================

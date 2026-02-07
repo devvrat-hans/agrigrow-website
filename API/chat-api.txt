@@ -1,0 +1,361 @@
+# Crop AI Chat API
+
+AI-powered agricultural chatbot for answering farming questions.
+
+## Base URL
+`/api/crop-ai/chat`
+
+---
+
+## POST /api/crop-ai/chat
+
+Send a message to the AI agricultural assistant and receive contextual farming advice.
+
+### Headers
+
+| Header | Type | Required | Description |
+|--------|------|----------|-------------|
+| `Content-Type` | string | Yes | Must be `application/json` |
+| `x-user-phone` | string | No | User's phone number for personalized context |
+
+### Request Body
+
+```json
+{
+  "message": "How can I prevent bacterial leaf blight in rice?",
+  "conversationHistory": [
+    {
+      "role": "user",
+      "parts": [{ "text": "What causes yellow leaves in rice?" }]
+    },
+    {
+      "role": "model",
+      "parts": [{ "text": "Yellow leaves in rice can be caused by several factors..." }]
+    }
+  ],
+  "cropsContext": ["rice", "wheat"]
+}
+```
+
+### Request Fields
+
+| Field | Type | Required | Description |
+|-------|------|----------|-------------|
+| `message` | string | Yes | User's message (max 2000 characters) |
+| `conversationHistory` | object[] | No | Previous messages for context |
+| `cropsContext` | string[] | No | Specific crops to focus on |
+
+### Conversation History Format
+
+Each message in the history:
+```json
+{
+  "role": "user" | "model",
+  "parts": [{ "text": "message content" }]
+}
+```
+
+---
+
+### Response
+
+```json
+{
+  "success": true,
+  "data": {
+    "response": "To prevent bacterial leaf blight in rice, you can take the following measures:\n\n**Preventive Measures:**\n1. Use resistant varieties like Swarna Sub-1, IR64\n2. Treat seeds with Streptocycline (1g/10L water) before sowing\n3. Avoid excessive nitrogen fertilizer\n4. Maintain proper spacing (20x15 cm)\n5. Ensure good drainage in fields\n\n**Treatment if infected:**\n- Apply Copper oxychloride @ 3g/L water\n- Spray Streptomycin sulphate @ 0.5g/L\n- Remove and destroy infected plants\n\n**Organic options:**\n- Neem oil spray (5ml/L)\n- Pseudomonas fluorescens (10g/L)\n\nWould you like more details about any specific method?",
+    "conversationHistory": [
+      {
+        "role": "user",
+        "parts": [{ "text": "What causes yellow leaves in rice?" }]
+      },
+      {
+        "role": "model",
+        "parts": [{ "text": "Yellow leaves in rice can be caused by several factors..." }]
+      },
+      {
+        "role": "user",
+        "parts": [{ "text": "How can I prevent bacterial leaf blight in rice?" }]
+      },
+      {
+        "role": "model",
+        "parts": [{ "text": "To prevent bacterial leaf blight in rice..." }]
+      }
+    ]
+  }
+}
+```
+
+### Response Fields
+
+| Field | Type | Description |
+|-------|------|-------------|
+| `response` | string | AI-generated response with farming advice |
+| `conversationHistory` | object[] | Updated conversation history including new messages |
+
+---
+
+## Contextual Features
+
+### Seasonal Awareness
+
+The AI automatically adapts responses based on the current agricultural season:
+
+| Season | Period | Focus Areas |
+|--------|--------|-------------|
+| Kharif | June - October | Monsoon crops, pest management, waterlogging |
+| Rabi | November - March | Winter crops, frost protection, irrigation |
+| Zaid | March - May | Summer vegetables, heat stress, water conservation |
+
+### Regional Context
+
+When user phone is provided, the AI considers:
+- User's registered state and district
+- Local crop preferences
+- Regional pest/disease patterns
+- Government schemes available in the area
+
+### User Profile Integration
+
+For authenticated users:
+- Considers crops grown by the user
+- References previous consultations
+- Provides personalized recommendations
+- Adapts language preference
+
+---
+
+## Example Queries
+
+The AI can answer questions about:
+
+**Crop Diseases & Pests:**
+- "What is causing black spots on my tomato leaves?"
+- "How to control aphids in wheat?"
+- "Organic treatment for powdery mildew"
+
+**Fertilizers & Nutrition:**
+- "When should I apply urea to rice?"
+- "How much DAP for one acre potato?"
+- "Signs of nitrogen deficiency"
+
+**Irrigation & Water:**
+- "How often to water watermelon?"
+- "Drip irrigation setup for cotton"
+- "Managing waterlogging in fields"
+
+**Crop Planning:**
+- "Best crop to grow after rice?"
+- "Which wheat variety for UP?"
+- "Sowing time for Kharif maize"
+
+**Government Schemes:**
+- "How to apply for PM-KISAN?"
+- "Crop insurance process"
+- "Subsidy for drip irrigation"
+
+---
+
+## Error Responses
+
+### Validation Error (400)
+
+```json
+{
+  "success": false,
+  "error": "Please enter a message to send.",
+  "errorCode": "MISSING_MESSAGE",
+  "retryable": false
+}
+```
+
+### Message Too Long (400)
+
+```json
+{
+  "success": false,
+  "error": "Your message is too long. Please keep it under 2000 characters.",
+  "errorCode": "MESSAGE_TOO_LONG",
+  "retryable": false
+}
+```
+
+### AI Blocked (422)
+
+```json
+{
+  "success": false,
+  "error": "I couldn't process that request. Please try rephrasing your question.",
+  "errorCode": "AI_BLOCKED",
+  "retryable": true
+}
+```
+
+### Rate Limit (429)
+
+```json
+{
+  "success": false,
+  "error": "Rate limit exceeded",
+  "retryAfterSeconds": 3600,
+  "limit": {
+    "hourly": 50,
+    "daily": 200
+  }
+}
+```
+
+### Error Codes
+
+| Code | Description | Retryable |
+|------|-------------|-----------|
+| `MISSING_MESSAGE` | Empty message | No |
+| `MESSAGE_TOO_LONG` | Exceeds 2000 chars | No |
+| `AI_BLOCKED` | Safety filter triggered | Yes |
+| `AI_ERROR` | AI processing failed | Yes |
+| `INVALID_REQUEST` | Malformed request | No |
+| `MISSING_API_KEY` | Server config error | No |
+
+---
+
+## Rate Limiting
+
+- **Hourly limit**: 50 requests
+- **Daily limit**: 200 requests
+- Limits are per user (by phone) or per IP (anonymous)
+
+Headers included in response:
+- `X-RateLimit-Limit-Hour`: 50
+- `X-RateLimit-Remaining-Hour`: Remaining hourly
+- `X-RateLimit-Limit-Day`: 200
+- `X-RateLimit-Remaining-Day`: Remaining daily
+
+---
+
+## Caching
+
+First messages in new conversations with general questions may be cached:
+- Cache TTL: 30 minutes
+- Personalized or follow-up questions are not cached
+- Cache key includes season and region context
+
+Questions NOT cached:
+- Messages with conversation history
+- Personal queries ("my field", "my farm")
+- Time-specific queries ("today", "yesterday")
+
+---
+
+## Chat History Endpoints
+
+### GET /api/crop-ai/chat/history
+
+Retrieve user's chat history.
+
+**Query Parameters:**
+| Parameter | Type | Default | Description |
+|-----------|------|---------|-------------|
+| `page` | number | 1 | Page number |
+| `limit` | number | 20 | Items per page |
+| `search` | string | - | Search query |
+
+**Response:**
+```json
+{
+  "success": true,
+  "data": {
+    "conversations": [
+      {
+        "_id": "conv123",
+        "title": "Rice disease treatment",
+        "messageCount": 5,
+        "lastMessageAt": "2024-01-15T10:30:00Z",
+        "preview": "How to treat bacterial..."
+      }
+    ],
+    "pagination": {
+      "total": 15,
+      "page": 1,
+      "limit": 20,
+      "totalPages": 1
+    }
+  }
+}
+```
+
+### POST /api/crop-ai/chat/history
+
+Save a new conversation.
+
+**Request:**
+```json
+{
+  "messages": [...],
+  "title": "Rice disease discussion"
+}
+```
+
+### DELETE /api/crop-ai/chat/history?id=conv123
+
+Delete a specific conversation.
+
+---
+
+## Example Usage
+
+### cURL
+
+```bash
+curl -X POST https://your-domain.com/api/crop-ai/chat \
+  -H "Content-Type: application/json" \
+  -H "x-user-phone: 919876543210" \
+  -d '{
+    "message": "How to control aphids in wheat organically?"
+  }'
+```
+
+### JavaScript/TypeScript
+
+```typescript
+const response = await fetch('/api/crop-ai/chat', {
+  method: 'POST',
+  headers: {
+    'Content-Type': 'application/json',
+    'x-user-phone': '919876543210',
+  },
+  body: JSON.stringify({
+    message: 'How to control aphids in wheat organically?',
+    conversationHistory: previousMessages,
+    cropsContext: ['wheat'],
+  }),
+});
+
+const data = await response.json();
+console.log(data.data.response);
+```
+
+### React Hook Usage
+
+```typescript
+import { useChat } from '@/hooks';
+
+function ChatComponent() {
+  const { messages, sendMessage, isLoading } = useChat();
+
+  const handleSend = async (text: string) => {
+    await sendMessage(text);
+  };
+
+  // Handle messages...
+}
+```
+
+---
+
+## Notes
+
+- Responses are in simple language suitable for farmers
+- Supports Hindi/Marathi terms for common farming concepts
+- Includes both chemical and organic recommendations
+- References government schemes when relevant
+- Conversation context is maintained for follow-up questions

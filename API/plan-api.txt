@@ -1,0 +1,352 @@
+# Crop Planning API
+
+AI-powered crop recommendation and planning based on location, soil, season, and weather.
+
+## Base URL
+`/api/crop-ai/plan`
+
+---
+
+## POST /api/crop-ai/plan
+
+Generates personalized crop recommendations based on the farmer's specific conditions.
+
+### Headers
+
+| Header | Type | Required | Description |
+|--------|------|----------|-------------|
+| `Content-Type` | string | Yes | Must be `application/json` |
+| `x-user-phone` | string | No | User's phone number for saving plan history |
+
+### Request Body
+
+```json
+{
+  "state": "maharashtra",
+  "district": "Pune",
+  "village": "Lonavala",
+  "landSize": 5,
+  "landUnit": "acre",
+  "season": "kharif",
+  "sowingMonth": "6",
+  "soilType": "black-cotton",
+  "irrigationAvailability": "adequate",
+  "irrigationMethod": "drip"
+}
+```
+
+### Request Fields
+
+| Field | Type | Required | Description |
+|-------|------|----------|-------------|
+| `state` | string | Yes | Indian state (lowercase, hyphenated) |
+| `district` | string | No | District name |
+| `village` | string | No | Village name |
+| `landSize` | number | Yes | Size of land |
+| `landUnit` | string | Yes | `acre`, `hectare`, `bigha`, or `guntha` |
+| `season` | string | Yes | `kharif`, `rabi`, or `zaid` |
+| `sowingMonth` | string | Yes | Month number (1-12) |
+| `soilType` | string | Yes | Type of soil |
+| `irrigationAvailability` | string | Yes | Water availability level |
+| `irrigationMethod` | string | No | Method of irrigation |
+
+### Supported States
+
+andhra-pradesh, arunachal-pradesh, assam, bihar, chhattisgarh, goa, gujarat, haryana, himachal-pradesh, jharkhand, karnataka, kerala, madhya-pradesh, maharashtra, manipur, meghalaya, mizoram, nagaland, odisha, punjab, rajasthan, sikkim, tamil-nadu, telangana, tripura, uttar-pradesh, uttarakhand, west-bengal, delhi
+
+### Seasons
+
+| Value | Name | Period | Description |
+|-------|------|--------|-------------|
+| `kharif` | Kharif | June - October | Monsoon season crops |
+| `rabi` | Rabi | November - March | Winter season crops |
+| `zaid` | Zaid | March - May | Summer season crops |
+
+### Soil Types
+
+| Value | Name |
+|-------|------|
+| `alluvial` | Alluvial Soil |
+| `black-cotton` | Black Cotton (Regur) Soil |
+| `red` | Red Soil |
+| `laterite` | Laterite Soil |
+| `sandy` | Sandy Soil |
+| `sandy-loam` | Sandy Loam Soil |
+| `clay` | Clay Soil |
+| `clay-loam` | Clay Loam Soil |
+| `loamy` | Loamy Soil |
+| `saline` | Saline/Alkaline Soil |
+
+### Irrigation Availability
+
+| Value | Name | Description |
+|-------|------|-------------|
+| `abundant` | Abundant | Canal/river access, unlimited water |
+| `adequate` | Adequate | Regular irrigation available |
+| `limited` | Limited | Periodic/seasonal water |
+| `rain-fed` | Rain-fed Only | Dependent on rainfall |
+
+### Irrigation Methods
+
+| Value | Name |
+|-------|------|
+| `flood` | Flood/Surface Irrigation |
+| `drip` | Drip Irrigation |
+| `sprinkler` | Sprinkler System |
+| `furrow` | Furrow Irrigation |
+| `canal` | Canal Irrigation |
+| `rain-fed` | Rain-fed (No irrigation) |
+
+---
+
+### Response
+
+```json
+{
+  "success": true,
+  "data": {
+    "recommendedCrops": [
+      {
+        "name": "Soybean",
+        "suitabilityScore": 92,
+        "reasons": [
+          "Excellent for black cotton soil",
+          "Good monsoon crop for Maharashtra",
+          "High demand in market",
+          "Suitable with drip irrigation"
+        ],
+        "expectedYield": "18-22 quintals/acre",
+        "marketDemand": "high",
+        "waterRequirement": "350-500 mm during crop season",
+        "investmentLevel": "medium",
+        "timeline": {
+          "sowingTime": "June - July",
+          "harvestTime": "September - October",
+          "duration": "90-110 days"
+        },
+        "tips": [
+          "Use certified seed of JS-335 or JS-9560 variety",
+          "Apply Rhizobium culture for better nodulation",
+          "Maintain 45cm row spacing for drip irrigation"
+        ]
+      },
+      {
+        "name": "Cotton",
+        "suitabilityScore": 88,
+        "reasons": [
+          "Black cotton soil is ideal",
+          "Traditional crop of the region",
+          "Good export demand"
+        ],
+        "expectedYield": "10-15 quintals/acre",
+        "marketDemand": "high",
+        "waterRequirement": "700-1200 mm",
+        "investmentLevel": "high",
+        "timeline": {
+          "sowingTime": "May - June",
+          "harvestTime": "November - January",
+          "duration": "150-180 days"
+        },
+        "tips": [
+          "Choose Bt cotton varieties for pest resistance",
+          "Follow proper spacing of 90x60 cm",
+          "Monitor for bollworm during flowering"
+        ]
+      }
+    ],
+    "soilAnalysis": {
+      "suitability": "Excellent for most Kharif crops",
+      "recommendations": [
+        "Test soil before sowing for nutrient status",
+        "Add gypsum to improve water retention",
+        "Practice green manuring during summer"
+      ],
+      "phRecommendation": "Maintain pH between 7.0-8.5",
+      "nutrientAdvice": "Black cotton soil is rich in calcium and potassium but may need nitrogen and phosphorus supplementation"
+    },
+    "weatherConsiderations": {
+      "forecast": "Normal monsoon expected with 850mm rainfall",
+      "risks": [
+        "Heavy rainfall in July may cause waterlogging",
+        "Dry spell possible in August"
+      ],
+      "advice": [
+        "Ensure proper drainage channels",
+        "Plan for supplemental irrigation in August"
+      ]
+    },
+    "marketInsights": {
+      "highDemandCrops": ["Cotton", "Soybean", "Maize"],
+      "festivalCrops": ["Rice", "Sugarcane"],
+      "exportCrops": ["Cotton", "Soybean"],
+      "tips": [
+        "Soybean has good export demand",
+        "Cotton MSP increased this year"
+      ]
+    },
+    "rotationAdvice": {
+      "recommendations": [
+        "After Kharif soybean → Rabi wheat/chickpea",
+        "Rotate legumes with cereals for soil health"
+      ],
+      "soilHealthTips": [
+        "Soybean fixes nitrogen in soil",
+        "Follow with wheat for best results"
+      ]
+    },
+    "generalTips": [
+      "Get soil tested from KVK before sowing",
+      "Register for crop insurance under PMFBY",
+      "Connect with local FPO for better prices"
+    ]
+  },
+  "planId": "abcd1234567890efgh5678",
+  "meta": {
+    "processingTime": 1850,
+    "weatherIncluded": true,
+    "season": "Kharif",
+    "saved": true,
+    "cached": false
+  }
+}
+```
+
+### Response Fields
+
+#### Recommended Crops
+| Field | Type | Description |
+|-------|------|-------------|
+| `name` | string | Crop name |
+| `suitabilityScore` | number | Score 0-100 indicating suitability |
+| `reasons` | string[] | Why this crop is recommended |
+| `expectedYield` | string | Expected yield range |
+| `marketDemand` | string | `high`, `medium`, or `low` |
+| `waterRequirement` | string | Water needed for the crop |
+| `investmentLevel` | string | `low`, `medium`, or `high` |
+| `timeline` | object | Sowing, harvest times, duration |
+| `tips` | string[] | Practical tips for growing |
+
+#### Soil Analysis
+| Field | Type | Description |
+|-------|------|-------------|
+| `suitability` | string | Overall suitability assessment |
+| `recommendations` | string[] | Soil improvement tips |
+| `phRecommendation` | string | Ideal pH range |
+| `nutrientAdvice` | string | Nutrient management advice |
+
+#### Weather Considerations
+| Field | Type | Description |
+|-------|------|-------------|
+| `forecast` | string | Weather forecast summary |
+| `risks` | string[] | Potential weather risks |
+| `advice` | string[] | Weather-related advice |
+
+#### Market Insights
+| Field | Type | Description |
+|-------|------|-------------|
+| `highDemandCrops` | string[] | Crops with high market demand |
+| `festivalCrops` | string[] | Crops in demand for festivals |
+| `exportCrops` | string[] | Crops with export potential |
+| `tips` | string[] | Market-related tips |
+
+---
+
+## Error Responses
+
+### Validation Error (400)
+
+```json
+{
+  "success": false,
+  "error": "State is required"
+}
+```
+
+### Rate Limit Error (429)
+
+```json
+{
+  "success": false,
+  "error": "Rate limit exceeded",
+  "retryAfterSeconds": 3600,
+  "limit": {
+    "hourly": 50,
+    "daily": 200
+  }
+}
+```
+
+Rate limit headers included:
+- `X-RateLimit-Limit-Hour`: Hourly limit (50)
+- `X-RateLimit-Remaining-Hour`: Remaining requests
+- `X-RateLimit-Limit-Day`: Daily limit (200)
+- `X-RateLimit-Remaining-Day`: Remaining daily requests
+
+---
+
+## Example Usage
+
+### cURL
+
+```bash
+curl -X POST https://your-domain.com/api/crop-ai/plan \
+  -H "Content-Type: application/json" \
+  -H "x-user-phone: 919876543210" \
+  -d '{
+    "state": "maharashtra",
+    "district": "Pune",
+    "landSize": 5,
+    "landUnit": "acre",
+    "season": "kharif",
+    "sowingMonth": "6",
+    "soilType": "black-cotton",
+    "irrigationAvailability": "adequate"
+  }'
+```
+
+### JavaScript/TypeScript
+
+```typescript
+const response = await fetch('/api/crop-ai/plan', {
+  method: 'POST',
+  headers: {
+    'Content-Type': 'application/json',
+    'x-user-phone': '919876543210',
+  },
+  body: JSON.stringify({
+    state: 'maharashtra',
+    district: 'Pune',
+    landSize: 5,
+    landUnit: 'acre',
+    season: 'kharif',
+    sowingMonth: '6',
+    soilType: 'black-cotton',
+    irrigationAvailability: 'adequate',
+  }),
+});
+
+const data = await response.json();
+```
+
+---
+
+## Caching
+
+Planning responses are cached based on:
+- State, district, season, sowing month
+- Soil type, irrigation availability, irrigation method
+- Land size and unit
+
+Cache TTL: 12 hours
+
+Identical planning requests within the TTL period will return cached responses for faster performance and reduced API costs.
+
+---
+
+## Notes
+
+- Uses real-time weather data when available
+- Incorporates seasonal market demand information
+- Provides crop rotation recommendations
+- Plans are saved for authenticated users
+- Processing time typically 1-3 seconds

@@ -1,0 +1,137 @@
+# Cache Stats API
+
+API endpoint for monitoring and managing the AI response cache.
+
+## Base URL
+`/api/crop-ai/cache/stats`
+
+---
+
+## GET /api/crop-ai/cache/stats
+
+Returns cache statistics for monitoring and debugging.
+
+### Request
+No request body required.
+
+### Response
+
+```json
+{
+  "success": true,
+  "data": {
+    "stats": {
+      "size": 42,
+      "maxSize": 500,
+      "hits": 156,
+      "misses": 89,
+      "hitRate": "63.67%",
+      "entriesByType": {
+        "chat": 25,
+        "diagnosis": 0,
+        "planning": 17
+      },
+      "averageAgeSeconds": 1250,
+      "memoryEstimateMB": "2.45"
+    },
+    "config": {
+      "enabled": true,
+      "maxSize": 500,
+      "defaultTtlMinutes": 60,
+      "chatTtlMinutes": 30,
+      "diagnosisTtlMinutes": 1440,
+      "planningTtlMinutes": 720
+    }
+  }
+}
+```
+
+### Response Fields
+
+| Field | Type | Description |
+|-------|------|-------------|
+| `stats.size` | number | Current number of entries in cache |
+| `stats.maxSize` | number | Maximum cache size |
+| `stats.hits` | number | Total cache hits |
+| `stats.misses` | number | Total cache misses |
+| `stats.hitRate` | string | Hit rate percentage |
+| `stats.entriesByType` | object | Breakdown of entries by type (chat/diagnosis/planning) |
+| `stats.averageAgeSeconds` | number | Average age of entries in seconds |
+| `stats.memoryEstimateMB` | string | Estimated memory usage in MB |
+| `config.enabled` | boolean | Whether caching is enabled |
+| `config.maxSize` | number | Maximum cache entries |
+| `config.defaultTtlMinutes` | number | Default TTL in minutes |
+| `config.chatTtlMinutes` | number | Chat response TTL in minutes |
+| `config.diagnosisTtlMinutes` | number | Diagnosis response TTL in minutes |
+| `config.planningTtlMinutes` | number | Planning response TTL in minutes |
+
+---
+
+## DELETE /api/crop-ai/cache/stats
+
+Clears the entire cache. Use with caution in production.
+
+### Request
+No request body required.
+
+### Response
+
+```json
+{
+  "success": true,
+  "message": "Cleared 42 cache entries",
+  "previousStats": {
+    "size": 42,
+    "hitRate": "63.67%"
+  }
+}
+```
+
+---
+
+## Environment Variables
+
+Configure the cache using environment variables:
+
+| Variable | Default | Description |
+|----------|---------|-------------|
+| `AI_CACHE_ENABLED` | `true` | Enable/disable caching |
+| `AI_CACHE_MAX_SIZE` | `500` | Maximum cache entries |
+| `AI_CACHE_TTL` | `3600000` | Default TTL (1 hour in ms) |
+| `AI_CACHE_CHAT_TTL` | `1800000` | Chat TTL (30 minutes in ms) |
+| `AI_CACHE_DIAGNOSIS_TTL` | `86400000` | Diagnosis TTL (24 hours in ms) |
+| `AI_CACHE_PLANNING_TTL` | `43200000` | Planning TTL (12 hours in ms) |
+
+---
+
+## Caching Behavior
+
+### What Gets Cached
+
+1. **Chat Responses**: Only for new conversations (no history) with general farming questions
+2. **Planning Responses**: Based on location, season, soil type, and irrigation parameters
+3. **Diagnosis Responses**: Currently disabled (image-based queries are too unique)
+
+### Query Normalization
+
+Queries are normalized before generating cache keys:
+- Converted to lowercase
+- Punctuation removed
+- Stop words filtered out
+- Tokens sorted alphabetically
+- Context (season, state, crop) included in key
+
+### Cache Key Generation
+
+Cache keys are generated using:
+- Query type (chat/planning)
+- Normalized query text
+- Relevant context (season, state, crops)
+
+### LRU Eviction
+
+When cache is full, least recently used entries are evicted first.
+
+### TTL Cleanup
+
+Expired entries are automatically cleaned up every 5 minutes.

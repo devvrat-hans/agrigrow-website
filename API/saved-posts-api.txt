@@ -1,0 +1,184 @@
+================================================================================
+SAVED POSTS (BOOKMARKS) API DOCUMENTATION
+================================================================================
+
+This document describes the API endpoints for managing saved/bookmarked posts
+in the Agrigrow platform.
+
+================================================================================
+1. POST /api/posts/{id}/save
+================================================================================
+Description: Toggle save/bookmark status for a post. If the post is already 
+saved, it will be unsaved. If not saved, it will be saved.
+
+Authentication: Required
+- Header: x-user-phone (user's phone number)
+
+Path Parameters:
+- id: Post ID (24-character MongoDB ObjectId)
+
+Request Example:
+POST /api/posts/6789abcdef123456789abcde/save
+Headers:
+  x-user-phone: +919876543210
+
+Response (Success - 200, Post Saved):
+{
+  "success": true,
+  "isSaved": true,
+  "message": "Post saved successfully"
+}
+
+Response (Success - 200, Post Unsaved):
+{
+  "success": true,
+  "isSaved": false,
+  "message": "Post removed from saved"
+}
+
+Response (Error - 400):
+{
+  "success": false,
+  "error": "Invalid post ID"
+}
+
+Response (Error - 401):
+{
+  "success": false,
+  "error": "Unauthorized - Phone number required"
+}
+
+Response (Error - 404):
+{
+  "success": false,
+  "error": "Post not found"
+}
+
+Response (Error - 500):
+{
+  "success": false,
+  "error": "Failed to toggle save status"
+}
+
+================================================================================
+2. GET /api/user/saved-posts
+================================================================================
+Description: Get user's saved/bookmarked posts with full details and pagination.
+Posts are returned in reverse chronological order (most recently saved first).
+
+Authentication: Required
+- Header: x-user-phone (user's phone number)
+
+Query Parameters:
+- page (optional): Page number for pagination (default: 1)
+- limit (optional): Number of posts per page (default: 20, max: 50)
+
+Request Example:
+GET /api/user/saved-posts?page=1&limit=20
+Headers:
+  x-user-phone: +919876543210
+
+Response (Success - 200):
+{
+  "success": true,
+  "posts": [
+    {
+      "_id": "6789abcdef123456789abcde",
+      "content": "Just harvested my first organic tomatoes!",
+      "postType": "success_story",
+      "author": {
+        "_id": "1234567890abcdef12345678",
+        "name": "Rahul Sharma",
+        "role": "farmer",
+        "avatar": "https://example.com/avatar.jpg"
+      },
+      "images": ["https://example.com/image1.jpg"],
+      "cropTags": ["Tomato", "Organic"],
+      "likesCount": 45,
+      "commentsCount": 12,
+      "sharesCount": 5,
+      "createdAt": "2024-01-15T10:30:00.000Z",
+      "visibility": "public",
+      "location": "Maharashtra",
+      "isSaved": true
+    }
+  ],
+  "pagination": {
+    "page": 1,
+    "limit": 20,
+    "total": 45,
+    "totalPages": 3
+  }
+}
+
+Response (Error - 401):
+{
+  "success": false,
+  "error": "Unauthorized - Phone number required"
+}
+
+Response (Error - 404):
+{
+  "success": false,
+  "error": "User not found"
+}
+
+Response (Error - 500):
+{
+  "success": false,
+  "error": "Failed to fetch saved posts"
+}
+
+================================================================================
+USER MODEL UPDATE
+================================================================================
+The User model has been updated to include:
+
+{
+  savedPosts: [{
+    type: Schema.Types.ObjectId,
+    ref: 'Post'
+  }]
+}
+
+This array stores references to posts that the user has saved/bookmarked.
+Posts are added to the end of the array when saved and removed when unsaved.
+
+================================================================================
+SECURITY NOTES
+================================================================================
+1. All endpoints require authentication via x-user-phone header
+2. Users can only save/unsave posts and view their own saved posts
+3. The save endpoint validates that the post exists before saving
+4. Saved posts are stored per-user and cannot be accessed by other users
+
+================================================================================
+FRONTEND USAGE
+================================================================================
+Use the useSavedPosts hook from '@/hooks/useSavedPosts' to manage saved posts:
+
+import { useSavedPosts } from '@/hooks/useSavedPosts';
+
+const {
+  savedPosts,        // Array of saved posts
+  savedPostIds,      // Set of saved post IDs for quick lookup
+  isLoading,         // Initial loading state
+  isLoadingMore,     // Loading more state
+  toggleSave,        // Toggle save status for a post
+  isPostSaved,       // Check if a post is saved
+  loadMore,          // Load more saved posts
+  refresh,           // Refresh the saved posts list
+} = useSavedPosts();
+
+// Toggle save
+const result = await toggleSave(postId);
+if (result?.isSaved) {
+  // Show "Post saved" toast
+} else {
+  // Show "Post removed from saved" toast
+}
+
+// Check if saved
+const isSaved = isPostSaved(postId);
+
+================================================================================
